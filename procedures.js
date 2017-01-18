@@ -142,22 +142,22 @@ function mlistRef(args) {
 }
 
 function sum(numbers) {
-	return listToArray(numbers).reduce(function(x, y){ return LispObject.makeReal(x.data + y.data); });
+	return listToArray(numbers).reduce(function(x, y){ return ScmObject.makeReal(x.data + y.data); });
 }
 function mul(numbers) {
-	return listToArray(numbers).reduce(function(x, y){ return LispObject.makeReal(x.data * y.data); });
+	return listToArray(numbers).reduce(function(x, y){ return ScmObject.makeReal(x.data * y.data); });
 }
 function sub(numbers) {
 	numbers = listToArray(numbers);
 	if(numbers.length == 1)
-		numbers.unshift(LispObject.makeInt(0));
-	return numbers.reduce(function(x, y){ return LispObject.makeReal(x.data - y.data); });
+		numbers.unshift(ScmObject.makeInt(0));
+	return numbers.reduce(function(x, y){ return ScmObject.makeReal(x.data - y.data); });
 }
 function div(numbers) {
 	numbers = listToArray(numbers);
 	if(numbers.length == 1)
-		numbers.unshift(LispObject.makeInt(1));
-	return numbers.reduce(function(x, y){ return LispObject.makeReal(x.data / y.data); });
+		numbers.unshift(ScmObject.makeInt(1));
+	return numbers.reduce(function(x, y){ return ScmObject.makeReal(x.data / y.data); });
 }
 
 function equalNumber(numbers) {
