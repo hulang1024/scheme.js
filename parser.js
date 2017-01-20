@@ -1,7 +1,7 @@
 (function(scm){
 var ScmObject = scm.ScmObject;
 // 符号(作为标识符)
-var symbolReg = /^(?![0-9])[a-zA-Z_$0-9>!\-\?\*%]*$/;
+var symbolReg = /^(?![0-9])[a-zA-Z\u4e00-\u9fa5_$0-9>!\-\?\*%]*$/;
 
 // 数值
 var decimalReg = /^[+-]?\d+$/;

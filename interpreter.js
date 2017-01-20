@@ -21,7 +21,7 @@ function listLength(list) {
 		return 1 + listLength(cdr(list));
 }
 
-var globalEnvironment = null;
+scm.globalEnvironment = null;
 var error = null;
 function EnvironmentFrame(map, baseEnv) {
 	this.map = map;
@@ -29,6 +29,8 @@ function EnvironmentFrame(map, baseEnv) {
 }
 
 setupEnvironment();
+scm.evaluate = evaluate;
+scm.apply = apply;
 
 hasFormError = function() {
 	return error != null;
@@ -44,7 +46,7 @@ scm.eval = function(forms) {
 		return exps;
 	var values = [];
 	for(var i = 0; i < exps.length; i++) {
-		var obj = evaluate(exps[i], globalEnvironment);
+		var obj = evaluate(exps[i], scm.globalEnvironment);
 		//console.log(obj);
 		if(error) {
 			printError();
@@ -233,14 +235,13 @@ function evaluate(exp, env) {
 			}
 		}
 		// 其它过程应用
-		return apply(evaluate(operator(exp), env), listOfValues(operands(exp), env), env);
+		return apply(evaluate(operator(exp), env), listOfValues(operands(exp), env));
 	}
 	else
 		makeError('exp', "eval:不支持的表达式类型");
 }
 
-function apply(operator, arguments, env) {
-	var procedure = operator;
+function apply(procedure, arguments) {
 	if(procedure == undefined)
 		return;
 	if(procedure.isPrimProc()) {
@@ -339,7 +340,7 @@ function setupEnvironment() {
 	scm.primitiveProcedures.map(function(proc){
 		defineVariable(ScmObject.makeSymbol(proc[0]), ScmObject.makePrimProc(proc), initalEnv);
 	});
-	globalEnvironment = initalEnv;
+	scm.globalEnvironment = initalEnv;
 }
 
 function lookupVariableValue(variable, env) {

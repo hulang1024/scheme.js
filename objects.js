@@ -2,7 +2,7 @@
 (function(scm){
 scm.ScmObject = function(type, data) {
 	/*
-	integer=1,real=2,char=3,string=4,boolean=5,symbol=6,pair=7,primitive_procedure=8,compound_procedure=9,EmptyList=0
+	integer=1,real=2,char=3,string=4,boolean=5,symbol=6,pair=7,primitive_procedure=8,compound_procedure=9,EmptyList=0,10=namespace
 	*/
 	this.type = type;
 	this.data = data;
@@ -18,6 +18,7 @@ scm.ScmObject = function(type, data) {
 	this.isCompProc = function() { return this.type == 9; }
 	this.isProcedure = function() { return this.type == 8 || this.type == 9; }
 	this.isEmptyList = function() { return this.type == 0; }
+	this.isNamespace = function() { return this.type == 10; }
 }
 var ScmObject = scm.ScmObject;
 
@@ -48,7 +49,9 @@ ScmObject.makePrimProc = function(obj) {
 ScmObject.makeCompProc = function(parameters, body, env, name) {
 	return new ScmObject(9, [parameters, body, env, name]);
 }
-
+ScmObject.makeNamespace = function(env) {
+	return new ScmObject(10, env);
+}
 /*
   procedure getters
 */
@@ -154,6 +157,8 @@ scm.printObj = function(obj) {
 				 value += scm.compProcName(obj);
 			value += '>';
 		}
+		else if(obj.isNamespace())
+			value = '#<namespace:0>';
 		else if(obj == scm.voidSymbol) 
 			value = null;
 		else

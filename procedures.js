@@ -50,6 +50,9 @@ scm.primitiveProcedures =
 	
 	['string->number', [stringToNumber, [1], ['string?']] ],
 	
+	['eval', [meval, [2], [null, 'namespace?']] ],
+	['apply', [mapply, [2], ['procedure?', 'pair?']] ],
+	['interaction-environment', [interactionEnvironment, [], []] ],
 	
 	['display', [display, [1], []] ],
 	['newline', [newline, [0], []] ],
@@ -66,10 +69,13 @@ scm.primitiveProcedureFunc = function(proc) { return proc.data[1][0]; }
 scm.primitiveProcedureArity = function(proc) { return proc.data[1][1]; }
 scm.primitiveProcedureContract = function(proc) { return proc.data[1][2]; }
 scm.contractFuncMap = {
-	'string?': isString,
-	'number?': isNumber,
-	'real?': isReal,
-	'pair?': isPair
+	"string?": isString,
+	"number?": isNumber,
+	"real?": isReal,
+	"pair?": isPair,
+	"list?": isList,
+	"procedure?": isProcedure,
+	"namespace?": isNamespace
 };
 
 function pushCadrProcedures() {
@@ -250,7 +256,7 @@ function isList(args) {
 function isPair(args) { return new ScmObject.getBoolean(car(args).isPair()); }
 function isNull(args) { return new ScmObject.getBoolean(car(args).isEmptyList());  }
 function isProcedure(args) { return new ScmObject.getBoolean(car(args).isProcedure()); }
-
+function isNamespace(args) { return new ScmObject.getBoolean(car(args).isNamespace());  }
 function display(args) {
 	var val = scm.printObj(car(args));
 	if(val != null)
@@ -261,6 +267,20 @@ function newline(args) {
 	scm.console.value += "\n";
 }
 
+function meval(args) {
+	var exp = car(args);
+	var env = cadr(args).data;
+	return scm.evaluate(exp, env);
+}
+function mapply(args) {
+	var procedure = car(args);
+	var arguments = cadr(args);
+	return scm.apply(procedure, arguments);
+}
+
+function interactionEnvironment() {
+	return ScmObject.makeNamespace(scm.globalEnvironment);
+}
 
 function stringToNumber(args) {
 	return ScmObject.makeReal(parseFloat(car(args).data));
