@@ -1,7 +1,7 @@
-(function(scm){
+﻿(function(scm){
 var ScmObject = scm.ScmObject;
 // 符号(作为标识符)
-var symbolReg = /^(?![0-9])[a-zA-Z\u4e00-\u9fa5_$0-9>!\-\?\*%]*$/;
+var symbolReg = /^(?![0-9])[a-zA-Z_$0-9>!\-\?\*%\.\u4e00-\u9fa5]+$/;
 
 // 数值
 var decimalReg = /^[+-]?\d+$/;
@@ -19,7 +19,27 @@ var booleanReg = /^#[tf]|(true|false)$^/;
 var emptyListReg = /^\(\)$/;
 
 scm.parse = function(str) {
-	var tokens = parseTokens(str);
+	//delete comment line
+	str += '\n';
+	var pstr = "";
+	var state = 0;
+	for(var i=0;i<str.length;i++) {
+		if(str[i]=="\"") {
+			switch(state) {
+			case 0: state = 1; break;
+			case 1: state = 0; break;
+			}
+		}
+		else if(str[i] == ";") {
+			if(state == 0) {
+				i++;
+				while(i < str.length && str[i] != '\n') i++;
+			}
+		}
+		pstr += str[i];
+	}
+	
+	var tokens = parseTokens(pstr);
 	var exps = parseSExps(tokens);
 	return exps;
 }
@@ -65,11 +85,11 @@ function parseSExps(tokens) {
 		//console.log(arrayExp);
 		array = eval(arrayExp);
 	} catch(e) {
-		return "parseSExps:解析错误";
+		return "parseSExps:unexpected";
 	}
 	var exps = parse(array);
 	if(error == 1)
-		return "parse:解析错误";
+		return "parse:unexpected";
 	else
 		return exps;
 	
@@ -91,7 +111,7 @@ function parseSExps(tokens) {
 			else {
 				var token = array[index];
 				if(symbolReg.test(token) || isPrimitiveOperator(token)) {
-					exps.push(scm.getSymbol(token));
+					exps.push(scm.getSymbol(token.toLowerCase()));//lowercase id
 				}
 				else if(token[0] == '\'') {//quote
 					var quoteSym = scm.getSymbol('quote');

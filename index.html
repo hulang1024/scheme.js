@@ -43,7 +43,8 @@ textarea {
   	<textarea id="exp" rows="26"></textarea>
   </div>
   <div>
-  	<textarea id="console" rows="20">欢迎使用JS-Scheme. by problue</textarea>
+  	<textarea id="console" rows="20">Welcome JSScheme.
+	</textarea>
   </div>
 </div>
 
@@ -55,6 +56,7 @@ textarea {
 window.onload = function(){
 	scheme.console = document.getElementById('console');
 	document.getElementById('run').onclick = function(){
+		scheme.console.value = "Welcome JSScheme.\n";
 		var exp = document.getElementById('exp').value;
 		exp = exp.trim();
 		if(exp) {

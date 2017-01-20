@@ -38,12 +38,11 @@ hasFormError = function() {
 
 scm.eval = function(forms) {
 	error = null;
-	scm.console.value = '';
 	var exps = this.parse(forms);
 	//console.log('parse result:');
 	//console.log(exps);
 	if(exps.constructor == String)
-		return exps;
+		scm.console.value += exps;
 	var values = [];
 	for(var i = 0; i < exps.length; i++) {
 		var obj = evaluate(exps[i], scm.globalEnvironment);
@@ -51,10 +50,6 @@ scm.eval = function(forms) {
 		if(error) {
 			printError();
 			break;
-		}
-		if(obj && obj.constructor == Array) {
-			for(var j = 0; j < obj.length; j++)
-				printValue(obj[j]);
 		}
 		else
 			printValue(obj);
@@ -64,7 +59,7 @@ scm.eval = function(forms) {
 function printValue(obj) {
 	var val = printObj(obj);
 	if(val != undefined && val != null)
-		scm.console.value = (scm.console.value + val + "\n");
+		scm.console.value += val + "\n";
 }
 
 function printObjs(objs) {
@@ -79,6 +74,7 @@ function printObjs(objs) {
 
 
 /*  语法过程  */
+
 function isSelfEvaluating(exp) {
 	if(exp.isNumber()) return true;
 	else if(exp.isChar()) return true;
@@ -317,8 +313,14 @@ function condToIf(exp) {
 				return sequenceExp(clauseActions(first));
 			else
 				makeError('badSyntax', "'else' clause must be last");
-		else
-			return makeIf(clauesPredicate(first), sequenceExp(clauseActions(first)), expandClauses(rest));
+		else {
+			var predicate = clauesPredicate(first);
+			var actionSequence= sequenceExp(clauseActions(first));
+			if(actionSequence.isEmptyList())
+				return makeIf(True, predicate, expandClauses(rest));
+			else
+				return makeIf(predicate, actionSequence, expandClauses(rest));
+		}
 	}
 	function sequenceExp(seq) {
 		if(seq.isEmptyList()) return seq;
@@ -480,7 +482,7 @@ function printError() {
 	default:
 		info = error[1];
 	}
-	scm.console.value = (scm.console.value + info + "\n");
+	scm.console.value += info + "\n";
 }
 
 })(scheme);

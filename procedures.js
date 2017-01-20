@@ -44,6 +44,7 @@ scm.primitiveProcedures =
 	['symbol?', [isSymbol, [1], []] ],
 	['procedure?', [isProcedure, [1], []] ],
 	['eq?', [equalObjectRef, [2], []] ],
+	['equal?', [equalObjectRef, [2], []] ],
 	
 	['and', [and, [0, null], []] ],
 	['or', [or, [0, null], []] ],
