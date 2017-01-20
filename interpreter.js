@@ -242,6 +242,8 @@ function evaluate(exp, env) {
 }
 
 function apply(procedure, arguments) {
+	if(error)
+		return error;
 	if(procedure == undefined)
 		return;
 	if(procedure.isPrimProc()) {
