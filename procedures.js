@@ -1,6 +1,6 @@
 (function(scm) {
 /*
-实际参数列表表示为被实现语言Lisp中的表，例如第一个参数是car(args)
+实际参数列表表示为被实现语言Scheme中的表，例如第一个参数是car(args)
 */
 scm.primitiveProcedures =
 [

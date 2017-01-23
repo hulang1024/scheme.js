@@ -49,7 +49,6 @@ scm.eval = function(forms) {
 		//console.log(obj);
 		if(error) {
 			printError();
-			break;
 		}
 		else
 			printValue(obj);
@@ -187,7 +186,11 @@ function definitionVal(exp) {
     }
 }
 
-
+/*
+ eval-apply为实现语言中 数据和过程的 递归(嵌套)组合手段与抽象手段
+@param exp 表达式
+@param env 环境，提供约束于表达式的变量与值的集合
+*/
 function evaluate(exp, env) {
 	if(error)
 		return error;
@@ -231,12 +234,16 @@ function evaluate(exp, env) {
 			}
 		}
 		// 其它过程应用
+    /*过程应用表达式的运算符部分可以是过程名，也可以是一个lambda或表达式，因此要求值*/
 		return apply(evaluate(operator(exp), env), listOfValues(operands(exp), env));
 	}
 	else
 		makeError('exp', "eval:不支持的表达式类型");
 }
 
+/*
+将过程应用于实参
+*/
 function apply(procedure, arguments) {
 	if(error)
 		return error;
@@ -245,6 +252,7 @@ function apply(procedure, arguments) {
 	if(procedure.isPrimProc()) {
 		return applyPrimitiveProcedure(procedure, arguments);
 	}
+  //复合过程
 	else if(procedure.isCompProc()) {
 		var result = checkCompoundProcedureArguments(procedure, arguments);
 		if(result === true) {

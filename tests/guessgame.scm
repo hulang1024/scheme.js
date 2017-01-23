@@ -1,3 +1,5 @@
+;;; 猜数字
+;;; author: problue
 (define (promptnum msg)
   (string->number (prompt msg)))
 

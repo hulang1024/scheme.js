@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta charset="utf-8">
-<title>jsscheme</title>
+<title>JSScheme</title>
 <style>
 body {
     background: #f6f6f6;
@@ -43,7 +43,7 @@ textarea {
   	<textarea id="exp" rows="26"></textarea>
   </div>
   <div>
-  	<textarea id="console" rows="20">Welcome JSScheme.
+  	<textarea id="console" rows="20">Welcome to JSScheme.
 	</textarea>
   </div>
 </div>
@@ -56,7 +56,7 @@ textarea {
 window.onload = function(){
 	scheme.console = document.getElementById('console');
 	document.getElementById('run').onclick = function(){
-		scheme.console.value = "Welcome JSScheme.\n";
+		scheme.console.value = "Welcome to JSScheme.\n";
 		var exp = document.getElementById('exp').value;
 		exp = exp.trim();
 		if(exp) {

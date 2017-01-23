@@ -1,4 +1,4 @@
-;http://www.paulgraham.com/rootsoflisp.html
+;author: http://www.paulgraham.com/rootsoflisp.html
 (define (atom x)
   (not (pair? x)))
 (define null. null?)
