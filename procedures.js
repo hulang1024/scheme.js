@@ -1,85 +1,8 @@
-(function(scm) {
-/*
-实际参数列表表示为被实现语言Scheme中的表，例如第一个参数是car(args)
-*/
-scm.primitiveProcedures =
-[
-	/* name,
-	function,
-	函数的预期参数的个数和参数类型合同检查函数名称
-		[数量(至少),rest(上限]  如果长度为1,则表示精确数值，否则为范围。如果0表示没有参数,null表示可变长度参数
-		数据类型, 如果长度为1，则表示所有参数必须都是指定类型, null表示任何对象
-	
-	*/
-	['+', [sum, [0, null], ['number?']] ],
-	['-', [sub, [1, null], ['number?']] ],
-	['*', [mul, [0, null], ['number?']] ],
-	['/', [div, [1, null], ['number?']] ],
-	
-	['=', [equalNumber, [2, null], ['number?']] ],
-	['<', [lessThan, [2, null], ['real?']] ],
-	['>', [greaThan, [2, null], ['real?']] ],
-	['<=', [lteq, [2, null], ['real?']] ],
-	['>=', [gteq, [2, null], ['real?']] ],
-	['abs', [abs, [1], ['real?']] ],
-	
-	['not', [not, [1], []] ],
-	
-	['car', [mcar, [1], ['pair?']] ],
-	['cdr', [mcdr, [1], ['pair?']] ],
-	['cons', [mcons, [2], []] ],
-	['set-car!', [setCar, [2], ['pair?', null]] ],
-	['set-cdr!', [setCdr, [2], ['pair?', null]] ],
-	['list', [mlist, [0, null], []] ],
-	['list-ref', [mlistRef, [2], ['pair?', null]] ],
-	
-	['pair?', [isPair, [1], []] ],
-	['list?', [isList, [1], []] ],
-	['null?', [isNull, [1], []] ],
-	['integer?', [isInteger, [1], []] ],
-	['real?', [isReal, [1], []] ],
-	['number?', [isNumber, [1], []] ],
-	['string?', [isString, [1], []] ],
-	['boolean?', [isBoolean, [1], []] ],
-	['symbol?', [isSymbol, [1], []] ],
-	['procedure?', [isProcedure, [1], []] ],
-	['eq?', [equalObjectRef, [2], []] ],
-	['equal?', [equalObjectRef, [2], []] ],
-	
-	['and', [and, [0, null], []] ],
-	['or', [or, [0, null], []] ],
-	
-	['string->number', [stringToNumber, [1], ['string?']] ],
-	
-	['eval', [meval, [2], [null, 'namespace?']] ],
-	['apply', [mapply, [2], ['procedure?', 'pair?']] ],
-	['interaction-environment', [interactionEnvironment, [], []] ],
-	
-	['display', [display, [1], []] ],
-	['newline', [newline, [0], []] ],
-	['random-int', [randomInt, [2], []] ],
-	['alert', [clientjsAlert, [0, null], []] ],
-	['prompt', [clientjsPrompt, [0, null], []] ],
-	['confirm', [clientjsConfirm, [0, null], []] ],
+﻿(function(s) {
+"use strict";
+var ScmObject = s.ScmObject;
 
-	//其它基本过程...
-];
-scm.primitiveProcedureName = function(proc) { return proc.data[0]; }
-scm.primitiveProcedureValue = function(proc) { return proc.data[1]; }
-scm.primitiveProcedureFunc = function(proc) { return proc.data[1][0]; }
-scm.primitiveProcedureArity = function(proc) { return proc.data[1][1]; }
-scm.primitiveProcedureContract = function(proc) { return proc.data[1][2]; }
-scm.contractFuncMap = {
-	"string?": isString,
-	"number?": isNumber,
-	"real?": isReal,
-	"pair?": isPair,
-	"list?": isList,
-	"procedure?": isProcedure,
-	"namespace?": isNamespace
-};
-
-function pushCadrProcedures() {
+function genCadrProcedures() {
 	var cadrFuncNames = [
 		"caar", "cadr", "cdar", "cddr",
 		"caaar", "caadr", "cadar", "caddr", "cdaar", "cdadr", "cddar", "cdddr",
@@ -88,232 +11,394 @@ function pushCadrProcedures() {
 
 	cadrFuncNames.forEach(function(funcName){
 		var argName = "args";
-		var callExp = argName;
+		var exp = argName;
 		var cs = funcName.split('').slice(1, funcName.length - 1);
 		for(var i = cs.length - 1; i >= 0; i--)
-			callExp = (cs[i] == 'a' ? "scheme.car" : "scheme.cdr") + "(" +  callExp + ")";
-		var func = new Function(argName, "return " + callExp);
+			exp = (cs[i] == 'a' ? "scheme.car" : "scheme.cdr") + "(" +  exp + ")";
+		var func = new Function(argName, "return " + exp);
 		var mfunName = 'm' + funcName;
 		var mfunc = new Function(argName, "return " + ("scheme." + funcName + "(scheme.car(args))"));
-		scm[funcName] = func;
-		scm[mfunName] = mfunc;
-		scm.primitiveProcedures.push( [funcName, [mfunc, [1], ['pair?']] ] );
+		s[funcName] = func;
+		s[mfunName] = mfunc;
 	});
 }
-pushCadrProcedures();
+genCadrProcedures();
 
-scm.isTrue = function(obj) {
-	return obj != scm.False;
+
+s.isTrue = function(obj) {
+	return obj != s.False;
 }
-scm.isFalse = function(obj) {
-	return obj == scm.False;
+s.isFalse = function(obj) {
+	return obj == s.False;
 }
 
-// import scm
-for(var variable in scm)
-	eval("var " + variable + "=scm." + variable);
-
-
+/*
+实际参数列表表示为被实现语言Scheme中的表，例如第一个参数是car(args)
+*/
 function mcons(args){
-	return cons(car(args), cadr(args));
+	return s.cons(s.car(args), s.cadr(args));
 }
 function mcar(args) {
-	return car(car(args));
+	var obj = s.car(args);
+	if(obj.isPair())
+		return s.car(obj);
+	else
+		return s.makeContractViolationError("mcar", args, "mpair?", obj);
 }
 function mcdr(args) {
-	return cdr(car(args));
+	var obj = s.car(args);
+	if(obj.isPair())
+		return s.cdr(obj);
+	else
+		return s.makeContractViolationError("mcdr", args, "mpair?", obj);
 }
 
 function setCar(args) {
-	var pair = car(args);
-	var pcar = cadr(args);
+	var pair = s.car(args);
+	if(!pair.isPair())
+		return s.makeContractViolationError("set-car!", args, "mpair?", pair);
+	var pcar = s.cadr(args);
 	pair.data[0] = pcar;
-	return voidValue;
+	return s.voidValue;
 }
 function setCdr(args) {
-	var pair = car(args);
-	var pcdr = cadr(args);
+	var pair = s.car(args);
+	if(!pair.isPair())
+		return s.makeContractViolationError("set-car!", args, "mpair?", pair);
+	var pcdr = s.cadr(args);
 	pair.data[1] = pcdr;
-	return voidValue;
+	return s.voidValue;
 }
 
 function mlist(args) {
 	return args;
 }
 function mlistRef(args) {
-	var pair = car(args);
-	var index = cadr(args).data;
+	var pair = s.car(args);
+	if(!pair.isPair())
+		return s.makeContractViolationError("list-ref", args, "mpair?", pair);
+	var index = s.cadr(args).data;
 	for(var i = 0; i < index; i++)
-		pair = cdr(pair);
-	return car(pair);
+		pair = s.cdr(pair);
+	return s.car(pair);
 }
 
-function sum(numbers) {
-	return listToArray(numbers).reduce(function(x, y){
-		return ScmObject.makeReal(x.data + y.data);
-	});
-}
-function mul(numbers) {
-	return listToArray(numbers).reduce(function(x, y){
-		return ScmObject.makeReal(x.data * y.data);
-	});
-}
-function sub(numbers) {
-	numbers = listToArray(numbers);
-	if(numbers.length == 1)
-		numbers.unshift(ScmObject.makeInt(0));
-	return numbers.reduce(function(x, y){
-		return ScmObject.makeReal(x.data - y.data);
-	});
-}
-function div(numbers) {
-	numbers = listToArray(numbers);
-	if(numbers.length == 1)
-		numbers.unshift(ScmObject.makeInt(1));
-	return numbers.reduce(function(x, y){
-		return ScmObject.makeReal(x.data / y.data);
-	});
+function sum(args) {
+	var array = s.listToArray(args);
+	var sum = 0;
+	var obj;
+	for(var i = 0; i < array.length; i++) {
+		obj = array[i];
+		if(obj.isNumber())
+			sum += obj.data;
+		else
+			return s.makeContractViolationError("+", args, "number?", obj, i);
+	}
+	return ScmObject.makeReal(sum);
 }
 
-function equalNumber(numbers) {
-	numbers = listToArray(numbers);
-	var first = numbers[0];
-	for(var i = 1; i < numbers.length; i++)
-		if(first.data != numbers[i].data)
-			return False;
-	return True;
+function mul(args) {
+	var array = s.listToArray(args);
+	var result = 1;
+	var obj;
+	for(var i = 0; i < array.length; i++) {
+		obj = array[i];
+		if(obj.isNumber())
+			result *= obj.data;
+		else
+			return s.makeContractViolationError("*", args, "number?", obj, i);
+	}
+	return ScmObject.makeReal(result);
+}
+
+function sub(args) {
+	var array = s.listToArray(args);
+	var result = array.length == 1 ? 0 : array[0].data;
+	var obj;
+	for(var i = 1; i < array.length; i++) {
+		obj = array[i];
+		if(obj.isNumber())
+			result -= obj.data;
+		else
+			return s.makeContractViolationError("-", args, "number?", obj, i);
+	}
+	return ScmObject.makeReal(result);
+}
+
+function div(args) {
+	var array = s.listToArray(args);
+	var result = array.length == 1 ? 0 : array[0].data;
+	var obj;
+	for(var i = 1; i < array.length; i++) {
+		obj = array[i];
+		if(obj.isNumber()) {
+			if(obj.data != 0)
+				result /= obj.data;
+			else
+				return s.makeError("/", "division by zero");
+		}
+		else
+			return s.makeContractViolationError("/", args, "number?", obj, i);
+	}
+	return ScmObject.makeReal(result);
+}
+
+function equalNumber(args) {
+	var array = s.listToArray(args);
+	var first = array[0];
+	var obj;
+	if(!first.isNumber())
+		return s.makeContractViolationError("=", args, "number?", obj, 0);
+	for(var i = 0; i < array.length; i++) {
+		obj = array[i];
+		if(obj.isNumber()) {
+			if(first.data != obj.data)
+				return s.False;
+		}
+		else
+			return s.makeContractViolationError("=", args, "number?", obj, i);
+	}
+	return s.True;
 }
 
 function equalObjectRef(args) {
-	var x = car(args);
-	var y = cadr(args);
+	var x = s.car(args);
+	var y = s.cadr(args);
 	if(x.type != y.type)
-		return False;
+		return s.False;
 	if(x.isNumber() || x.isChar() || x.isString() || x.isBoolean)
 		return ScmObject.getBoolean(x.data == y.data);
 	else
 		return ScmObject.getBoolean(x == y);
 }
 
-function lessThan(reals) {
-	reals = listToArray(reals);
-	for(var i = 0; i < reals.length - 1; i++)
-		if(reals[i].data >= reals[i + 1].data)
-			return False;
-	return True;
+function lessThan(args) {
+	var array = s.listToArray(args);
+	var obj1, obj2;
+	for(var i = 0; i < array.length - 1; i++) {
+		obj1 = array[i];
+		obj2 = array[i + 1];
+		if(!obj1.isReal())
+			return s.makeContractViolationError("<", args, "real?", obj, i);
+		if(!obj2.isReal())
+			return s.makeContractViolationError("<", args, "real?", obj, i + 1);
+		if(obj1.data >= obj2.data)
+			return s.False;
+	}
+	return s.True;
 }
-function greaThan(reals) {
-	reals = listToArray(reals);
-	for(var i = 0; i < reals.length - 1; i++)
-		if(reals[i].data <= reals[i + 1].data)
-			return False;
-	return True;
-}
-function lteq(reals) {
-	reals = listToArray(reals);
-	for(var i = 0; i < reals.length - 1; i++)
-		if(reals[i].data > reals[i + 1].data)
-			return False;
-	return True;
-}
-function gteq(reals) {
-	reals = listToArray(reals);
-	for(var i = 0; i < reals.length - 1; i++)
-		if(reals[i].data < reals[i + 1].data)
-			return False;
-	return True;
-}
-function abs(args) {
-	return new ScmObject.makeReal(Math.abs(car(args)));
-}
-function not(args) {
-	return ScmObject.getBoolean(! car(args).data);
-}
-function and(objs) {
-	objs = listToArray(objs);
-	for(var i = 0; i < objs.length; i++)
-		if(scm.isFalse(objs[i]))
-			return objs[i];
-	return True;
-}
-function or(objs) {
-	objs = listToArray(objs);
-	for(var i = 0; i < objs.length; i++)
-		if(scm.isTrue(objs[i]))
-			return objs[i];
-	return False;
+function greaThan(args) {
+	var array = s.listToArray(args);
+	var obj1, obj2;
+	for(var i = 0; i < array.length - 1; i++) {
+		obj1 = array[i];
+		obj2 = array[i + 1];
+		if(!obj1.isReal())
+			return s.makeContractViolationError(">", args, "real?", obj, i);
+		if(!obj2.isReal())
+			return s.makeContractViolationError(">", args, "real?", obj, i + 1);
+		if(obj1.data <= obj2.data)
+			return s.False;
+	}
+	return s.True;
 }
 
-function isInteger(args) { return ScmObject.getBoolean(car(args).isInteger()); }
-function isReal(args) { return ScmObject.getBoolean(car(args).isReal()); }
-function isNumber(args) { return ScmObject.getBoolean(car(args).isNumber()); }
-function isChar(args) { return ScmObject.getBoolean(car(args).isChar()); }
-function isString(args) { return ScmObject.getBoolean(car(args).isString()); }
-function isBoolean(args) { return ScmObject.getBoolean(car(args).isBoolean()); }
-function isSymbol(args) { return ScmObject.getBoolean(car(args).isSymbol()); }
+function lteq(args) {
+	var array = s.listToArray(args);
+	var obj1, obj2;
+	for(var i = 0; i < array.length - 1; i++) {
+		obj1 = array[i];
+		obj2 = array[i + 1];
+		if(!obj1.isReal())
+			return s.makeContractViolationError("<=", args, "real?", obj, i);
+		if(!obj2.isReal())
+			return s.makeContractViolationError("<=", args, "real?", obj, i + 1);
+		if(obj1.data > obj2.data)
+			return s.False;
+	}
+	return s.True;
+}
+
+function gteq(args) {
+	var array = s.listToArray(args);
+	var obj1, obj2;
+	for(var i = 0; i < array.length - 1; i++) {
+		obj1 = array[i];
+		obj2 = array[i + 1];
+		if(!obj1.isReal())
+			return s.makeContractViolationError(">=", args, "real?", obj, i);
+		if(!obj2.isReal())
+			return s.makeContractViolationError(">=", args, "real?", obj, i + 1);
+		if(obj1.data < obj2.data)
+			return s.False;
+	}
+	return s.True;
+}
+
+function not(args) {
+	return ScmObject.getBoolean(! s.car(args).data);
+}
+
+function and(objs) {
+	objs = s.listToArray(objs);
+	for(var i = 0; i < objs.length; i++)
+		if(s.isFalse(objs[i]))
+			return objs[i];
+	return s.True;
+}
+
+function or(objs) {
+	objs = s.listToArray(objs);
+	for(var i = 0; i < objs.length; i++)
+		if(s.isTrue(objs[i]))
+			return objs[i];
+	return s.False;
+}
+
+function isInteger(args) { return ScmObject.getBoolean(s.car(args).isInteger()); }
+function isReal(args) { return ScmObject.getBoolean(s.car(args).isReal()); }
+function isNumber(args) { return ScmObject.getBoolean(s.car(args).isNumber()); }
+function isChar(args) { return ScmObject.getBoolean(s.car(args).isChar()); }
+function isString(args) { return ScmObject.getBoolean(s.car(args).isString()); }
+function isBoolean(args) { return ScmObject.getBoolean(s.car(args).isBoolean()); }
+function isSymbol(args) { return ScmObject.getBoolean(s.car(args).isSymbol()); }
 function isList(args) {
 	// 空表或者含有空表的序对
-	var obj = car(args);
+	var obj = s.car(args);
 	var b = false;
-	for(; !b && obj.isPair(); obj = cdr(obj))
-		if(car(obj).isEmptyList())
+	for(; !b && obj.isPair(); obj = s.cdr(obj))
+		if(s.car(obj).isEmptyList())
 			b = true;
 	if(!b && obj.isEmptyList())
 		b = true;
 	return ScmObject.getBoolean(b);
 }
-function isPair(args) { return ScmObject.getBoolean(car(args).isPair()); }
-function isNull(args) { return ScmObject.getBoolean(car(args).isEmptyList());  }
-function isProcedure(args) { return ScmObject.getBoolean(car(args).isProcedure()); }
-function isNamespace(args) { return ScmObject.getBoolean(car(args).isNamespace());  }
+function isPair(args) { return ScmObject.getBoolean(s.car(args).isPair()); }
+function isNull(args) { return ScmObject.getBoolean(s.car(args).isEmptyList());  }
+function isProcedure(args) { return ScmObject.getBoolean(s.car(args).isProcedure()); }
+function isNamespace(args) { return ScmObject.getBoolean(s.car(args).isNamespace());  }
 function display(args) {
-	var val = scm.printObj(car(args));
+	var val = s.printObj(s.car(args));
 	if(val != null)
-		scm.console.value += val;
-	return voidValue;
+		s.console.value += val;
+	return s.voidValue;
 }
 function newline(args) {
-	scm.console.value += "\n";
+	s.console.value += "\n";
 }
 
 function meval(args) {
-	var exp = car(args);
-	var env = cadr(args).data;
-	return scm.evaluate(exp, env);
+	var exp = s.car(args);
+	var env = s.cadr(args);
+	if(!env.isNamespace())
+		return s.makeContractViolationError("meval", args, "namespace?", env);
+	return s.evaluate(exp, env.data);
 }
 function mapply(args) {
-	var procedure = car(args);
-	var arguments = cadr(args);
-	return scm.apply(procedure, arguments);
+	var procedure = s.car(args);
+	if(!procedure.isProcedure())
+		return s.makeContractViolationError("mapply", args, "procedure?", procedure);
+	var argvs = s.cadr(args);
+	if(!argvs.isPair())
+		return s.makeContractViolationError("mapply", args, "pair?", argvs);
+	return s.apply(procedure, argvs);
 }
 
 function interactionEnvironment() {
-	return ScmObject.makeNamespace(scm.globalEnvironment);
+	return ScmObject.makeNamespace(s.globalEnvironment);
 }
 
 function stringToNumber(args) {
-	return ScmObject.makeReal(parseFloat(car(args).data));
+	var obj = s.car(args);
+	if(!obj.isString())
+		return s.makeContractViolationError("string->number", args, "string?", obj);
+	return ScmObject.makeReal(parseFloat(obj.data));
 }
 
 
 function clientjsAlert(args) {
-	var msg = args.isEmptyList() ? "" : car(args).data;
+	var msg = args.isEmptyList() ? "" : s.car(args).data;
 	return alert(msg);
 }
 function clientjsPrompt(args) {
-	args = listToArray(args);
+	args = s.listToArray(args);
 	var msg = args[0] ? args[0].data : "";
 	var val = args[1] ? args[1].data : "";
-	return new scm.ScmObject.makeString(prompt(msg, val));
+	return new s.ScmObject.makeString(prompt(msg, val));
 }
 function clientjsConfirm(args) {
-	var msg = args.isEmptyList() ? "" : car(args).data;
-	return new scm.ScmObject.getBoolean(confirm(msg));
+	var msg = args.isEmptyList() ? "" : s.car(args).data;
+	return new s.ScmObject.getBoolean(confirm(msg));
 }
 function randomInt(args) {
-	var n = car(args).data;
-	var m = cadr(args).data;
-	return scm.ScmObject.makeInt(Math.floor(Math.random() * (m - n)) + n);
+	var n = s.car(args).data;
+	var m = s.cadr(args).data;
+	return s.ScmObject.makeInt(Math.floor(Math.random() * (m - n)) + n);
+}
+
+
+s.initPrimitiveProcedures = function(env) {
+	addGlobalPrimProc("+", sum, 0, null);
+	addGlobalPrimProc("-", sub, 1, null);
+	addGlobalPrimProc("*", mul, 0, null);
+	addGlobalPrimProc("/", div, 1, null);
+	
+	addGlobalPrimProc("=", equalNumber, 2, null);
+	addGlobalPrimProc("<", lessThan, 2, null);
+	addGlobalPrimProc(">", greaThan, 2, null);
+	addGlobalPrimProc("<=", lteq, 2, null);
+	addGlobalPrimProc(">=", gteq, 2, null);
+	
+	addGlobalPrimProc("not", not, 1);
+	addGlobalPrimProc("car", mcar, 1);
+	addGlobalPrimProc("cdr", mcdr, 1);
+	addGlobalPrimProc("cons", mcons, 2);
+	addGlobalPrimProc("set-s.car!", setCar, 2);
+	addGlobalPrimProc("set-s.cdr!", setCdr, 2);
+	addGlobalPrimProc("list", mlist, 0, null);
+	addGlobalPrimProc("list-ref", mlistRef, 2);
+
+	addGlobalPrimProc("pair?", isPair, 1);
+	addGlobalPrimProc("list?", isList, 1);
+	addGlobalPrimProc("null?", isNull, 1);
+	addGlobalPrimProc("integer?", isInteger, 1);
+	addGlobalPrimProc("real?", isReal, 1);
+	addGlobalPrimProc("number?", isNumber, 1);
+	addGlobalPrimProc("string?", isString, 1);
+	addGlobalPrimProc("boolean?", isBoolean, 1);
+	addGlobalPrimProc("symbol?", isSymbol, 1);
+	addGlobalPrimProc("procedure?", isProcedure, 1);
+	addGlobalPrimProc("eq?", equalObjectRef, 2);
+	addGlobalPrimProc("equal?", equalObjectRef, 2);
+	
+	addGlobalPrimProc("and", and, 0, null);
+	addGlobalPrimProc("or", or, 0, null);
+	
+	addGlobalPrimProc("string->number", stringToNumber, 1);
+	
+	addGlobalPrimProc("eval", meval, 2);
+	addGlobalPrimProc("apply", mapply, 2);
+	addGlobalPrimProc("interaction-environment", interactionEnvironment);
+	
+	addGlobalPrimProc("display", display, 1);
+	addGlobalPrimProc("newline", newline, 0);
+	addGlobalPrimProc("random-int", randomInt, 2);
+	addGlobalPrimProc("alert", clientjsAlert, 0, null);
+	addGlobalPrimProc("prompt", clientjsPrompt, 0, null);
+	addGlobalPrimProc("confirm", clientjsConfirm, 0, null);
+	
+	var cadrFuncNames = [
+		"caar", "cadr", "cdar", "cddr",
+		"caaar", "caadr", "cadar", "caddr", "cdaar", "cdadr", "cddar", "cdddr",
+		"caaaar", "caaadr", "caadar", "caaddr", "cadaar", "cadadr", "caddar",
+			"cadddr", "cdaaar", "cdaadr", "cdadar", "cdaddr", "cddaar", "cddadr", "cdddar", "cddddr"];
+	cadrFuncNames.forEach(function(funcName){
+		addGlobalPrimProc(funcName, eval('scheme.m'+funcName), 1);
+	});
+	
+	function addGlobalPrimProc(name, func, minArgs, maxArgs) {
+		env.map[name] = ScmObject.makePrimProc(name, func, minArgs, maxArgs);
+	}
 }
 
 })(scheme);

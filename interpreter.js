@@ -1,65 +1,68 @@
-(function(scm){
-for(var variable in scm)
-	eval("var " + variable + "=scm." + variable);
+﻿(function(s){
+"use strict";
+
+var ScmObject = s.ScmObject;
 
 function elemAt(list, index) {
 	for(var i = 0; i < index; i++)
-		list = cdr(list);
-	return car(list);
+		list = s.cdr(list);
+	return s.car(list);
 }
 
 function mapList(func, list) {
 	if(list.isEmptyList())
-		return nil;
+		return s.nil;
 	else
-		return cons(func(car(list)), mapList(func, cdr(list)));
+		return s.cons(func(s.car(list)), mapList(func, s.cdr(list)));
 }
 function listLength(list) {
 	if(list.isEmptyList())
 		return 0;
 	else
-		return 1 + listLength(cdr(list));
+		return 1 + listLength(s.cdr(list));
 }
 
-scm.globalEnvironment = null;
-var error = null;
+s.globalEnvironment = new EnvironmentFrame({}, null);
+s.error = null;
 function EnvironmentFrame(map, baseEnv) {
 	this.map = map;
 	this.baseEnv = baseEnv;
 }
 
 setupEnvironment();
-scm.evaluate = evaluate;
-scm.apply = apply;
+s.evaluate = evaluate;
+s.apply = apply;
 
-scm.eval = function(forms) {
-	error = null;
+s.eval = function(forms) {
+	s.error = null;//clear error
 	var exps = this.parse(forms);
 	if(exps.constructor == String) {
-		scm.console.value += exps;
+		s.console.value += exps;
 		return;
 	}
 
 	for(var i = 0; i < exps.length; i++) {
-		var obj = evaluate(exps[i], scm.globalEnvironment);
-		//console.log(obj);
-		if(!error)
+		var obj = evaluate(exps[i], s.globalEnvironment);
+		//s.console.log(obj);
+		if(!s.error)
 			printValue(obj);
-		else
+		else {
 			printError();
+			break;
+		}
 	}
 }
 
 function printValue(obj) {
-	var val = printObj(obj);
+	var val = s.printObj(obj);
 	if(val != null)
-		scm.console.value += val + "\n";
+		s.console.value += val + "\n";
 }
 
 function printObjs(objs) {
 	var values = [];
 	objs.forEach(function(obj){
-		var val = printObj(obj);
+		var val = s.printObj(obj);
 		if(val != null)
 			values.push(val);
 	});
@@ -80,40 +83,40 @@ function isSelfEvaluating(exp) {
   if
   (if <predicate> <consequent> <alternative>)
 */
-function ifPredicate(exp) { return cadr(exp); }
-function ifConsequent(exp) { return caddr(exp); }
+function ifPredicate(exp) { return s.cadr(exp); }
+function ifConsequent(exp) { return s.caddr(exp); }
 function ifAlternative(exp) {
-	exp = cdddr(exp);
+	exp = s.cdddr(exp);
 	if(exp.isEmptyList())
 		return exp;
 	else // alternative
-		return car(exp);
+		return s.car(exp);
 }
 function makeIf(predicate, consequent, alternative) {
-	return arrayToList([ifSymbol, predicate, consequent, alternative]);
+	return s.arrayToList([s.ifSymbol, predicate, consequent, alternative]);
 }
 
 /*
   lambda
   (lambda (<formal-parameters>) <body>)
 */
-function lambdaParamters(exp) { return cadr(exp); }
-function lambdaBody(exp) { return cddr(exp); }
+function lambdaParamters(exp) { return s.cadr(exp); }
+function lambdaBody(exp) { return s.cddr(exp); }
 function makeLambda(parameters, body) {
-	return cons(lambdaSymbol, cons(parameters, body));
+	return s.cons(s.lambdaSymbol, s.cons(parameters, body));
 }
 // application
-function operator(exp) { return car(exp); }
-function operands(exp) { return cdr(exp); }
+function operator(exp) { return s.car(exp); }
+function operands(exp) { return s.cdr(exp); }
 function makeApplication(operator, operands) {
-	return cons(operator, operands);
+	return s.cons(operator, operands);
 }
 /*
   assignment
   (set! <var> <exp>)
 */
-function assignmentVar(exp) { return cadr(exp); }
-function assignmentValue(exp) { return caddr(exp); }
+function assignmentVar(exp) { return s.cadr(exp); }
+function assignmentValue(exp) { return s.caddr(exp); }
 /*
   cond
   (cond (<p1> <e1>)
@@ -121,19 +124,19 @@ function assignmentValue(exp) { return caddr(exp); }
 		..
 		(else <e>))
 */
-function condClauses(exp) { return cdr(exp); }
-function clauesPredicate(clause) { return car(clause); }
-function clauseActions(clause) { return cdr(clause); }
-function isElseClause(clause) { return clauesPredicate(clause) == elseSymbol; }
+function condClauses(exp) { return s.cdr(exp); }
+function clauesPredicate(clause) { return s.car(clause); }
+function clauseActions(clause) { return s.cdr(clause); }
+function isElseClause(clause) { return clauesPredicate(clause) == s.elseSymbol; }
 /*
   begin
   (begin ...)
 */
 function beginActions(exp) {
-	return cdr(exp);
+	return s.cdr(exp);
 }
 function makeBegin(seq) {
-	return cons(beginSymbol, seq);
+	return s.cons(s.beginSymbol, seq);
 }
 /*
   let
@@ -142,16 +145,16 @@ function makeBegin(seq) {
 		...)
 		<body>)
 */
-function letBindings(exp) { return cadr(exp); }
-function letBody(exp) { return cddr(exp); }
+function letBindings(exp) { return s.cadr(exp); }
+function letBody(exp) { return s.cddr(exp); }
 function letBindingVars(bindings) {
 	return mapList(function(bind){
-		return car(bind);
+		return s.car(bind);
 	}, bindings);
 }
 function letBindingVals(bindings) {
 	return mapList(function(bind){
-		return cadr(bind);
+		return s.cadr(bind);
 	}, bindings);
 }
 function letToCombination(exp) {
@@ -165,17 +168,17 @@ function letToCombination(exp) {
  (define (<name> <formal-parameters>) <body>)
 */
 function definitionVar(exp) { 
-	if(cadr(exp).isSymbol())
-		return cadr(exp);
+	if(s.cadr(exp).isSymbol())
+		return s.cadr(exp);
 	else
-		return caadr(exp);
+		return s.caadr(exp);
 }
 function definitionVal(exp) {
-    if(cadr(exp).isSymbol())
-        return caddr(exp);
+    if(s.cadr(exp).isSymbol())
+        return s.caddr(exp);
     else {
-        var formals = cdadr(exp);
-        var body = cddr(exp);
+        var formals = s.cdadr(exp);
+        var body = s.cddr(exp);
 		// to lambda
         return makeLambda(formals, body);
     }
@@ -187,9 +190,9 @@ eval-apply为实现语言中 数据和过程的 递归(嵌套)组合手段与抽
 @param env 环境，提供约束于表达式的变量与值的集合
 */
 function evaluate(exp, env) {
-	if(error)
-		return error;
-	if(exp == voidValue)
+	if(s.error)
+		return s.error;
+	if(exp == s.voidValue)
 		return exp;
 	if(isSelfEvaluating(exp)) {
 		return exp;
@@ -201,30 +204,30 @@ function evaluate(exp, env) {
 	// 过程应用
 	else if(exp.isPair()) {
 		// 基本
-		var obj = car(exp);
+		var obj = s.car(exp);
 		if(obj.isSymbol()) {
-			if(obj == quoteSymbol) {// (quote ...)
+			if(obj == s.quoteSymbol) {// (quote ...)
 				return evalQuotation(exp);
 			}
-			else if(obj == assignmentSymbol) {// (set! ...) 
+			else if(obj == s.assignmentSymbol) {// (set! ...) 
 				return evalAssignment(exp, env);
 			}
-			else if(obj == defineSymbol) {// (define ...)
+			else if(obj == s.defineSymbol) {// (define ...)
 				return evalDefinition(exp, env);
 			}
-			else if(obj == ifSymbol) {// (if ...)
+			else if(obj == s.ifSymbol) {// (if ...)
 				return evalIf(exp, env);
 			}
-			else if(obj == lambdaSymbol) { // (lambda ...) 
+			else if(obj == s.lambdaSymbol) { // (lambda ...) 
 				return ScmObject.makeCompProc(lambdaParamters(exp), lambdaBody(exp), env, "");
 			}
-			else if(obj == beginSymbol) {// (begin ...)
+			else if(obj == s.beginSymbol) {// (begin ...)
 				return evalSequence(beginActions(exp), env);
 			}
-			else if(obj == condSymbol) { // (cond ...)
+			else if(obj == s.condSymbol) { // (cond ...)
 				return evaluate(condToIf(exp), env);
 			}
-			else if(obj == letSymbol) { // (let ...)
+			else if(obj == s.letSymbol) { // (let ...)
 				return evaluate(letToCombination(exp), env);
 			}
 		}
@@ -233,49 +236,49 @@ function evaluate(exp, env) {
 		return apply(evaluate(operator(exp), env), listOfValues(operands(exp), env));
 	}
 	else
-		makeError('exp', "eval:不支持的表达式类型");
+		s.makeError('exp', "eval:不支持的表达式类型");
 }
 
-/*
+
+/*
 将过程应用于实参
 */
-function apply(procedure, arguments) {
-	if(error)
-		return error;
+function apply(procedure, argvs) {
+	if(s.error)
+		return s.error;
 
 	if(procedure.isPrimProc()) {
-		return applyPrimitiveProcedure(procedure, arguments);
+		return applyPrimitiveProcedure(procedure, argvs);
 	}
-  //复合过程
 	else if(procedure.isCompProc()) {
-		var result = checkCompoundProcedureArguments(procedure, arguments);
+		var result = checkCompoundProcedureArguments(procedure, argvs);
 		if(result) {
-			var compEnv = extendEnvironment(compProcParamters(procedure), arguments, compProcEnv(procedure));
-			return evalSequence(compProcBody(procedure), compEnv);
+			var compEnv = extendEnvironment(s.compProcParamters(procedure), argvs, s.compProcEnv(procedure));
+			return evalSequence(s.compProcBody(procedure), compEnv);
 		}
 	}
 	else
-		makeError('', "application: expected a procedure that can be applied to arguments");
+		s.makeError('', "application: expected a procedure that can be applied to arguments");
 }
 
 function evalQuotation(exp) {
-	return cadr(exp);
+	return s.cadr(exp);
 }
 function evalAssignment(exp, env) {
 	setVariableValue(assignmentVar(exp), evaluate(assignmentValue(exp), env), env);
-	return ok;
+	return s.ok;
 }
 function evalDefinition(exp, env) {
 	var variable = definitionVar(exp);
 	var valueExp = definitionVal(exp);
 	var value;
-	if(car(valueExp) == lambdaSymbol) {
+	if(s.car(valueExp) == s.lambdaSymbol) {
 		value = ScmObject.makeCompProc(lambdaParamters(valueExp), lambdaBody(valueExp), env, variable.data);
 	}
 	else
 		value = evaluate(valueExp, env);
 	defineVariable(variable, value, env);
-	return ok;
+	return s.ok;
 }
 function listOfValues(operands, env) {
 	var values = mapList(function(exp){
@@ -284,12 +287,12 @@ function listOfValues(operands, env) {
 	return values;
 }
 function evalIf(exp, env) {
-	if(isTrue(evaluate(ifPredicate(exp), env)))
+	if(s.isTrue(evaluate(ifPredicate(exp), env)))
 		return evaluate(ifConsequent(exp), env);
 	else {
 		var alt = ifAlternative(exp);
 		if(alt.isEmptyList()) {
-			return voidValue;
+			return s.voidValue;
 		} else {
 			return evaluate(alt, env);
 		}
@@ -297,7 +300,7 @@ function evalIf(exp, env) {
 }
 function evalSequence(exps, env) {
 	var values = [];
-	listToArray(exps).forEach(function(exp){
+	s.listToArray(exps).forEach(function(exp){
 		values.push( evaluate(exp, env) );
 	});
 	return values[values.length - 1];
@@ -308,45 +311,41 @@ function condToIf(exp) {
 	function expandClauses(clauses) {
 		if(clauses.isEmptyList())
 			return ScmObject.getBoolean(false);
-		var first = car(clauses);
-		var rest = cdr(clauses);
+		var first = s.car(clauses);
+		var rest = s.cdr(clauses);
 		if(isElseClause(first))
 			if(rest.isEmptyList())
 				return sequenceExp(clauseActions(first));
 			else
-				makeError('badSyntax', "'else' clause must be last");
+				s.makeError('badSyntax', "'else' clause must be last");
 		else {
 			var predicate = clauesPredicate(first);
 			var actionSequence= sequenceExp(clauseActions(first));
 			if(actionSequence.isEmptyList())
-				return makeIf(True, predicate, expandClauses(rest));
+				return makeIf(s.True, predicate, expandClauses(rest));
 			else
 				return makeIf(predicate, actionSequence, expandClauses(rest));
 		}
 	}
 	function sequenceExp(seq) {
 		if(seq.isEmptyList()) return seq;
-		else if(cdr(seq).isEmptyList()) return car(seq);
+		else if(s.cdr(seq).isEmptyList()) return s.car(seq);
 		return makeBegin(seq);
 	}
 }
 
-function applyPrimitiveProcedure(primprocedure, arguments) {
-	var result = checkPimitiveProcedureArguments(primprocedure, arguments);
+function applyPrimitiveProcedure(primprocedure, argvs) {
+	var result = checkPimitiveProcedureArguments(primprocedure, argvs);
 	if(result) {
-		var func = primitiveProcedureFunc(primprocedure);
-		return func(arguments);
+		var func = s.primProcFunc(primprocedure);
+		return func(argvs);
 	}
 	else
 		return result;
 }
 
 function setupEnvironment() {
-	var initalEnv = new EnvironmentFrame({}, null);
-	scm.primitiveProcedures.map(function(proc){
-		defineVariable(ScmObject.makeSymbol(proc[0]), ScmObject.makePrimProc(proc), initalEnv);
-	});
-	scm.globalEnvironment = initalEnv;
+	s.initPrimitiveProcedures(s.globalEnvironment);
 }
 
 function lookupVariableValue(variable, env) {
@@ -354,14 +353,14 @@ function lookupVariableValue(variable, env) {
 	while(env && (value = env.map[variable.data]) == undefined)
 		env = env.baseEnv;
 	if(value == undefined)
-		makeError('undefined', variable.data);
+		s.makeError('undefined', variable.data);
 	return value;
 }
 
 function extendEnvironment(variables, values, baseEnv) {
 	var map = {};
-	variables = listToArray(variables);
-	values = listToArray(values);
+	variables = s.listToArray(variables);
+	values = s.listToArray(values);
 	for(var i = 0; i < variables.length; i++)
 		map[variables[i].data] = values[i];
 	return new EnvironmentFrame(map, baseEnv);
@@ -375,108 +374,72 @@ function setVariableValue(variable, value, env) {
 	if(env.map[name])
 		env.map[name] = value;
 	else
-		makeError('undefined', name);
+		s.makeError('undefined', name);
 }
 
-function checkPimitiveProcedureArguments(procedure, arguments) {
-	var procedureName = primitiveProcedureName(procedure);
-	var arity = primitiveProcedureArity(procedure);
-	var result = matchArity(procedureName, arguments, arity);
-	if(result) {
-		var contract = primitiveProcedureContract(procedure);
-		result = checkContract(procedureName, arguments, contract);
-	}
-	return result;
+function checkPimitiveProcedureArguments(procedure, argvs) {
+	var procedureName = s.primProcName(procedure);
+	var arity = s.primProcArity(procedure);
+	return matchArity(procedureName, argvs, arity);
 }
-function checkCompoundProcedureArguments(procedure, arguments) {
-	var procedureName = compProcName(procedure);
+
+function checkCompoundProcedureArguments(procedure, argvs) {
+	var procedureName = s.compProcName(procedure);
 	var arity = [];
-	arity[0] = listLength(compProcParamters(procedure));
-	var result = matchArity(procedureName, arguments, arity);
+	arity[0] = listLength(s.compProcParamters(procedure));
+	var result = matchArity(procedureName, argvs, arity);
 	return result;
 }
-function matchArity(procedureName, arguments, arity) {
+
+function matchArity(procedureName, argvs, arity) {
 	var expectedAtleast = arity[0];
 	var mismatch = false;
-	var argumentsLen = listLength(arguments);
+	var argvsLen = listLength(argvs);
 	if(arity.length == 1) {
-		if(argumentsLen != expectedAtleast)
+		if(argvsLen != expectedAtleast)
 			mismatch = true;
 	}
 	else if(arity.length == 2) {
 		var max = arity[1] != null ? arity : 10000;
-		if(!(expectedAtleast <= argumentsLen && argumentsLen <= max))
+		if(!(expectedAtleast <= argvsLen && argvsLen <= max))
 			mismatch = true;
 	}
 	if(mismatch) {
-		makeArityMismatchError(procedureName, arguments, (arity.length != 1), expectedAtleast, argumentsLen);
+		s.makeArityMismatchError(procedureName, argvs, (arity.length != 1), expectedAtleast, argvsLen);
 		return false;
 	}
 	else
 		return true;
 }
 
-function checkContract(procedureName, arguments, contract) {
-	arguments = listToArray(arguments);
-	if(contract.length > 0) {
-		var pos;
-		if(contract.length == 1) {
-			for(pos = 0; pos < arguments.length; pos++) {
-				if(isFalse(contractFuncMap[contract[0]](cons(arguments[pos], nil))))
-					break;
-			}
-		}
-		else  {
-			for(pos = 0; pos < arguments.length; pos++) {
-				if(contract[pos] != null && isFalse(contractFuncMap[contract[pos]](cons(arguments[pos], nil))))
-					break;
-			}
-		}
-		if(pos < arguments.length) {
-			makeContractViolationError(procedureName, arguments, contract[pos], arguments[pos], (pos + 1));
-			return false;
-		}
-	}
-	return true;
-}
-
-function makeArityMismatchError(procedureName, arguments, isAtleast, expected, given) {
-	makeError('arityMismatch', procedureName, arguments, isAtleast, expected, given);
-}
-function makeContractViolationError(procedureName, arguments, expected, given, argPosition) {
-	makeError('contractViolation', procedureName, arguments, expected, given, argPosition);
-}
-function makeError() {
-	error = [].slice.call(arguments, 0);
-}
-
 function printError() {
+	var error = s.error;
 	var errorType = error[0];
 	switch(errorType) {
 	case 'arityMismatch':
 		var procedureName = error[1];
-		var arguments = error[2];
+		var argvs = error[2];
 		var isAtleast = error[3];
 		var expected = error[4];
 		var given = error[5];
 		var info = procedureName + ': ' + 'arity mismatch;';
-		info += "\n  the expected number of arguments does not match the given number";
+		info += "\n  the expected number of argvs does not match the given number";
 		info += "\n   expected: " + (isAtleast ? 'at least ' : '') + expected;
 		info += "\n   given: " + given;
-		if(arguments.length > 0)
-			info += "\n   arguments: \n\t" + printObjs(arguments);
+		if(argvs.length > 0)
+			info += "\n   argvs: \n\t" + printObjs(argvs);
 		break;
 	case 'contractViolation':
 		var procedureName = error[1];
-		var arguments = error[2];
+		var argvs = error[2];
 		var expected = error[3];
 		var given = error[4];
 		var argPosition = error[5];
 		var info = procedureName + ': ' + 'contract violation;';
 		info += "\n  expected: " + expected;
-		info += "\n  given: " + printObj(given);
+		info += "\n  given: " + s.printObj(given);
 		info += "\n  argument position: " + argPosition + "st";
-		info += "\n  arguments: \n\t" + printObjs(arguments);
+		info += "\n  argvs: \n\t" + printObjs(argvs);
 		break;
 	case 'undefined':
 		var id = error[1];
@@ -484,9 +447,9 @@ function printError() {
 		info += "\n cannot reference undefined identifier";
 		break;
 	default:
-		info = error[1];
+		info = error[0] + ": " + error[1];
 	}
-	scm.console.value += info + "\n";
+	s.console.value += info + "\n";
 }
 
 })(scheme);

@@ -1,7 +1,10 @@
-﻿(function(scm){
-var ScmObject = scm.ScmObject;
+﻿(function(s){
+"use strict";
+
+var ScmObject = s.ScmObject;
+
 // 符号(作为标识符)
-var symbolReg = /^(?![0-9])[a-zA-Z_$0-9>!\-\?\*%\.\u4e00-\u9fa5]+$/;
+var symbolReg = /^(?![0-9])[a-zA-Z_$0-9>!\-\?\*%\.\+\-\*\/\<\>\=\u4e00-\u9fa5]+$/;
 
 // 数值
 var decimalReg = /^[+-]?\d+$/;
@@ -18,7 +21,8 @@ var booleanReg = /^#[tf]|(true|false)$^/;
 
 var emptyListReg = /^\(\)$/;
 
-scm.parse = function(str) {
+
+s.parse = function(str) {
 	//delete comment line
 	str += '\n';
 	var pstr = "";
@@ -42,10 +46,6 @@ scm.parse = function(str) {
 	var tokens = parseTokens(pstr);
 	var exps = parseSExps(tokens);
 	return exps;
-}
-
-function isPrimitiveOperator(s) {
-	return "+-*/<>=".indexOf(s) > -1 || s == ">=" || s == "<=";
 }
 
 function parseTokens(str) {
@@ -100,21 +100,21 @@ function parseSExps(tokens) {
 				var array1 = parse(array[index]);
 				var list;
 				if(array1.length > 0) {
-					list = scm.nil;
+					list = s.nil;
 					for(var i = array1.length - 1; i >= 0; i--)
-						list = scm.cons(array1[i], list);
+						list = s.cons(array1[i], list);
 				} else {
-					list = scm.nil;
+					list = s.nil;
 				}
 				exps.push(list);
 			}
 			else {
 				var token = array[index];
-				if(symbolReg.test(token) || isPrimitiveOperator(token)) {
-					exps.push(scm.getSymbol(token.toLowerCase()));//lowercase id
+				if(symbolReg.test(token)) {
+					exps.push(s.getSymbol(token.toLowerCase()));//lowercase id
 				}
 				else if(token[0] == '\'') {//quote
-					var quoteSym = scm.getSymbol('quote');
+					var quoteSym = s.getSymbol('quote');
 					var obj;
 					if(token == "'") {
 						obj = parse(array.slice(index+1, index+2))[0];
@@ -123,7 +123,7 @@ function parseSExps(tokens) {
 					else {
 						obj = parseSExps(parseTokens(token.substring(1)))[0];
 					}
-					exps.push(scm.cons(quoteSym, scm.cons(obj, scm.nil)));
+					exps.push(s.cons(quoteSym, s.cons(obj, s.nil)));
 				}
 				else if(decimalReg.test(token) || hexReg.test(token) || octReg.test(token)) {
 					exps.push(ScmObject.makeInt(parseInt(token)));
