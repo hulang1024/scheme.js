@@ -65,8 +65,8 @@ ScmObject.makeEmptyList = function(data) {
 }
 
 scm.arrayToList = function(array) {
-	var list = scm.cons(array[array.length - 1], scm.nil);
-	for(var i = array.length - 2; i >= 0; i--)
+	var list = scm.nil;
+	for(var i = array.length - 1; i >= 0; i--)
 		list = scm.cons(array[i], list);
 	return list;
 }
@@ -159,12 +159,10 @@ scm.printObj = function(obj) {
 		}
 		else if(obj.isNamespace())
 			value = '#<namespace:0>';
-		else if(obj == scm.voidSymbol) 
-			value = null;
 		else
 			value = obj.data;
 	}
-	else if(obj == scm.ok)
+	else
 		value = null;
 	return value;
 }

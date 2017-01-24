@@ -149,22 +149,30 @@ function mlistRef(args) {
 }
 
 function sum(numbers) {
-	return listToArray(numbers).reduce(function(x, y){ return ScmObject.makeReal(x.data + y.data); });
+	return listToArray(numbers).reduce(function(x, y){
+		return ScmObject.makeReal(x.data + y.data);
+	});
 }
 function mul(numbers) {
-	return listToArray(numbers).reduce(function(x, y){ return ScmObject.makeReal(x.data * y.data); });
+	return listToArray(numbers).reduce(function(x, y){
+		return ScmObject.makeReal(x.data * y.data);
+	});
 }
 function sub(numbers) {
 	numbers = listToArray(numbers);
 	if(numbers.length == 1)
 		numbers.unshift(ScmObject.makeInt(0));
-	return numbers.reduce(function(x, y){ return ScmObject.makeReal(x.data - y.data); });
+	return numbers.reduce(function(x, y){
+		return ScmObject.makeReal(x.data - y.data);
+	});
 }
 function div(numbers) {
 	numbers = listToArray(numbers);
 	if(numbers.length == 1)
 		numbers.unshift(ScmObject.makeInt(1));
-	return numbers.reduce(function(x, y){ return ScmObject.makeReal(x.data / y.data); });
+	return numbers.reduce(function(x, y){
+		return ScmObject.makeReal(x.data / y.data);
+	});
 }
 
 function equalNumber(numbers) {
@@ -236,13 +244,13 @@ function or(objs) {
 	return False;
 }
 
-function isInteger(args) { return new ScmObject.getBoolean(car(args).isInteger()); }
-function isReal(args) { return new ScmObject.getBoolean(car(args).isReal()); }
-function isNumber(args) { return new ScmObject.getBoolean(car(args).isNumber()); }
-function isChar(args) { return new ScmObject.getBoolean(car(args).isChar()); }
-function isString(args) { return new ScmObject.getBoolean(car(args).isString()); }
-function isBoolean(args) { return new ScmObject.getBoolean(car(args).isBoolean()); }
-function isSymbol(args) { return new ScmObject.getBoolean(car(args).isSymbol()); }
+function isInteger(args) { return ScmObject.getBoolean(car(args).isInteger()); }
+function isReal(args) { return ScmObject.getBoolean(car(args).isReal()); }
+function isNumber(args) { return ScmObject.getBoolean(car(args).isNumber()); }
+function isChar(args) { return ScmObject.getBoolean(car(args).isChar()); }
+function isString(args) { return ScmObject.getBoolean(car(args).isString()); }
+function isBoolean(args) { return ScmObject.getBoolean(car(args).isBoolean()); }
+function isSymbol(args) { return ScmObject.getBoolean(car(args).isSymbol()); }
 function isList(args) {
 	// 空表或者含有空表的序对
 	var obj = car(args);
@@ -252,12 +260,12 @@ function isList(args) {
 			b = true;
 	if(!b && obj.isEmptyList())
 		b = true;
-	return new ScmObject.getBoolean(b);
+	return ScmObject.getBoolean(b);
 }
-function isPair(args) { return new ScmObject.getBoolean(car(args).isPair()); }
-function isNull(args) { return new ScmObject.getBoolean(car(args).isEmptyList());  }
-function isProcedure(args) { return new ScmObject.getBoolean(car(args).isProcedure()); }
-function isNamespace(args) { return new ScmObject.getBoolean(car(args).isNamespace());  }
+function isPair(args) { return ScmObject.getBoolean(car(args).isPair()); }
+function isNull(args) { return ScmObject.getBoolean(car(args).isEmptyList());  }
+function isProcedure(args) { return ScmObject.getBoolean(car(args).isProcedure()); }
+function isNamespace(args) { return ScmObject.getBoolean(car(args).isNamespace());  }
 function display(args) {
 	var val = scm.printObj(car(args));
 	if(val != null)

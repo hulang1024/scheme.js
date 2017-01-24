@@ -32,32 +32,27 @@ setupEnvironment();
 scm.evaluate = evaluate;
 scm.apply = apply;
 
-hasFormError = function() {
-	return error != null;
-};
-
 scm.eval = function(forms) {
 	error = null;
 	var exps = this.parse(forms);
-	//console.log('parse result:');
-	//console.log(exps);
-	if(exps.constructor == String)
+	if(exps.constructor == String) {
 		scm.console.value += exps;
-	var values = [];
+		return;
+	}
+
 	for(var i = 0; i < exps.length; i++) {
 		var obj = evaluate(exps[i], scm.globalEnvironment);
 		//console.log(obj);
-		if(error) {
-			printError();
-		}
-		else
+		if(!error)
 			printValue(obj);
+		else
+			printError();
 	}
 }
 
 function printValue(obj) {
 	var val = printObj(obj);
-	if(val != undefined && val != null)
+	if(val != null)
 		scm.console.value += val + "\n";
 }
 
@@ -187,7 +182,7 @@ function definitionVal(exp) {
 }
 
 /*
- eval-apply为实现语言中 数据和过程的 递归(嵌套)组合手段与抽象手段
+eval-apply为实现语言中 数据和过程的 递归(嵌套)组合手段与抽象手段
 @param exp 表达式
 @param env 环境，提供约束于表达式的变量与值的集合
 */
@@ -234,7 +229,7 @@ function evaluate(exp, env) {
 			}
 		}
 		// 其它过程应用
-    /*过程应用表达式的运算符部分可以是过程名，也可以是一个lambda或表达式，因此要求值*/
+		/*过程应用表达式的运算符部分可以是过程名，也可以是一个lambda或表达式，因此要求值*/
 		return apply(evaluate(operator(exp), env), listOfValues(operands(exp), env));
 	}
 	else
@@ -247,17 +242,16 @@ function evaluate(exp, env) {
 function apply(procedure, arguments) {
 	if(error)
 		return error;
-	if(procedure == undefined)
-		return;
+
 	if(procedure.isPrimProc()) {
 		return applyPrimitiveProcedure(procedure, arguments);
 	}
   //复合过程
 	else if(procedure.isCompProc()) {
 		var result = checkCompoundProcedureArguments(procedure, arguments);
-		if(result === true) {
-			return evalSequence(compProcBody(procedure),
-				extendEnvironment(compProcParamters(procedure), arguments, compProcEnv(procedure)));
+		if(result) {
+			var compEnv = extendEnvironment(compProcParamters(procedure), arguments, compProcEnv(procedure));
+			return evalSequence(compProcBody(procedure), compEnv);
 		}
 	}
 	else
@@ -339,7 +333,7 @@ function condToIf(exp) {
 
 function applyPrimitiveProcedure(primprocedure, arguments) {
 	var result = checkPimitiveProcedureArguments(primprocedure, arguments);
-	if(result === true) {
+	if(result) {
 		var func = primitiveProcedureFunc(primprocedure);
 		return func(arguments);
 	}
@@ -378,18 +372,17 @@ function defineVariable(variable, value, env) {
 }
 function setVariableValue(variable, value, env) {
 	var name = variable.data;
-	
 	if(env.map[name])
 		env.map[name] = value;
 	else
-		makeError('undefined', variable.data);
+		makeError('undefined', name);
 }
 
 function checkPimitiveProcedureArguments(procedure, arguments) {
 	var procedureName = primitiveProcedureName(procedure);
 	var arity = primitiveProcedureArity(procedure);
 	var result = matchArity(procedureName, arguments, arity);
-	if(result === true) {
+	if(result) {
 		var contract = primitiveProcedureContract(procedure);
 		result = checkContract(procedureName, arguments, contract);
 	}
@@ -415,8 +408,10 @@ function matchArity(procedureName, arguments, arity) {
 		if(!(expectedAtleast <= argumentsLen && argumentsLen <= max))
 			mismatch = true;
 	}
-	if(mismatch) 
+	if(mismatch) {
 		makeArityMismatchError(procedureName, arguments, (arity.length != 1), expectedAtleast, argumentsLen);
+		return false;
+	}
 	else
 		return true;
 }
@@ -439,6 +434,7 @@ function checkContract(procedureName, arguments, contract) {
 		}
 		if(pos < arguments.length) {
 			makeContractViolationError(procedureName, arguments, contract[pos], arguments[pos], (pos + 1));
+			return false;
 		}
 	}
 	return true;

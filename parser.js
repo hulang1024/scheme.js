@@ -100,8 +100,8 @@ function parseSExps(tokens) {
 				var array1 = parse(array[index]);
 				var list;
 				if(array1.length > 0) {
-					list = scm.cons(array1[array1.length - 1], scm.nil);
-					for(var i = array1.length - 2; i >= 0; i--)
+					list = scm.nil;
+					for(var i = array1.length - 1; i >= 0; i--)
 						list = scm.cons(array1[i], list);
 				} else {
 					list = scm.nil;
@@ -138,7 +138,7 @@ function parseSExps(tokens) {
 					exps.push(ScmObject.makeString(token.substr(1, token.length - 2)));
 				}
 				else if(booleanReg.test(token)) {
-					exps.push(ScmObject.getBoolean(token == "#t"));
+					exps.push(ScmObject.getBoolean(token == "#t" || token == "#true"));
 				}
 				else {
 					error = 1;
