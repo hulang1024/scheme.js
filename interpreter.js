@@ -59,19 +59,58 @@ function printValue(obj) {
 		s.console.value += val + "\n";
 }
 
-function printObjs(objs) {
-	var values = [];
-	objs.forEach(function(obj){
-		var val = s.printObj(obj);
-		if(val != null)
-			values.push(val);
-	});
-	return values;
+function printError() {
+	function printObjs(objs) {
+		var values = [];
+		objs.forEach(function(obj){
+			var val = s.printObj(obj);
+			if(val != null)
+				values.push(val);
+		});
+		return values;
+	}
+	
+	var error = s.error;
+	var errorType = error[0];
+	switch(errorType) {
+	case 'arityMismatch':
+		var procedureName = error[1];
+		var argvs = error[2];
+		var isAtleast = error[3];
+		var expected = error[4];
+		var given = error[5];
+		var info = procedureName + ': ' + 'arity mismatch;';
+		info += "\n  the expected number of argvs does not match the given number";
+		info += "\n   expected: " + (isAtleast ? 'at least ' : '') + expected;
+		info += "\n   given: " + given;
+		if(argvs.length > 0)
+			info += "\n   arguments: \n\t" + printObjs(argvs);
+		break;
+	case 'contractViolation':
+		var procedureName = error[1];
+		var argvs = error[2];
+		var expected = error[3];
+		var given = error[4];
+		var argPosition = error[5];
+		var info = procedureName + ': ' + 'contract violation;';
+		info += "\n  expected: " + expected;
+		info += "\n  given: " + s.printObj(given);
+		info += "\n  argument position: " + argPosition + "st";
+		info += "\n  arguments: \n\t" + printObjs(argvs);
+		break;
+	case 'undefined':
+		var id = error[1];
+		var info = id + ": undefined;";
+		info += "\n cannot reference undefined identifier";
+		break;
+	default:
+		info = error[0] + ": " + error[1];
+	}
+	s.console.value += info + "\n";
 }
 
 
 /*  语法过程  */
-
 function isSelfEvaluating(exp) {
 	if(exp.isNumber()) return true;
 	else if(exp.isChar()) return true;
@@ -206,28 +245,28 @@ function evaluate(exp, env) {
 		// 基本
 		var obj = s.car(exp);
 		if(obj.isSymbol()) {
-			if(obj == s.quoteSymbol) {// (quote ...)
+			if(obj == s.quoteSymbol) {
 				return evalQuotation(exp);
 			}
-			else if(obj == s.assignmentSymbol) {// (set! ...) 
+			else if(obj == s.assignmentSymbol) {
 				return evalAssignment(exp, env);
 			}
-			else if(obj == s.defineSymbol) {// (define ...)
+			else if(obj == s.defineSymbol) {
 				return evalDefinition(exp, env);
 			}
-			else if(obj == s.ifSymbol) {// (if ...)
+			else if(obj == s.ifSymbol) {
 				return evalIf(exp, env);
 			}
-			else if(obj == s.lambdaSymbol) { // (lambda ...) 
+			else if(obj == s.lambdaSymbol) {
 				return ScmObject.makeCompProc(lambdaParamters(exp), lambdaBody(exp), env, "");
 			}
-			else if(obj == s.beginSymbol) {// (begin ...)
+			else if(obj == s.beginSymbol) {
 				return evalSequence(beginActions(exp), env);
 			}
-			else if(obj == s.condSymbol) { // (cond ...)
+			else if(obj == s.condSymbol) {
 				return evaluate(condToIf(exp), env);
 			}
-			else if(obj == s.letSymbol) { // (let ...)
+			else if(obj == s.letSymbol) {
 				return evaluate(letToCombination(exp), env);
 			}
 		}
@@ -411,45 +450,4 @@ function matchArity(procedureName, argvs, arity) {
 	else
 		return true;
 }
-
-function printError() {
-	var error = s.error;
-	var errorType = error[0];
-	switch(errorType) {
-	case 'arityMismatch':
-		var procedureName = error[1];
-		var argvs = error[2];
-		var isAtleast = error[3];
-		var expected = error[4];
-		var given = error[5];
-		var info = procedureName + ': ' + 'arity mismatch;';
-		info += "\n  the expected number of argvs does not match the given number";
-		info += "\n   expected: " + (isAtleast ? 'at least ' : '') + expected;
-		info += "\n   given: " + given;
-		if(argvs.length > 0)
-			info += "\n   argvs: \n\t" + printObjs(argvs);
-		break;
-	case 'contractViolation':
-		var procedureName = error[1];
-		var argvs = error[2];
-		var expected = error[3];
-		var given = error[4];
-		var argPosition = error[5];
-		var info = procedureName + ': ' + 'contract violation;';
-		info += "\n  expected: " + expected;
-		info += "\n  given: " + s.printObj(given);
-		info += "\n  argument position: " + argPosition + "st";
-		info += "\n  argvs: \n\t" + printObjs(argvs);
-		break;
-	case 'undefined':
-		var id = error[1];
-		var info = id + ": undefined;";
-		info += "\n cannot reference undefined identifier";
-		break;
-	default:
-		info = error[0] + ": " + error[1];
-	}
-	s.console.value += info + "\n";
-}
-
 })(scheme);

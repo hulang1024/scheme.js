@@ -2,6 +2,72 @@
 "use strict";
 var ScmObject = s.ScmObject;
 
+
+s.initPrimitiveProcedures = function(env) {
+	addGlobalPrimProc("+", sum, 0, null);
+	addGlobalPrimProc("-", sub, 1, null);
+	addGlobalPrimProc("*", mul, 0, null);
+	addGlobalPrimProc("/", div, 1, null);
+	
+	addGlobalPrimProc("=", equalNumber, 2, null);
+	addGlobalPrimProc("<", lessThan, 2, null);
+	addGlobalPrimProc(">", greaThan, 2, null);
+	addGlobalPrimProc("<=", lteq, 2, null);
+	addGlobalPrimProc(">=", gteq, 2, null);
+	
+	addGlobalPrimProc("not", not, 1);
+	addGlobalPrimProc("car", mcar, 1);
+	addGlobalPrimProc("cdr", mcdr, 1);
+	addGlobalPrimProc("cons", mcons, 2);
+	addGlobalPrimProc("set-s.car!", setCar, 2);
+	addGlobalPrimProc("set-s.cdr!", setCdr, 2);
+	addGlobalPrimProc("list", mlist, 0, null);
+	addGlobalPrimProc("list-ref", mlistRef, 2);
+
+	addGlobalPrimProc("pair?", isPair, 1);
+	addGlobalPrimProc("list?", isList, 1);
+	addGlobalPrimProc("null?", isNull, 1);
+	addGlobalPrimProc("integer?", isInteger, 1);
+	addGlobalPrimProc("real?", isReal, 1);
+	addGlobalPrimProc("number?", isNumber, 1);
+	addGlobalPrimProc("string?", isString, 1);
+	addGlobalPrimProc("boolean?", isBoolean, 1);
+	addGlobalPrimProc("symbol?", isSymbol, 1);
+	addGlobalPrimProc("procedure?", isProcedure, 1);
+	addGlobalPrimProc("eq?", equalObjectRef, 2);
+	addGlobalPrimProc("equal?", equalObjectRef, 2);
+	
+	addGlobalPrimProc("and", and, 0, null);
+	addGlobalPrimProc("or", or, 0, null);
+	
+	addGlobalPrimProc("string->number", stringToNumber, 1);
+	
+	addGlobalPrimProc("eval", meval, 2);
+	addGlobalPrimProc("apply", mapply, 2);
+	addGlobalPrimProc("interaction-environment", interactionEnvironment);
+	
+	addGlobalPrimProc("display", display, 1);
+	addGlobalPrimProc("newline", newline, 0);
+	addGlobalPrimProc("random-int", randomInt, 2);
+	addGlobalPrimProc("alert", clientjsAlert, 0, null);
+	addGlobalPrimProc("prompt", clientjsPrompt, 0, null);
+	addGlobalPrimProc("confirm", clientjsConfirm, 0, null);
+	
+	var cadrFuncNames = [
+		"caar", "cadr", "cdar", "cddr",
+		"caaar", "caadr", "cadar", "caddr", "cdaar", "cdadr", "cddar", "cdddr",
+		"caaaar", "caaadr", "caadar", "caaddr", "cadaar", "cadadr", "caddar",
+			"cadddr", "cdaaar", "cdaadr", "cdadar", "cdaddr", "cddaar", "cddadr", "cdddar", "cddddr"];
+	cadrFuncNames.forEach(function(funcName){
+		addGlobalPrimProc(funcName, eval('scheme.m'+funcName), 1);
+	});
+	
+	function addGlobalPrimProc(name, func, minArgs, maxArgs) {
+		env.map[name] = ScmObject.makePrimProc(name, func, minArgs, maxArgs);
+	}
+}
+
+
 function genCadrProcedures() {
 	var cadrFuncNames = [
 		"caar", "cadr", "cdar", "cddr",
@@ -115,7 +181,7 @@ function sub(args) {
 	var array = s.listToArray(args);
 	var result = array.length == 1 ? 0 : array[0].data;
 	var obj;
-	for(var i = 1; i < array.length; i++) {
+	for(var i = 0; i < array.length; i++) {
 		obj = array[i];
 		if(obj.isNumber())
 			result -= obj.data;
@@ -127,9 +193,9 @@ function sub(args) {
 
 function div(args) {
 	var array = s.listToArray(args);
-	var result = array.length == 1 ? 0 : array[0].data;
+	var result = array.length == 1 ? 1 : array[0].data;
 	var obj;
-	for(var i = 1; i < array.length; i++) {
+	for(var i = 0; i < array.length; i++) {
 		obj = array[i];
 		if(obj.isNumber()) {
 			if(obj.data != 0)
@@ -336,69 +402,5 @@ function randomInt(args) {
 	return s.ScmObject.makeInt(Math.floor(Math.random() * (m - n)) + n);
 }
 
-
-s.initPrimitiveProcedures = function(env) {
-	addGlobalPrimProc("+", sum, 0, null);
-	addGlobalPrimProc("-", sub, 1, null);
-	addGlobalPrimProc("*", mul, 0, null);
-	addGlobalPrimProc("/", div, 1, null);
-	
-	addGlobalPrimProc("=", equalNumber, 2, null);
-	addGlobalPrimProc("<", lessThan, 2, null);
-	addGlobalPrimProc(">", greaThan, 2, null);
-	addGlobalPrimProc("<=", lteq, 2, null);
-	addGlobalPrimProc(">=", gteq, 2, null);
-	
-	addGlobalPrimProc("not", not, 1);
-	addGlobalPrimProc("car", mcar, 1);
-	addGlobalPrimProc("cdr", mcdr, 1);
-	addGlobalPrimProc("cons", mcons, 2);
-	addGlobalPrimProc("set-s.car!", setCar, 2);
-	addGlobalPrimProc("set-s.cdr!", setCdr, 2);
-	addGlobalPrimProc("list", mlist, 0, null);
-	addGlobalPrimProc("list-ref", mlistRef, 2);
-
-	addGlobalPrimProc("pair?", isPair, 1);
-	addGlobalPrimProc("list?", isList, 1);
-	addGlobalPrimProc("null?", isNull, 1);
-	addGlobalPrimProc("integer?", isInteger, 1);
-	addGlobalPrimProc("real?", isReal, 1);
-	addGlobalPrimProc("number?", isNumber, 1);
-	addGlobalPrimProc("string?", isString, 1);
-	addGlobalPrimProc("boolean?", isBoolean, 1);
-	addGlobalPrimProc("symbol?", isSymbol, 1);
-	addGlobalPrimProc("procedure?", isProcedure, 1);
-	addGlobalPrimProc("eq?", equalObjectRef, 2);
-	addGlobalPrimProc("equal?", equalObjectRef, 2);
-	
-	addGlobalPrimProc("and", and, 0, null);
-	addGlobalPrimProc("or", or, 0, null);
-	
-	addGlobalPrimProc("string->number", stringToNumber, 1);
-	
-	addGlobalPrimProc("eval", meval, 2);
-	addGlobalPrimProc("apply", mapply, 2);
-	addGlobalPrimProc("interaction-environment", interactionEnvironment);
-	
-	addGlobalPrimProc("display", display, 1);
-	addGlobalPrimProc("newline", newline, 0);
-	addGlobalPrimProc("random-int", randomInt, 2);
-	addGlobalPrimProc("alert", clientjsAlert, 0, null);
-	addGlobalPrimProc("prompt", clientjsPrompt, 0, null);
-	addGlobalPrimProc("confirm", clientjsConfirm, 0, null);
-	
-	var cadrFuncNames = [
-		"caar", "cadr", "cdar", "cddr",
-		"caaar", "caadr", "cadar", "caddr", "cdaar", "cdadr", "cddar", "cdddr",
-		"caaaar", "caaadr", "caadar", "caaddr", "cadaar", "cadadr", "caddar",
-			"cadddr", "cdaaar", "cdaadr", "cdadar", "cdaddr", "cddaar", "cddadr", "cdddar", "cddddr"];
-	cadrFuncNames.forEach(function(funcName){
-		addGlobalPrimProc(funcName, eval('scheme.m'+funcName), 1);
-	});
-	
-	function addGlobalPrimProc(name, func, minArgs, maxArgs) {
-		env.map[name] = ScmObject.makePrimProc(name, func, minArgs, maxArgs);
-	}
-}
 
 })(scheme);
