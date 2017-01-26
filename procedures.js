@@ -23,6 +23,7 @@ s.initPrimitiveProcedures = function(env) {
 	addGlobalPrimProc("set-cdr!", setCdr, 2);
 	addGlobalPrimProc("list", mlist, 0, null);
 	addGlobalPrimProc("list-ref", mlistRef, 2);
+	addGlobalPrimProc("for-each", mforEach, 2);
 
 	addGlobalPrimProc("pair?", isPair, 1);
 	addGlobalPrimProc("list?", isList, 1);
@@ -110,7 +111,7 @@ function mcar(args) {
 	if(obj.isPair())
 		return s.car(obj);
 	else
-		return s.makeContractViolationError("mcar", args, "mpair?", obj);
+		return s.makeContractViolationError("mcar", args, "mpair?", obj, 0);
 }
 
 function mcdr(args) {
@@ -118,13 +119,13 @@ function mcdr(args) {
 	if(obj.isPair())
 		return s.cdr(obj);
 	else
-		return s.makeContractViolationError("mcdr", args, "mpair?", obj);
+		return s.makeContractViolationError("mcdr", args, "mpair?", obj, 0);
 }
 
 function setCar(args) {
 	var pair = s.car(args);
 	if(!pair.isPair())
-		return s.makeContractViolationError("set-car!", args, "mpair?", pair);
+		return s.makeContractViolationError("set-car!", args, "mpair?", pair, 0);
 	var pcar = s.cadr(args);
 	pair.data[0] = pcar;
 	return s.voidValue;
@@ -133,7 +134,7 @@ function setCar(args) {
 function setCdr(args) {
 	var pair = s.car(args);
 	if(!pair.isPair())
-		return s.makeContractViolationError("set-car!", args, "mpair?", pair);
+		return s.makeContractViolationError("set-car!", args, "mpair?", pair, 0);
 	var pcdr = s.cadr(args);
 	pair.data[1] = pcdr;
 	return s.voidValue;
@@ -146,11 +147,26 @@ function mlist(args) {
 function mlistRef(args) {
 	var pair = s.car(args);
 	if(!pair.isPair())
-		return s.makeContractViolationError("list-ref", args, "mpair?", pair);
+		return s.makeContractViolationError("list-ref", args, "mpair?", pair, 0);
 	var index = s.cadr(args).data;
 	for(var i = 0; i < index; i++)
 		pair = s.cdr(pair);
 	return s.car(pair);
+}
+
+function mforEach(args) {
+	var proc = s.car(args);
+	if(!proc.isProcedure())
+		return s.makeContractViolationError("mfor-each", args, "procedure?", proc, 0);
+	var list = s.cadr(args);
+	if(!list.isPair())
+		return s.makeContractViolationError("mfor-each", args, "pair?", list, 1);
+	
+	while(!list.isEmptyList()) {
+		s.apply(proc, s.cons(s.car(list), s.nil));
+		list = s.cdr(list);
+	}
+	return s.ok;
 }
 
 function sum(args) {
@@ -275,6 +291,7 @@ function lessThan(args) {
 	}
 	return s.True;
 }
+
 function greaThan(args) {
 	var array = s.listToArray(args);
 	var obj1, obj2;
@@ -358,7 +375,6 @@ function isString(args) { return ScmObject.getBoolean(s.car(args).isString()); }
 function isBoolean(args) { return ScmObject.getBoolean(s.car(args).isBoolean()); }
 function isSymbol(args) { return ScmObject.getBoolean(s.car(args).isSymbol()); }
 function isList(args) {
-	// 空表或者含有空表的序对
 	var obj = s.car(args);
 	var b = false;
 	for(; !b && obj.isPair(); obj = s.cdr(obj))
@@ -394,8 +410,8 @@ function mapply(args) {
 	if(!procedure.isProcedure())
 		return s.makeContractViolationError("mapply", args, "procedure?", procedure);
 	var argvs = s.cadr(args);
-	if(!argvs.isList())
-		return s.makeContractViolationError("mapply", args, "list?", argvs);
+	if(!argvs.isPair())
+		return s.makeContractViolationError("mapply", args, "pair?", argvs);
 	return s.apply(procedure, argvs);
 }
 

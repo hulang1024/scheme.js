@@ -91,7 +91,7 @@ function printError() {
 		var argvs = error[2];
 		var expected = error[3];
 		var given = error[4];
-		var argPosition = error[5];
+		var argPosition = error[5] + 1;
 		var info = procedureName + ': ' + 'contract violation;';
 		info += "\n  expected: " + expected;
 		info += "\n  given: " + s.printObj(given);
