@@ -328,19 +328,26 @@ function not(args) {
 }
 
 function and(objs) {
+	if(objs.isEmptyList())
+		return s.True;
+	
 	objs = s.listToArray(objs);
-	for(var i = 0; i < objs.length; i++)
+	var i;
+	for(i = 0; i < objs.length; i++)
 		if(s.isFalse(objs[i]))
 			return objs[i];
-	return s.True;
+	return objs[i - 1];
 }
 
 function or(objs) {
+	if(objs.isEmptyList())
+		return s.False;
 	objs = s.listToArray(objs);
-	for(var i = 0; i < objs.length; i++)
+	var i;
+	for(i = 0; i < objs.length; i++)
 		if(s.isTrue(objs[i]))
 			return objs[i];
-	return s.False;
+	return objs[i - 1];
 }
 
 function isInteger(args) { return ScmObject.getBoolean(s.car(args).isInteger()); }
@@ -387,8 +394,8 @@ function mapply(args) {
 	if(!procedure.isProcedure())
 		return s.makeContractViolationError("mapply", args, "procedure?", procedure);
 	var argvs = s.cadr(args);
-	if(!argvs.isPair())
-		return s.makeContractViolationError("mapply", args, "pair?", argvs);
+	if(!argvs.isList())
+		return s.makeContractViolationError("mapply", args, "list?", argvs);
 	return s.apply(procedure, argvs);
 }
 
