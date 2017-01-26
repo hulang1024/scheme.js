@@ -19,8 +19,8 @@ s.initPrimitiveProcedures = function(env) {
 	addGlobalPrimProc("car", mcar, 1);
 	addGlobalPrimProc("cdr", mcdr, 1);
 	addGlobalPrimProc("cons", mcons, 2);
-	addGlobalPrimProc("set-s.car!", setCar, 2);
-	addGlobalPrimProc("set-s.cdr!", setCdr, 2);
+	addGlobalPrimProc("set-car!", setCar, 2);
+	addGlobalPrimProc("set-cdr!", setCdr, 2);
 	addGlobalPrimProc("list", mlist, 0, null);
 	addGlobalPrimProc("list-ref", mlistRef, 2);
 

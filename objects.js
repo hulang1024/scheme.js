@@ -4,7 +4,7 @@
 
 s.ScmObject = function(type, data) {
 	/*
-	integer=1,real=2,char=3,string=4,boolean=5,symbol=6,pair=7,primitive_procedure=8,compound_procedure=9,EmptyList=0,10=namespace
+	integer=1,real=2,char=3,string=4,boolean=5,symbol=6,pair=7,primitive_procedure=8,compound_procedure=9,EmptyList=0,10=namespace,11=Unspecified
 	*/
 	this.type = type;
 	this.data = data;
@@ -73,7 +73,9 @@ s.compProcName = function(proc) { return proc.data[3] }
 ScmObject.makeNamespace = function(env) {
 	return new ScmObject(10, env);
 }
-
+ScmObject.makeUnspecified = function() {
+	return new ScmObject(11, undefined);
+}
 s.makeError = function() {
 	s.error = [].slice.call(arguments, 0);
 }
@@ -109,8 +111,8 @@ s.listToArray = function(list) {
 s.True = ScmObject.makeBoolean(true);
 s.False = ScmObject.makeBoolean(false);
 s.nil = ScmObject.makeEmptyList();
-s.ok = 1;
-s.voidValue = 2;
+s.ok = ScmObject.makeUnspecified();
+s.voidValue = ScmObject.makeUnspecified();
 
 ScmObject.getBoolean = function(data) {
 	return data ? s.True : s.False;

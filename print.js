@@ -4,39 +4,52 @@
 var ScmObject = s.ScmObject;
 
 s.printObj = function(obj) {
-	var value;
-	if(obj instanceof ScmObject) {
-		if(obj.isNumber()) {
-			value = obj.data;
-		}
-		if(obj.isString()) {
-			value = obj.data;
-		}
-		else if(obj.isBoolean()) {
-			value = obj.data ? "#t" : "#f";
-		}
-		else if(s.isList(obj)) {
-			value = s.printList(obj);
-		}
-		else if(obj.isPair()) {
-			value = s.printPair(obj);
-		}
-		else if(obj.isProcedure()) {
-			value = '#<procedure:';
-			if(obj.isPrimProc())
-				 value += s.primProcName(obj);
-			else
-				 value += s.compProcName(obj);
-			value += '>';
-		}
-		else if(obj.isNamespace())
-			value = '#<namespace:0>';
-		else
-			value = obj.data;
+	var str = null;//外部表示
+	if(obj.isNumber()) {
+		str = obj.data;
 	}
+	else if(obj.isString()) {
+		str = obj.data;
+	}
+	else if(obj.isSymbol()) {
+		str = obj.data;
+	}
+	else if(obj.isBoolean()) {
+		str = obj.data ? "#t" : "#f";
+	}
+	else if(obj.isEmptyList()) {
+		str = "()";
+	}
+	else if(s.isList(obj)) {
+		if(s.car(obj) == s.quoteSymbol) {
+			str = s.printQuote(obj);
+		}
+		else
+			str = s.printList(obj);
+	}
+	else if(obj.isPair()) {
+		str = s.printPair(obj);
+	}
+	else if(obj.isProcedure()) {
+		str = '#<procedure:';
+		if(obj.isPrimProc())
+			 str += s.primProcName(obj);
+		else
+			 str += s.compProcName(obj);
+		str += '>';
+	}
+	else if(obj.isNamespace())
+		str = '#<namespace:0>';
 	else
-		value = null;
-	return value;
+		str = obj.data;
+	return str;
+}
+
+s.printQuote = function(list) {
+	if(s.car(list) == s.quoteSymbol)
+		return "'" + s.printQuote(s.cdr(list));
+	else 
+		return s.printObj(s.car(list));
 }
 
 s.printList = function(list) {
