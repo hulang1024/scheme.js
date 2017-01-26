@@ -104,6 +104,7 @@ s.isFalse = function(obj) {
 function mcons(args){
 	return s.cons(s.car(args), s.cadr(args));
 }
+
 function mcar(args) {
 	var obj = s.car(args);
 	if(obj.isPair())
@@ -111,6 +112,7 @@ function mcar(args) {
 	else
 		return s.makeContractViolationError("mcar", args, "mpair?", obj);
 }
+
 function mcdr(args) {
 	var obj = s.car(args);
 	if(obj.isPair())
@@ -127,6 +129,7 @@ function setCar(args) {
 	pair.data[0] = pcar;
 	return s.voidValue;
 }
+
 function setCdr(args) {
 	var pair = s.car(args);
 	if(!pair.isPair())
@@ -139,6 +142,7 @@ function setCdr(args) {
 function mlist(args) {
 	return args;
 }
+
 function mlistRef(args) {
 	var pair = s.car(args);
 	if(!pair.isPair())
@@ -179,32 +183,50 @@ function mul(args) {
 
 function sub(args) {
 	var array = s.listToArray(args);
-	var result = array.length == 1 ? 0 : array[0].data;
+	var result;
 	var obj;
-	for(var i = 0; i < array.length; i++) {
-		obj = array[i];
+	if(array.length > 1) {
+		result = array[0].data;
+		for(var i = 1; i < array.length; i++) {
+			obj = array[i];
+			if(obj.isNumber())
+				result -= obj.data;
+			else
+				return s.makeContractViolationError("-", args, "number?", obj, i);
+		}
+	} else {
+		obj = array[0];
 		if(obj.isNumber())
-			result -= obj.data;
+			result = - obj.data;
 		else
-			return s.makeContractViolationError("-", args, "number?", obj, i);
+			return s.makeContractViolationError("-", args, "number?", obj, 0);
 	}
 	return ScmObject.makeReal(result);
 }
 
 function div(args) {
 	var array = s.listToArray(args);
-	var result = array.length == 1 ? 1 : array[0].data;
+	var result;
 	var obj;
-	for(var i = 0; i < array.length; i++) {
-		obj = array[i];
-		if(obj.isNumber()) {
-			if(obj.data != 0)
-				result /= obj.data;
+	if(array.length > 1) {
+		result = array[0].data;
+		for(var i = 1; i < array.length; i++) {
+			obj = array[i];
+			if(obj.isNumber()) {
+				if(obj.data != 0)
+					result /= obj.data;
+				else
+					return s.makeError("/", "division by zero");
+			}
 			else
-				return s.makeError("/", "division by zero");
+				return s.makeContractViolationError("/", args, "number?", obj, i);
 		}
+	} else {
+		obj = array[0];
+		if(obj.isNumber())
+			result = 1 / obj.data;
 		else
-			return s.makeContractViolationError("/", args, "number?", obj, i);
+			return s.makeContractViolationError("/", args, "number?", obj, 0);
 	}
 	return ScmObject.makeReal(result);
 }
