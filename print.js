@@ -3,13 +3,16 @@
 
 var ScmObject = s.ScmObject;
 
-s.printObj = function(obj) {
+s.printObj = function(obj, display) {
 	var str = null;//外部表示
 	if(obj.isNumber()) {
 		str = obj.data;
 	}
 	else if(obj.isString()) {
-		str = obj.data;
+		if(display)
+			str = obj.data;
+		else
+			str = "\"" + obj.data + "\"";
 	}
 	else if(obj.isSymbol()) {
 		str = obj.data;

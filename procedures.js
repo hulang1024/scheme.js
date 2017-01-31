@@ -1,4 +1,4 @@
-﻿(function(s) {
+(function(s) {
 "use strict";
 var ScmObject = s.ScmObject;
 
@@ -389,7 +389,7 @@ function isNull(args) { return ScmObject.getBoolean(s.car(args).isEmptyList()); 
 function isProcedure(args) { return ScmObject.getBoolean(s.car(args).isProcedure()); }
 function isNamespace(args) { return ScmObject.getBoolean(s.car(args).isNamespace());  }
 function display(args) {
-	var val = s.printObj(s.car(args));
+	var val = s.printObj(s.car(args), true);
 	if(val != null)
 		s.console.value += val;
 	return s.voidValue;
@@ -429,7 +429,8 @@ function stringToNumber(args) {
 
 function clientjsAlert(args) {
 	var msg = args.isEmptyList() ? "" : s.car(args).data;
-	return alert(msg);
+ alert(msg);
+ return s.voidValue;
 }
 function clientjsPrompt(args) {
 	args = s.listToArray(args);
