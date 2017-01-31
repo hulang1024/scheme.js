@@ -42,7 +42,12 @@ s.eval = function(forms) {
 	}
 
 	for(var i = 0; i < exps.length; i++) {
-		var obj = evaluate(exps[i], s.globalEnvironment);
+		try {
+			var obj = evaluate(exps[i], s.globalEnvironment);
+		} catch(e) {
+			s.console.value += e + "\n";
+			console.error(e);
+		}
 		//s.console.log(obj);
 		if(!s.error)
 			printValue(obj);

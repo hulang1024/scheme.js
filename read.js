@@ -4,7 +4,7 @@
 var ScmObject = s.ScmObject;
 
 // 符号(作为标识符)
-var symbolReg = /^(?![0-9])[a-zA-Z_$0-9>!\-\?\*%\.\+\-\*\/\<\>\=\u4e00-\u9fa5]+$/;
+var symbolReg = /^(?![0-9])[a-zA-Z_$0-9\!\-\?\*%\.\+\-\*\/\<\>\=\u4e00-\u9fa5]+$/;
 
 // 数值
 var decimalReg = /^[+-]?\d+$/;
@@ -110,7 +110,13 @@ function parseSExps(tokens) {
 			}
 			else {
 				var token = array[index];
-				if(symbolReg.test(token)) {
+				if(decimalReg.test(token) || hexReg.test(token) || octReg.test(token)) {
+					exps.push(ScmObject.makeInt(parseInt(token)));
+				}
+				else if(floatReg.test(token)) {
+					exps.push(ScmObject.makeReal(parseFloat(token)));
+				}
+				else if(symbolReg.test(token)) {
 					exps.push(s.getSymbol(token.toLowerCase()));//lowercase id
 				}
 				else if(token[0] == '\'') {//quote
@@ -124,12 +130,6 @@ function parseSExps(tokens) {
 						obj = parseSExps(parseTokens(token.substring(1)))[0];
 					}
 					exps.push(s.cons(quoteSym, s.cons(obj, s.nil)));
-				}
-				else if(decimalReg.test(token) || hexReg.test(token) || octReg.test(token)) {
-					exps.push(ScmObject.makeInt(parseInt(token)));
-				}
-				else if(floatReg.test(token)) {
-					exps.push(ScmObject.makeReal(parseFloat(token)));
 				}
 				else if(charReg.test(token)) {
 					exps.push(ScmObject.makeChar(token.substr(2)));
