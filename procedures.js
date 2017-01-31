@@ -396,6 +396,7 @@ function display(args) {
 }
 function newline(args) {
 	s.console.value += "\n";
+	return s.voidValue;
 }
 
 function meval(args) {
