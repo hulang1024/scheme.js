@@ -3,9 +3,6 @@
 "use strict";
 
 s.ScmObject = function(type, data) {
-	/*
-	integer=1,real=2,char=3,string=4,boolean=5,symbol=6,pair=7,primitive_procedure=8,compound_procedure=9,EmptyList=0,10=namespace,11=Unspecified
-	*/
 	this.type = type;
 	this.data = data;
 	this.isInteger = function() { return this.type == 1; }
@@ -49,6 +46,8 @@ ScmObject.makePair = function(data) {
 s.cons = function(x, y) { return new ScmObject.makePair([x, y]); }
 s.car = function(pair) { return pair.data[0]; }
 s.cdr = function(pair) { return pair.data[1]; }
+s.setCar = function(pair, pcar) { pair.data[0] = pcar; }
+s.setCdr = function(pair, pcdr) { pair.data[1] = pcdr; }
 
 ScmObject.makePrimProc = function(name, func, minArgs, maxArgs) {
 	var arity = [];
@@ -62,13 +61,20 @@ s.primProcName = function(proc) { return proc.data[0]; }
 s.primProcFunc = function(proc) { return proc.data[1]; }
 s.primProcArity = function(proc) { return proc.data[2]; }
 
-ScmObject.makeCompProc = function(parameters, body, env, name) {
-	return new ScmObject(9, [parameters, body, env, name]);
+ScmObject.makeCompProc = function(name, parameters, body, env, minArgs, maxArgs) {
+	var arity = [];
+	if(minArgs !== undefined)
+		arity.push(minArgs);
+	if(maxArgs !== undefined)
+		arity.push(maxArgs);
+	return new ScmObject(9, [parameters, body, env, name, arity]);
 }
 s.compProcParamters = function(proc) { return proc.data[0]; }
 s.compProcBody = function(proc) { return proc.data[1]; }
 s.compProcEnv = function(proc) { return proc.data[2]; }
 s.compProcName = function(proc) { return proc.data[3] }
+s.compProcArity = function(proc) { return proc.data[4]; }
+s.setCompProcName = function(proc, name) { return proc.data[3] = name; }
 
 ScmObject.makeNamespace = function(env) {
 	return new ScmObject(10, env);
@@ -107,6 +113,16 @@ s.listToArray = function(list) {
 	return array;
 }
 
+s.pairToArray = function(pair) {
+	var array = [];
+	while(pair.isPair()) {
+		array.push(s.car(pair));
+		pair = s.cdr(pair);
+	}
+	array.push(pair);
+	return array;
+}
+
 // 基本常量值
 s.True = ScmObject.makeBoolean(true);
 s.False = ScmObject.makeBoolean(false);
@@ -137,6 +153,8 @@ s.beginSymbol = s.pushSymbol('begin');
 s.condSymbol = s.pushSymbol('cond');
 s.elseSymbol = s.pushSymbol('else');
 s.letSymbol = s.pushSymbol('let');
+s.dotSymbol = s.pushSymbol('.');
+
 s.isList = function(obj) {
 	for(; obj.isPair(); obj = s.cdr(obj))
 		if(s.car(obj).isEmptyList())

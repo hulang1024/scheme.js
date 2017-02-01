@@ -4,16 +4,16 @@ var ScmObject = s.ScmObject;
 
 
 s.initPrimitiveProcedures = function(env) {
-	addGlobalPrimProc("+", sum, 0, null);
-	addGlobalPrimProc("-", sub, 1, null);
-	addGlobalPrimProc("*", mul, 0, null);
-	addGlobalPrimProc("/", div, 1, null);
+	addGlobalPrimProc("+", sum, 0, -1);
+	addGlobalPrimProc("-", sub, 1, -1);
+	addGlobalPrimProc("*", mul, 0, -1);
+	addGlobalPrimProc("/", div, 1, -1);
 	
-	addGlobalPrimProc("=", equalNumber, 2, null);
-	addGlobalPrimProc("<", lessThan, 2, null);
-	addGlobalPrimProc(">", greaThan, 2, null);
-	addGlobalPrimProc("<=", lteq, 2, null);
-	addGlobalPrimProc(">=", gteq, 2, null);
+	addGlobalPrimProc("=", equalNumber, 2, -1);
+	addGlobalPrimProc("<", lessThan, 2, -1);
+	addGlobalPrimProc(">", greaThan, 2, -1);
+	addGlobalPrimProc("<=", lteq, 2, -1);
+	addGlobalPrimProc(">=", gteq, 2, -1);
 	
 	addGlobalPrimProc("not", not, 1);
 	addGlobalPrimProc("car", mcar, 1);
@@ -21,7 +21,7 @@ s.initPrimitiveProcedures = function(env) {
 	addGlobalPrimProc("cons", mcons, 2);
 	addGlobalPrimProc("set-car!", setCar, 2);
 	addGlobalPrimProc("set-cdr!", setCdr, 2);
-	addGlobalPrimProc("list", mlist, 0, null);
+	addGlobalPrimProc("list", mlist, 0, -1);
 	addGlobalPrimProc("list-ref", mlistRef, 2);
 	addGlobalPrimProc("for-each", mforEach, 2);
 
@@ -38,8 +38,8 @@ s.initPrimitiveProcedures = function(env) {
 	addGlobalPrimProc("eq?", equalObjectRef, 2);
 	addGlobalPrimProc("equal?", equalObjectRef, 2);
 	
-	addGlobalPrimProc("and", and, 0, null);
-	addGlobalPrimProc("or", or, 0, null);
+	addGlobalPrimProc("and", and, 0, -1);
+	addGlobalPrimProc("or", or, 0, -1);
 	
 	addGlobalPrimProc("string->number", stringToNumber, 1);
 	
@@ -50,9 +50,9 @@ s.initPrimitiveProcedures = function(env) {
 	addGlobalPrimProc("display", display, 1);
 	addGlobalPrimProc("newline", newline, 0);
 	addGlobalPrimProc("random-int", randomInt, 2);
-	addGlobalPrimProc("alert", clientjsAlert, 0, null);
-	addGlobalPrimProc("prompt", clientjsPrompt, 0, null);
-	addGlobalPrimProc("confirm", clientjsConfirm, 0, null);
+	addGlobalPrimProc("alert", clientjsAlert, 0, -1);
+	addGlobalPrimProc("prompt", clientjsPrompt, 0, -1);
+	addGlobalPrimProc("confirm", clientjsConfirm, 0, -1);
 	
 	var cadrFuncNames = [
 		"caar", "cadr", "cdar", "cddr",
@@ -127,7 +127,7 @@ function setCar(args) {
 	if(!pair.isPair())
 		return s.makeContractViolationError("set-car!", args, "mpair?", pair, 0);
 	var pcar = s.cadr(args);
-	pair.data[0] = pcar;
+	s.setCar(pair, pcar);
 	return s.voidValue;
 }
 
@@ -136,7 +136,7 @@ function setCdr(args) {
 	if(!pair.isPair())
 		return s.makeContractViolationError("set-car!", args, "mpair?", pair, 0);
 	var pcdr = s.cadr(args);
-	pair.data[1] = pcdr;
+	s.setCdr(pair, pcdr);
 	return s.voidValue;
 }
 

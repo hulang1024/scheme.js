@@ -21,7 +21,6 @@ var booleanReg = /^#[tf]|(true|false)$^/;
 
 var emptyListReg = /^\(\)$/;
 
-
 s.parse = function(str) {
 	//delete comment line
 	str += '\n';
@@ -85,11 +84,11 @@ function parseSExps(tokens) {
 		//console.log(arrayExp);
 		array = eval(arrayExp);
 	} catch(e) {
-		return "parseSExps:unexpected";
+		return "read:unexpected";
 	}
 	var exps = parse(array);
 	if(error == 1)
-		return "parse:unexpected";
+		return "read:unexpected";
 	else
 		return exps;
 	
@@ -98,15 +97,34 @@ function parseSExps(tokens) {
 		for(var index = 0; index < array.length; index++) {
 			if(array[index].constructor == Array) {
 				var array1 = parse(array[index]);
-				var list;
+				var pair;
 				if(array1.length > 0) {
-					list = s.nil;
-					for(var i = array1.length - 1; i >= 0; i--)
-						list = s.cons(array1[i], list);
+					var currPair;
+					if(array1[0] != s.dotSymbol) {
+						pair = currPair = s.cons(array1[0], s.nil);
+						for(var i = 1; i < array1.length; i++) {
+							var elem = array1[i];
+							if(elem != s.dotSymbol) {
+								var nextPair = s.cons(array1[i], s.nil);
+								s.setCdr(currPair, nextPair);
+							} else {
+								++i;
+								if(i == array1.length - 1)
+									s.setCdr(currPair, array1[i]);
+								else {
+									error = 1;
+									break;
+								}
+							}
+							currPair = nextPair;
+						}
+					} else {
+						error = 1;
+					}
 				} else {
-					list = s.nil;
+					pair = s.nil;
 				}
-				exps.push(list);
+				exps.push(pair);
 			}
 			else {
 				var token = array[index];

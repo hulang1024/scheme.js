@@ -1,4 +1,4 @@
-(define x 65)
+﻿(define x 65)
 (define (inc x) (+ x 1))
 (define (dec x) (- x 1))
 (define (add x y)
@@ -37,6 +37,8 @@ x
         (else (filter predicate (cdr seq)))))
 (filter (lambda (x) (= (% x 7) 0)) (list 3 34 43 2 7 14 19 30 55 20) )
 
+((lambda x x))
+((lambda x x) 1 2 3)  
 
 (define (for-range m n body)
   (if (<= m n)
