@@ -65,6 +65,9 @@ genCadrProcedures();
 	addGlobalPrimProc("or", or, 0, -1);
 	
 	addGlobalPrimProc("string->number", stringToNumber, 1);
+	addGlobalPrimProc("number->string", numberToString, 1);
+	
+	addGlobalPrimProc("string-append", stringAppend, 2);
 	
 	addGlobalPrimProc("eval", meval, 2);
 	addGlobalPrimProc("apply", mapply, 2);
@@ -413,6 +416,23 @@ function stringToNumber(args) {
 	if(!obj.isString())
 		return s.makeContractViolationError("string->number", args, "string?", obj);
 	return ScmObject.makeReal(parseFloat(obj.data));
+}
+
+function numberToString(args) {
+	var obj = s.car(args);
+	if(!obj.isNumber())
+		return s.makeContractViolationError("number->string", args, "number?", obj);
+	return ScmObject.makeString(obj.data.toString());
+}
+
+function stringAppend(args) {
+	var obj1 = s.listRef(args, 0);
+	var obj2 = s.listRef(args, 1);
+	if(!obj1.isString())
+		return s.makeContractViolationError("string->append", args, "string?", obj1, 0);
+	if(!obj2.isString())
+		return s.makeContractViolationError("string->append", args, "string?", obj2, 1);
+	return ScmObject.makeString(obj1.data + obj2.data);
 }
 
 })(scheme);

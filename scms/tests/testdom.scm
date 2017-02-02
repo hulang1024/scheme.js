@@ -1,6 +1,22 @@
-(define exp (getElementById document "exp"))
-(define c (dom-get exp 'rows))
-(dom-set-event document 'onkeypress
+(define (addpx d a n)
+  (define (getpx str)
+    (string->number str))
+  (dom-set d a (string-append
+              (number->string (+ (getpx (dom-get d a)) n))
+              "px")))
+
+(define d (dom-get (getElementById document "run") 'style))
+(dom-set d 'position "absolute")
+(dom-set d 'left "100px")
+(dom-set d 'top 0)
+(dom-set-event document 'onkeydown
   (lambda (event)
-    (dom-set exp 'rows c) 
-    (set! c (- c 1))) 
+    (define KEY_L 37)
+    (define KEY_U 38)
+    (define KEY_R 39)
+    (define KEY_D 40)
+    (define key (dom-get event 'keyCode))
+    (cond ((= key KEY_U) (addpx d 'top -10))
+          ((= key KEY_D) (addpx d 'top +10))
+          ((= key KEY_L) (addpx d 'left -10))
+          ((= key KEY_R) (addpx d 'left +10)))))
