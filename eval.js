@@ -2,6 +2,7 @@
 "use strict";
 
 var ScmObject = s.ScmObject;
+var EnvironmentFrame = s.EnvironmentFrame;
 
 function mapList(func, list) {
 	if(list.isEmptyList())
@@ -18,14 +19,7 @@ function pairsLength(pairs) {
 	return !pairs.isPair() ? 0 : 1 + pairsLength(s.cdr(pairs));
 }
 
-s.globalEnvironment = new EnvironmentFrame({}, null);
 s.error = null;
-function EnvironmentFrame(map, baseEnv) {
-	this.map = map;
-	this.baseEnv = baseEnv;
-}
-
-setupEnvironment();
 s.evaluate = evaluate;
 s.apply = apply;
 
@@ -407,16 +401,12 @@ function applyPrimitiveProcedure(primprocedure, argvs) {
 		return result;
 }
 
-function setupEnvironment() {
-	s.initPrimitiveProcedures(s.globalEnvironment);
-}
-
 function lookupVariableValue(variable, env) {
 	var value;
-	while(env && (value = env.map[variable.data]) == undefined)
+	while(env && ((value = env.map[variable.data]) == undefined))
 		env = env.baseEnv;
 	if(value == undefined)
-		s.makeError('undefined', variable.data);
+		return s.makeError('undefined', variable.data);
 	return value;
 }
 
@@ -453,10 +443,11 @@ function defineVariable(variable, value, env) {
 
 function setVariableValue(variable, value, env) {
 	var name = variable.data;
-	if(env.map[name])
-		env.map[name] = value;
-	else
-		s.makeError('undefined', name);
+	while(env && !env.map.hasOwnProperty(name))
+		env = env.baseEnv;
+	if(env == null)
+		return s.makeError('undefined', name);
+	env.map[name] = value;
 }
 
 function checkPimitiveProcedureArguments(procedure, argvs) {

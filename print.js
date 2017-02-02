@@ -43,6 +43,8 @@ s.printObj = function(obj, display) {
 	}
 	else if(obj.isNamespace())
 		str = '#<namespace:0>';
+	else if(obj.isMyObject())
+		str = "#object";
 	else
 		str = obj.data;
 	return str;

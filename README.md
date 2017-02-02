@@ -24,7 +24,6 @@ Scheme原本就是一个非常通用的编程语言，但是本JS版本目前的
  4. 输出  
   display,newline
  5. eval, apply, interaction-environment
- 6. 浏览器客户端JS的一些函数，包括alert,prompt,confirm,random-int
 * 基本数据类型  
  1. 数字
  2. 布尔
@@ -46,5 +45,9 @@ Scheme原本就是一个非常通用的编程语言，但是本JS版本目前的
   2. 但暂不支持这里的关键的尾递归优化，因此递归过程和迭代过程(即使语法上是一个递归定义，但应该可以生成迭代计算过程的)都会生成递归计算过程。
 * 第一级函数
 * 常量引用，目前仅支持quote
-* 注释  
+* 注释 
 单行注释
+
+## 扩展与库
+ 1. 浏览器客户端JS的一些函数，包括alert,prompt,confirm,random-int
+ 2. 简单的DOM操作

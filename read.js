@@ -135,7 +135,7 @@ function parseSExps(tokens) {
 					exps.push(ScmObject.makeReal(parseFloat(token)));
 				}
 				else if(symbolReg.test(token)) {
-					exps.push(s.getSymbol(token.toLowerCase()));//lowercase id
+					exps.push(s.getSymbol(token));
 				}
 				else if(token[0] == '\'') {//quote
 					var quoteSym = s.getSymbol('quote');
