@@ -93,6 +93,42 @@ function printError() {
 		info += "\n  argument position: " + argPosition + "st";
 		info += "\n  arguments: \n\t" + printObjs(argvs);
 		break;
+	case "indexOutRange":
+		var procedureName = error[1];
+		var type = error[2];
+		var startIndex = error[3];
+		var endIndex = error[4];
+		var invalid = error[5];
+		var length = error[6];
+		var obj = error[7];
+		var info = procedureName + ": ";
+		if(invalid == "index") {
+			info += "index is out of range";
+			if(length == 0) {
+				info += " for empty " + type;
+				info += "\n  index: " + startIndex;
+			}
+			else {
+				info += "\n  index: " + startIndex;
+				info += "\n  valid range: [0, " + (length - 1) + "]";
+				info += "\n  " + type + ": " + s.printObj(obj);
+			}
+		}
+		else {
+			if(invalid == "starting") {
+				info += "starting index is out of range";
+				info += "\n  starting index: " + startIndex;
+				info += "\n  valid range: [0, " + length + "]";
+			}
+			else if(invalid == "ending") {
+				info += "ending index is out of range";
+				info += "\n  ending index: " + endIndex;
+				info += "\n  starting index: " + startIndex;
+				info += "\n  valid range: [0, " + length + "]";
+			}
+			info += "\n  " + type + ": " + s.printObj(obj);
+		}
+		break;
 	case 'undefined':
 		var id = error[1];
 		var info = id + ": undefined;";
@@ -391,11 +427,10 @@ function condToIf(exp) {
 	}
 }
 
-function applyPrimitiveProcedure(primprocedure, argvs) {
-	var result = checkPimitiveProcedureArguments(primprocedure, argvs);
+function applyPrimitiveProcedure(proc, argvs) {
+	var result = checkPimitiveProcedureArguments(proc, argvs);
 	if(result) {
-		var func = s.primProcFunc(primprocedure);
-		return func(argvs);
+		return s.primProcFunc(proc)(argvs, listLength(argvs));
 	}
 	else
 		return result;
@@ -463,20 +498,31 @@ function checkCompoundProcedureArguments(procedure, argvs) {
 }
 
 function matchArity(procedureName, argvs, arity) {
-	var expectedAtleast = arity[0];
+	var min = arity[0];
 	var mismatch = false;
-	var argvsLen = listLength(argvs);
+	var isAtleast = true;
+	var expected = "";
+	var argvsCount = listLength(argvs);
 	if(arity.length == 1) {
-		if(argvsLen != expectedAtleast)
+		if(argvsCount != min)
 			mismatch = true;
+		expected = min;
 	}
 	else if(arity.length == 2) {
-		var max = arity[1] != -1 ? arity : 10000;
-		if(!(expectedAtleast <= argvsLen && argvsLen <= max))
+		var max;
+		if(arity[1] != -1) {
+			max = arity[1];
+			isAtleast = false;
+			expected = min + " to " + max;
+		} else {
+			max = 0x3FFFFFFE;
+			expected = min;
+		}
+		if(!(min <= argvsCount && argvsCount <= max))
 			mismatch = true;
 	}
 	if(mismatch) 
-		s.makeArityMismatchError(procedureName, argvs, (arity.length != 1), expectedAtleast, argvsLen);
+		s.makeArityMismatchError(procedureName, argvs, isAtleast, expected, argvsCount);
 	return !mismatch;
 }
 })(scheme);

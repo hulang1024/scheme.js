@@ -67,10 +67,25 @@ genCadrProcedures();
 	addGlobalPrimProc("string->number", stringToNumber, 1);
 	addGlobalPrimProc("number->string", numberToString, 1);
 	
-	addGlobalPrimProc("string-append", stringAppend, 2);
+	// string
+	addGlobalPrimProc("make-string", makeString, 1, 2);
+	addGlobalPrimProc("string", string, 0, -1);
+	addGlobalPrimProc("string-length", stringLength, 1);
+	addGlobalPrimProc("string-ref", stringRef, 2);
+	addGlobalPrimProc("string-set!", stringSet, 3);
+	addGlobalPrimProc("string=?", stringEqual, 2);
+	addGlobalPrimProc("string-ci=?", stringCIEqual, 2);
+	addGlobalPrimProc("substring", substring, 3);
+	addGlobalPrimProc("string->list", stringToList, 1);
+	addGlobalPrimProc("list->string", listToString, 1);
+	addGlobalPrimProc("string-copy", stringCopy, 1);
+	addGlobalPrimProc("string-fill!", stringFill, 2);
+	addGlobalPrimProc("string-append", stringAppend, 0, -1);
 	
-	addGlobalPrimProc("eval", meval, 2);
 	addGlobalPrimProc("apply", mapply, 2);
+	
+	// evaluation
+	addGlobalPrimProc("eval", meval, 2);
 	addGlobalPrimProc("interaction-environment", interactionEnvironment);
 	
 	addGlobalPrimProc("display", display, 1);
@@ -79,6 +94,7 @@ genCadrProcedures();
 	cadrFuncNames.forEach(function(funcName){
 		addGlobalPrimProc(funcName, eval('scheme.m'+funcName), 1);
 	});
+
 })();
 
 
@@ -425,14 +441,198 @@ function numberToString(args) {
 	return ScmObject.makeString(obj.data.toString());
 }
 
+
+//------------------
+// string
+//------------------
+function makeString(args, argc) {
+	var k = s.car(args);
+	if(!isExactNonnegativeInteger(k))
+		return s.makeContractViolationError("make->string", args, "exact-nonnegative-integer?", k, 0);
+	var c = ScmObject.makeChar('\0');
+	if(argc == 2) {
+		c = s.cadr(args);
+		if(!c.isChar())
+			return s.makeContractViolationError("make->string", args, "char?", c, 1);
+	}
+	k = s.intVal(k);
+	c = s.charVal(c);
+	var charArray = [];
+	for(; k > 0; k--) {
+		charArray.push(c);
+	}
+	return ScmObject.makeString(charArray);
+}
+
+function string(args) {
+	var charArray = [];
+	var list = args, obj, i = 0;
+	for(; !list.isEmptyList(); list = s.cdr(list), i++) {
+		obj = s.car(list);
+		if(!obj.isChar())
+			return s.makeContractViolationError("string", args, "char?", obj, i);
+		charArray.push(s.charVal(obj));
+	}
+	return ScmObject.makeString(charArray);
+}
+
+function stringLength(args) {
+	var obj = s.car(args);
+	if(!obj.isString())
+		return s.makeContractViolationError("string-length", args, "string?", obj, 0);
+	return ScmObject.makeInt(s.stringLen(obj));
+}
+
+function stringRef(args) {
+	var str = s.car(args);
+	var k = s.cadr(args);
+	if(!str.isString())
+		return s.makeContractViolationError("string-ref", args, "string?", str, 0);
+	if(!isExactNonnegativeInteger(k))
+		return s.makeContractViolationError("string-ref", args, "exact-nonnegative-integer?", k, 1);
+	k = s.intVal(k);
+	if(indexRangeCheck("string-ref", "string", k, -1, s.stringLen(str), str))
+		return ScmObject.makeChar(s.stringVal(str)[k]);
+}
+
+function stringSet(args) {
+	var str = s.listRef(args, 0);
+	var k = s.listRef(args, 1);
+	var c = s.listRef(args, 2);
+
+	if(!str.isString())
+		return s.makeContractViolationError("string-set!", args, "string?", str, 0);
+	if(!isExactNonnegativeInteger(k))
+		return s.makeContractViolationError("string-set!", args, "exact-nonnegative-integer?", k, 1);
+	if(!c.isChar())
+		return s.makeContractViolationError("string-set!", args, "char?", c, 2);
+	k = s.intVal(k);
+	if(indexRangeCheck("string-set!", "string", k, -1, s.stringLen(str), str)) {
+		s.stringVal(str)[k] = s.charVal(c);
+		return s.voidValue;
+	}
+}
+
+function stringEqual(args) {
+	var str1 = s.car(args);
+	var str2 = s.cadr(args);
+	if(!str1.isString())
+		return s.makeContractViolationError("string=?", args, "string?", str1, 0);
+	if(!str2.isString())
+		return s.makeContractViolationError("string=?", args, "string?", str2, 1);
+	return ScmObject.getBoolean(s.stringVal(str1).join("") == s.stringVal(str2).join(""));
+}
+
+function stringCIEqual(args) {
+	var str1 = s.car(args);
+	var str2 = s.cadr(args);
+	if(!str1.isString())
+		return s.makeContractViolationError("string=?", args, "string?", str1, 0);
+	if(!str2.isString())
+		return s.makeContractViolationError("string=?", args, "string?", str2, 1);
+	return ScmObject.getBoolean(
+		s.stringVal(str1).join("").toLowerCase() == s.stringVal(str2).join("").toLowerCase());
+}
+
+function substring(args) {
+	var str = s.listRef(args, 0);
+	var start = s.listRef(args, 1);
+	var end = s.listRef(args, 2);
+	if(!str.isString())
+		return s.makeContractViolationError("substring", args, "string?", str, 0);
+	if(!isExactNonnegativeInteger(start))
+		return s.makeContractViolationError("substring", args, "exact-nonnegative-integer?", start, 1);
+	if(!isExactNonnegativeInteger(end))
+		return s.makeContractViolationError("substring", args, "exact-nonnegative-integer?", end, 2);
+	start = s.intVal(start);
+	end = s.intVal(end);
+	if(indexRangeCheck("substring", "string", start, end, s.stringLen(str), str)) {
+		return ScmObject.makeString(s.stringVal(str).slice(start, end));
+	}
+}
+
 function stringAppend(args) {
-	var obj1 = s.listRef(args, 0);
-	var obj2 = s.listRef(args, 1);
-	if(!obj1.isString())
-		return s.makeContractViolationError("string->append", args, "string?", obj1, 0);
-	if(!obj2.isString())
-		return s.makeContractViolationError("string->append", args, "string?", obj2, 1);
-	return ScmObject.makeString(obj1.data + obj2.data);
+	var str = "";
+	var list = args, obj, i = 0;
+	for(; !list.isEmptyList(); list = s.cdr(list), i++) {
+		obj = s.car(list);
+		if(!obj.isString())
+			return s.makeContractViolationError("string->append", args, "string?", obj, i);
+		str += s.stringVal(obj);
+	}
+	return ScmObject.makeString(str);
+}
+
+function stringToList(args) {
+	var obj = s.car(args);
+	if(!obj.isString())
+		return s.makeContractViolationError("string->list", args, "string?", obj, 0);
+	var list = s.nil;
+	for(var charArray = s.stringVal(obj), i = charArray.length - 1; i >= 0; i--) {
+		list = s.cons(ScmObject.makeChar(charArray[i]), list);
+	}
+	return list;
+}
+
+function listToString(args) {
+	var list = s.car(args);
+	if(!s.isList(list))
+		return s.makeContractViolationError("list->string", args, "list?", list, 0);
+	var obj;
+	var charArray = [];
+	for(var i = 0; !list.isEmptyList(); list = s.cdr(list), i++) {
+		obj = s.car(list);
+		if(!obj.isChar())
+			return s.makeContractViolationError("list->string", args, "char?", obj, i);
+		charArray.push(s.charVal(obj));
+	}
+	return ScmObject.makeString(charArray);
+}
+
+function stringCopy(args) {
+	var str = s.car(args);
+	if(!str.isString())
+		return s.makeContractViolationError("string-copy", args, "string?", str, 0);
+	return ScmObject.makeString(s.stringVal(str).slice(0));
+}
+
+function stringFill(args) {
+	var str = s.car(args);
+	var c = s.cadr(args);
+	if(!str.isString())
+		return s.makeContractViolationError("string-fill!", args, "string?", str, 0);
+	if(!c.isChar())
+		return s.makeContractViolationError("string-fill!", args, "char?", c, 1);
+	c = s.charVal(c);
+	var charArray = s.stringVal(str);
+	for(var i in charArray)
+		charArray[i] = c;
+	return s.voidValue;
+}
+
+
+//--------------------
+//contract & check functions
+//--------------------
+//exact-nonnegative-integer?
+function isExactNonnegativeInteger(obj) {
+	return obj.isInteger() && s.intVal(obj) >= 0;
+}
+
+function indexRangeCheck(procedureName, type, startIndex, endIndex, length, obj) {
+	var invalid = false;
+	if(endIndex == -1) {
+		if(startIndex >= length || length == 0)
+			invalid = "index";
+	}
+	else if(!(0 <= startIndex && startIndex <= endIndex && startIndex <= length))
+		invalid = "starting";
+	else if(endIndex > length)
+		invalid = "ending";
+	if(invalid)
+		return s.makeIndexOutRangeError(procedureName, type, startIndex, endIndex, invalid, length, obj);
+
+	return true;
 }
 
 })(scheme);

@@ -13,12 +13,13 @@ var octReg = /^[+-]?0[0-7]$/;
 var floatReg = /^[+-]?\d+\.\d+$/;
 
 // 字符
-var charReg = /^#\\\w$/;
+var charReg = /^#\\/;
 var stringReg = /^\".*\"$/;
 
 // 布尔
 var booleanReg = /^#[tf]|(true|false)$^/;
 
+var vectorReg = /^#\(/;
 var emptyListReg = /^\(\)$/;
 
 s.parse = function(str) {
@@ -69,7 +70,7 @@ function parseSExps(tokens) {
 		else {
 			var tk = t;
 			if(t[0] == '#' && t[1] == '\\')
-				tk = t[0] + '\\\\' + t.substring(1);
+				tk = t[0] + '\\' + t.substring(1);
 			if(t[0] == "'") {
 				return "\"\\" + t[0] + t.substring(1) + "\"";
 			}
@@ -137,7 +138,7 @@ function parseSExps(tokens) {
 				else if(symbolReg.test(token)) {
 					exps.push(s.getSymbol(token));
 				}
-				else if(token[0] == '\'') {//quote
+				else if(token[0] == "'") {//quote
 					var quoteSym = s.getSymbol('quote');
 					var obj;
 					if(token == "'") {
@@ -149,11 +150,13 @@ function parseSExps(tokens) {
 					}
 					exps.push(s.cons(quoteSym, s.cons(obj, s.nil)));
 				}
+				else if(vectorReg.test(token)) {//vector
+				}
 				else if(charReg.test(token)) {
 					exps.push(ScmObject.makeChar(token.substr(2)));
 				}
 				else if(stringReg.test(token)) {
-					exps.push(ScmObject.makeString(token.substr(1, token.length - 2)));
+					exps.push(ScmObject.makeString(token.substr(1, token.length - 2).split("")));
 				}
 				else if(booleanReg.test(token)) {
 					exps.push(ScmObject.getBoolean(token == "#t" || token == "#true"));

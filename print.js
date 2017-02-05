@@ -8,14 +8,16 @@ s.printObj = function(obj, display) {
 	if(obj.isNumber()) {
 		str = obj.data;
 	}
+	else if(obj.isChar()) {
+		str = "#\\" + s.charVal(obj);
+	}
 	else if(obj.isString()) {
-		if(display)
-			str = obj.data;
-		else
-			str = "\"" + obj.data + "\"";
+		str = s.stringVal(obj).join("");
+		if(!display)
+			str = "\"" + str + "\"";
 	}
 	else if(obj.isSymbol()) {
-		str = obj.data;
+		str = s.symbolVal(obj);
 	}
 	else if(obj.isBoolean()) {
 		str = obj.data ? "#t" : "#f";

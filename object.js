@@ -18,6 +18,7 @@ s.ScmObject = function(type, data) {
 	this.isProcedure = function() { return this.type == 8 || this.type == 9; }
 	this.isEmptyList = function() { return this.type == 0; }
 	this.isNamespace = function() { return this.type == 10; }
+	this.isVector = function() { return this.type == 11; }
 	this.isMyObject = function() { return this.type == 30; }
 }
 var ScmObject = s.ScmObject;
@@ -25,21 +26,32 @@ var ScmObject = s.ScmObject;
 ScmObject.makeInt = function(data) {
 	return new ScmObject(1, data);
 }
+s.intVal = function(obj) { return obj.data; }
+
 ScmObject.makeReal = function(data) {
 	return new ScmObject(2, data);
 }
+s.floatVal = function(obj) { return obj.data; }
+
 ScmObject.makeChar = function(data) {
 	return new ScmObject(3, data);
 }
+s.charVal = function(obj) { return obj.data; }
+
 ScmObject.makeString = function(data) {
 	return new ScmObject(4, data);
 }
+s.stringVal = function(obj) { return obj.data; }
+s.stringLen = function(obj) { return obj.data.length; }
+
 ScmObject.makeBoolean = function(data) {
 	return new ScmObject(5, data);
 }
+
 ScmObject.makeSymbol = function(data) {
 	return new ScmObject(6, data);
 }
+s.symbolVal = function(obj) { return obj.data; }
 
 ScmObject.makePair = function(data) {
 	return new ScmObject(7, data);
@@ -92,10 +104,16 @@ s.makeArityMismatchError = function(procedureName, args, isAtleast, expected, gi
 s.makeContractViolationError = function(procedureName, args, expected, given, argPosition) {
 	s.makeError('contractViolation', procedureName, s.listToArray(args), expected, given, argPosition);
 }
-
+s.makeIndexOutRangeError = function(procedureName, type, startIndex, endIndex, invalid, length, obj) {
+	s.makeError('indexOutRange', procedureName, type, startIndex, endIndex, invalid, length, obj);
+}
 
 ScmObject.makeEmptyList = function(data) {
 	return new ScmObject(0, null);
+}
+
+ScmObject.makeVector = function(data) {
+	return new ScmObject(11, data);
 }
 
 ScmObject.makeMyObject = function(data) {
