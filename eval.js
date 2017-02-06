@@ -4,43 +4,14 @@
 var ScmObject = s.ScmObject;
 var EnvironmentFrame = s.EnvironmentFrame;
 
-s.evaluate = evaluate;
+s.eval = evaluate;
 s.apply = apply;
-
-s.eval = function(forms) {
-	s.error = null;//clear error
-	var exps = s.parse(forms);
-	if(exps.constructor == String) {
-		s.console.value += exps;
-		return;
-	}
-
-	for(var i = 0; i < exps.length; i++) {
-		try {
-			var obj = evaluate(exps[i], s.globalEnvironment);
-		} catch(e) {
-			s.console.value += e + "\n";
-			console.error(e);
-		}
-		//s.console.log(obj);
-		if(!s.error)
-			printValue(obj);
-		else {
-			s.printError();
-			break;
-		}
-	}
-}
 
 function mapList(func, list) {
 	if(list.isEmptyList())
 		return s.nil;
 	else
 		return s.cons(func(s.car(list)), mapList(func, s.cdr(list)));
-}
-
-function listLength(list) {
-	return list.isEmptyList() ? 0 : 1 + listLength(s.cdr(list));
 }
 
 function pairsLength(pairs) {
@@ -219,22 +190,31 @@ function evaluate(exp, env) {
 /*
 将过程应用于实参
 */
-function apply(procedure, argvs) {
+function apply(procedure, argv) {
 	if(s.error)
 		return s.error;
 
 	if(procedure.isPrimProc()) {
-		return applyPrimitiveProcedure(procedure, argvs);
+		return applyPrimitiveProcedure(procedure, argv);
 	}
 	else if(procedure.isCompProc()) {
-		var result = checkCompoundProcedureArguments(procedure, argvs);
+		var result = checkCompoundProcedureArguments(procedure, argv);
 		if(result) {
-			var compEnv = extendEnvironment(s.compProcParamters(procedure), argvs, s.compProcEnv(procedure));
-			return evalSequence(s.compProcBody(procedure), compEnv);
+			var env = extendEnvironment(s.compProcParamters(procedure), argv, s.compProcEnv(procedure));
+			return evalSequence(s.compProcBody(procedure), env);
 		}
 	}
 	else
 		s.makeError('application', "expected a procedure that can be applied to arguments");
+}
+
+function listOfValues(operands, env) {
+	var values = [];
+	while(!operands.isEmptyList()) {
+		values.push(evaluate(s.car(operands), env));
+		operands = s.cdr(operands);
+	}
+	return values;
 }
 
 function evalQuotation(exp) {
@@ -256,13 +236,6 @@ function evalDefinition(exp, env) {
 	return s.ok;
 }
 
-function listOfValues(operands, env) {
-	var values = mapList(function(exp){
-		return evaluate(exp, env);
-	}, operands);
-	return values;
-}
-
 function evalIf(exp, env) {
 	if(s.isTrue(evaluate(ifPredicate(exp), env)))
 		return evaluate(ifConsequent(exp), env);
@@ -280,7 +253,7 @@ function evalLambda(exp, env) {
 	var formals = lambdaParamters(exp);
 	var minArgs, maxArgs;
 	if(s.isList(formals)) {
-		minArgs = listLength(formals);
+		minArgs = s.listLength(formals);
 	}
 	else if(formals.isPair()) {
 		minArgs = pairsLength(formals);
@@ -298,9 +271,10 @@ function evalLambda(exp, env) {
 
 function evalSequence(exps, env) {
 	var values = [];
-	s.listToArray(exps).forEach(function(exp){
-		values.push( evaluate(exp, env) );
-	});
+	while(!exps.isEmptyList()) {
+		values.push( evaluate(s.car(exps), env) );
+		exps = s.cdr(exps);
+	}
 	return values[values.length - 1];
 }
 
@@ -333,10 +307,10 @@ function condToIf(exp) {
 	}
 }
 
-function applyPrimitiveProcedure(proc, argvs) {
-	var result = checkPimitiveProcedureArguments(proc, argvs);
+function applyPrimitiveProcedure(proc, argv) {
+	var result = checkPimitiveProcedureArguments(proc, argv);
 	if(result) {
-		return s.primProcFunc(proc)(argvs, listLength(argvs));
+		return s.primProcFunc(proc)(argv);
 	}
 	else
 		return result;
@@ -355,13 +329,11 @@ function extendEnvironment(variables, values, baseEnv) {
 	var map = {};
 	if(s.isList(variables)) {
 		variables = s.listToArray(variables);
-		values = s.listToArray(values);
 		for(var i = 0; i < variables.length; i++)
 			map[variables[i].data] = values[i];
 	}
 	else if(variables.isPair()) {
 		variables = s.pairToArray(variables);
-		values = s.listToArray(values);
 		var i;
 		for(i = 0; i < variables.length - 1; i++)
 			map[variables[i].data] = values[i];
@@ -371,7 +343,7 @@ function extendEnvironment(variables, values, baseEnv) {
 	}
 	else if(variables.isSymbol()) {
 		var variable = variables;
-		map[variable.data] = values;
+		map[variable.data] = s.arrayToList(values);
 	}
 
 	return new EnvironmentFrame(map, baseEnv);
@@ -391,26 +363,25 @@ function setVariableValue(variable, value, env) {
 	env.map[name] = value;
 }
 
-function checkPimitiveProcedureArguments(procedure, argvs) {
+function checkPimitiveProcedureArguments(procedure, argv) {
 	var procedureName = s.primProcName(procedure);
 	var arity = s.primProcArity(procedure);
-	return matchArity(procedureName, argvs, arity);
+	return matchArity(procedureName, argv, arity);
 }
 
-function checkCompoundProcedureArguments(procedure, argvs) {
+function checkCompoundProcedureArguments(procedure, argv) {
 	var procedureName = s.compProcName(procedure);
 	var arity = s.compProcArity(procedure);
-	return matchArity(procedureName, argvs, arity);
+	return matchArity(procedureName, argv, arity);
 }
 
-function matchArity(procedureName, argvs, arity) {
+function matchArity(procedureName, argv, arity) {
 	var min = arity[0];
 	var mismatch = false;
 	var isAtleast = true;
 	var expected = "";
-	var argvsCount = listLength(argvs);
 	if(arity.length == 1) {
-		if(argvsCount != min)
+		if(argv.length != min)
 			mismatch = true;
 		expected = min;
 	}
@@ -424,19 +395,12 @@ function matchArity(procedureName, argvs, arity) {
 			max = 0x3FFFFFFE;
 			expected = min;
 		}
-		if(!(min <= argvsCount && argvsCount <= max))
+		if(!(min <= argv.length && argv.length <= max))
 			mismatch = true;
 	}
 	if(mismatch) 
-		s.makeArityMismatchError(procedureName, argvs, isAtleast, expected, argvsCount);
+		s.makeArityMismatchError(procedureName, argv, isAtleast, expected, argv.length);
 	return !mismatch;
-}
-
-
-function printValue(obj) {
-	var val = s.printObj(obj);
-	if(val != null)
-		s.console.value += val + "\n";
 }
 
 })(scheme);

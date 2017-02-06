@@ -53,9 +53,18 @@ textarea {
 <script src="print.js?v=1.5"></script>
 <script src="env.js?v=1.3"></script>
 <script src="error.js?v=1.1"></script>
-<script src="primproc.js?v=1.5"></script>
+<script src="bool.js?v=1.1"></script>
+<script src="symbol.js?v=1.1"></script>
+<script src="number.js?v=1.1"></script>
+<script src="char.js?v=1.1"></script>
+<script src="string.js?v=1.1"></script>
+<script src="list.js?v=1.1"></script>
+<script src="vector.js?v=1.1"></script>
+<script src="myobject.js?v=1.1"></script>
+<script src="fun.js?v=1.1"></script>
 <script src="lib/client-javascript-lib.js?v=1.4"></script>
 <script src="eval.js?v=1.5"></script>
+<script src="main.js?v=1.1"></script>
 <script>
 window.onload = function(){
 	scheme.console = document.getElementById('console');
@@ -64,7 +73,7 @@ window.onload = function(){
 		var exp = document.getElementById('exp').value;
 		exp = exp.trim();
 		if(exp) {
-			scheme.eval(exp);
+			scheme.evalString(exp);
 		}
 	}
 }

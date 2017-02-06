@@ -23,45 +23,6 @@ s.ScmObject = function(type, data) {
 }
 var ScmObject = s.ScmObject;
 
-ScmObject.makeInt = function(data) {
-	return new ScmObject(1, data);
-}
-s.intVal = function(obj) { return obj.data; }
-
-ScmObject.makeReal = function(data) {
-	return new ScmObject(2, data);
-}
-s.floatVal = function(obj) { return obj.data; }
-
-ScmObject.makeChar = function(data) {
-	return new ScmObject(3, data);
-}
-s.charVal = function(obj) { return obj.data; }
-
-ScmObject.makeString = function(data) {
-	return new ScmObject(4, data);
-}
-s.charArrayVal = function(obj) { return obj.data; }
-s.stringVal = function(obj) { return obj.data.join(""); }
-s.stringLen = function(obj) { return obj.data.length; }
-
-ScmObject.makeBoolean = function(data) {
-	return new ScmObject(5, data);
-}
-
-ScmObject.makeSymbol = function(data) {
-	return new ScmObject(6, data);
-}
-s.symbolVal = function(obj) { return obj.data; }
-
-ScmObject.makePair = function(data) {
-	return new ScmObject(7, data);
-}
-s.cons = function(x, y) { return new ScmObject.makePair([x, y]); }
-s.car = function(pair) { return pair.data[0]; }
-s.cdr = function(pair) { return pair.data[1]; }
-s.setCar = function(pair, pcar) { pair.data[0] = pcar; }
-s.setCdr = function(pair, pcdr) { pair.data[1] = pcdr; }
 
 ScmObject.makePrimProc = function(name, func, minArgs, maxArgs) {
 	var arity = [];
@@ -74,6 +35,7 @@ ScmObject.makePrimProc = function(name, func, minArgs, maxArgs) {
 s.primProcName = function(proc) { return proc.data[0]; }
 s.primProcFunc = function(proc) { return proc.data[1]; }
 s.primProcArity = function(proc) { return proc.data[2]; }
+
 
 ScmObject.makeCompProc = function(name, parameters, body, env, minArgs, maxArgs) {
 	var arity = [];
@@ -90,93 +52,14 @@ s.compProcName = function(proc) { return proc.data[3] }
 s.compProcArity = function(proc) { return proc.data[4]; }
 s.setCompProcName = function(proc, name) { return proc.data[3] = name; }
 
-ScmObject.makeNamespace = function(env) {
-	return new ScmObject(10, env);
-}
+
 ScmObject.makeUnspecified = function() {
 	return new ScmObject(11, undefined);
 }
 
-
-ScmObject.makeEmptyList = function(data) {
-	return new ScmObject(0, null);
-}
-
-ScmObject.makeVector = function(data) {
-	return new ScmObject(11, data);
-}
-
-ScmObject.makeMyObject = function(data) {
-	return new ScmObject(30, data);
-}
-s.objectVal = function(obj) { return obj.data; }
-
-s.arrayToList = function(array) {
-	var list = s.nil;
-	for(var i = array.length - 1; i >= 0; i--)
-		list = s.cons(array[i], list);
-	return list;
-}
-s.listToArray = function(list) {
-	var array = [];
-	while(!list.isEmptyList()) {
-		array.push(s.car(list));
-		list = s.cdr(list);
-	}
-	return array;
-}
-s.listRef = function(list, index) {
-	for(var i = 0; i < index; i++)
-		list = s.cdr(list);
-	return s.car(list);
-}
-
-s.pairToArray = function(pair) {
-	var array = [];
-	while(pair.isPair()) {
-		array.push(s.car(pair));
-		pair = s.cdr(pair);
-	}
-	array.push(pair);
-	return array;
-}
-
 // 基本常量值
-s.True = ScmObject.makeBoolean(true);
-s.False = ScmObject.makeBoolean(false);
-s.nil = ScmObject.makeEmptyList();
+
 s.ok = ScmObject.makeUnspecified();
 s.voidValue = ScmObject.makeUnspecified();
 
-ScmObject.getBoolean = function(data) {
-	return data ? s.True : s.False;
-}
-
-// 符号表
-s.symbolMap = {};
-s.pushSymbol = function(name) {
-	return s.symbolMap[name] = ScmObject.makeSymbol(name);
-}
-s.getSymbol = function(name) {
-	var sym = s.symbolMap[name];
-	return sym ? sym : ScmObject.makeSymbol(name);
-}
-// 基本符号
-s.quoteSymbol = s.pushSymbol('quote');
-s.ifSymbol = s.pushSymbol('if');
-s.defineSymbol = s.pushSymbol('define');
-s.assignmentSymbol = s.pushSymbol('set!');
-s.lambdaSymbol = s.pushSymbol('lambda');
-s.beginSymbol = s.pushSymbol('begin');
-s.condSymbol = s.pushSymbol('cond');
-s.elseSymbol = s.pushSymbol('else');
-s.letSymbol = s.pushSymbol('let');
-s.dotSymbol = s.pushSymbol('.');
-
-s.isList = function(obj) {
-	for(; obj.isPair(); obj = s.cdr(obj))
-		if(s.car(obj).isEmptyList())
-			return true;
-	return obj.isEmptyList();
-}
 })(scheme);

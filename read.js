@@ -22,6 +22,9 @@ var booleanReg = /^#[tf]|(true|false)$^/;
 var vectorReg = /^#\(/;
 var emptyListReg = /^\(\)$/;
 
+s.initRead = function() {
+}
+
 s.parse = function(str) {
 	//delete comment line
 	str += '\n';
