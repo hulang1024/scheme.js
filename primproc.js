@@ -118,7 +118,7 @@ function mcar(args) {
 	if(obj.isPair())
 		return s.car(obj);
 	else
-		return s.makeContractViolationError("mcar", args, "mpair?", obj, 0);
+		return s.wrongContract("mcar", args, "mpair?", obj, 0);
 }
 
 function mcdr(args) {
@@ -126,13 +126,13 @@ function mcdr(args) {
 	if(obj.isPair())
 		return s.cdr(obj);
 	else
-		return s.makeContractViolationError("mcdr", args, "mpair?", obj, 0);
+		return s.wrongContract("mcdr", args, "mpair?", obj, 0);
 }
 
 function setCar(args) {
 	var pair = s.car(args);
 	if(!pair.isPair())
-		return s.makeContractViolationError("set-car!", args, "mpair?", pair, 0);
+		return s.wrongContract("set-car!", args, "mpair?", pair, 0);
 	var pcar = s.cadr(args);
 	s.setCar(pair, pcar);
 	return s.voidValue;
@@ -141,7 +141,7 @@ function setCar(args) {
 function setCdr(args) {
 	var pair = s.car(args);
 	if(!pair.isPair())
-		return s.makeContractViolationError("set-car!", args, "mpair?", pair, 0);
+		return s.wrongContract("set-car!", args, "mpair?", pair, 0);
 	var pcdr = s.cadr(args);
 	s.setCdr(pair, pcdr);
 	return s.voidValue;
@@ -154,7 +154,7 @@ function mlist(args) {
 function mlistRef(args) {
 	var pair = s.car(args);
 	if(!pair.isPair())
-		return s.makeContractViolationError("list-ref", args, "mpair?", pair, 0);
+		return s.wrongContract("list-ref", args, "mpair?", pair, 0);
 	var index = s.cadr(args).data;
 	for(var i = 0; i < index; i++)
 		pair = s.cdr(pair);
@@ -164,10 +164,10 @@ function mlistRef(args) {
 function mforEach(args) {
 	var proc = s.car(args);
 	if(!proc.isProcedure())
-		return s.makeContractViolationError("mfor-each", args, "procedure?", proc, 0);
+		return s.wrongContract("mfor-each", args, "procedure?", proc, 0);
 	var list = s.cadr(args);
 	if(!list.isPair())
-		return s.makeContractViolationError("mfor-each", args, "pair?", list, 1);
+		return s.wrongContract("mfor-each", args, "pair?", list, 1);
 	
 	while(!list.isEmptyList()) {
 		s.apply(proc, s.cons(s.car(list), s.nil));
@@ -185,7 +185,7 @@ function sum(args) {
 		if(obj.isNumber())
 			sum += obj.data;
 		else
-			return s.makeContractViolationError("+", args, "number?", obj, i);
+			return s.wrongContract("+", args, "number?", obj, i);
 	}
 	return ScmObject.makeReal(sum);
 }
@@ -199,7 +199,7 @@ function mul(args) {
 		if(obj.isNumber())
 			result *= obj.data;
 		else
-			return s.makeContractViolationError("*", args, "number?", obj, i);
+			return s.wrongContract("*", args, "number?", obj, i);
 	}
 	return ScmObject.makeReal(result);
 }
@@ -215,14 +215,14 @@ function sub(args) {
 			if(obj.isNumber())
 				result -= obj.data;
 			else
-				return s.makeContractViolationError("-", args, "number?", obj, i);
+				return s.wrongContract("-", args, "number?", obj, i);
 		}
 	} else {
 		obj = array[0];
 		if(obj.isNumber())
 			result = - obj.data;
 		else
-			return s.makeContractViolationError("-", args, "number?", obj, 0);
+			return s.wrongContract("-", args, "number?", obj, 0);
 	}
 	return ScmObject.makeReal(result);
 }
@@ -242,14 +242,14 @@ function div(args) {
 					return s.makeError("/", "division by zero");
 			}
 			else
-				return s.makeContractViolationError("/", args, "number?", obj, i);
+				return s.wrongContract("/", args, "number?", obj, i);
 		}
 	} else {
 		obj = array[0];
 		if(obj.isNumber())
 			result = 1 / obj.data;
 		else
-			return s.makeContractViolationError("/", args, "number?", obj, 0);
+			return s.wrongContract("/", args, "number?", obj, 0);
 	}
 	return ScmObject.makeReal(result);
 }
@@ -259,7 +259,7 @@ function equalNumber(args) {
 	var first = array[0];
 	var obj;
 	if(!first.isNumber())
-		return s.makeContractViolationError("=", args, "number?", obj, 0);
+		return s.wrongContract("=", args, "number?", obj, 0);
 	for(var i = 0; i < array.length; i++) {
 		obj = array[i];
 		if(obj.isNumber()) {
@@ -267,7 +267,7 @@ function equalNumber(args) {
 				return s.False;
 		}
 		else
-			return s.makeContractViolationError("=", args, "number?", obj, i);
+			return s.wrongContract("=", args, "number?", obj, i);
 	}
 	return s.True;
 }
@@ -290,9 +290,9 @@ function lessThan(args) {
 		obj1 = array[i];
 		obj2 = array[i + 1];
 		if(!obj1.isReal())
-			return s.makeContractViolationError("<", args, "real?", obj, i);
+			return s.wrongContract("<", args, "real?", obj, i);
 		if(!obj2.isReal())
-			return s.makeContractViolationError("<", args, "real?", obj, i + 1);
+			return s.wrongContract("<", args, "real?", obj, i + 1);
 		if(obj1.data >= obj2.data)
 			return s.False;
 	}
@@ -306,9 +306,9 @@ function greaThan(args) {
 		obj1 = array[i];
 		obj2 = array[i + 1];
 		if(!obj1.isReal())
-			return s.makeContractViolationError(">", args, "real?", obj, i);
+			return s.wrongContract(">", args, "real?", obj, i);
 		if(!obj2.isReal())
-			return s.makeContractViolationError(">", args, "real?", obj, i + 1);
+			return s.wrongContract(">", args, "real?", obj, i + 1);
 		if(obj1.data <= obj2.data)
 			return s.False;
 	}
@@ -322,9 +322,9 @@ function lteq(args) {
 		obj1 = array[i];
 		obj2 = array[i + 1];
 		if(!obj1.isReal())
-			return s.makeContractViolationError("<=", args, "real?", obj, i);
+			return s.wrongContract("<=", args, "real?", obj, i);
 		if(!obj2.isReal())
-			return s.makeContractViolationError("<=", args, "real?", obj, i + 1);
+			return s.wrongContract("<=", args, "real?", obj, i + 1);
 		if(obj1.data > obj2.data)
 			return s.False;
 	}
@@ -338,9 +338,9 @@ function gteq(args) {
 		obj1 = array[i];
 		obj2 = array[i + 1];
 		if(!obj1.isReal())
-			return s.makeContractViolationError(">=", args, "real?", obj, i);
+			return s.wrongContract(">=", args, "real?", obj, i);
 		if(!obj2.isReal())
-			return s.makeContractViolationError(">=", args, "real?", obj, i + 1);
+			return s.wrongContract(">=", args, "real?", obj, i + 1);
 		if(obj1.data < obj2.data)
 			return s.False;
 	}
@@ -410,16 +410,16 @@ function meval(args) {
 	var exp = s.car(args);
 	var env = s.cadr(args);
 	if(!env.isNamespace())
-		return s.makeContractViolationError("meval", args, "namespace?", env);
+		return s.wrongContract("meval", args, "namespace?", env);
 	return s.evaluate(exp, env.data);
 }
 function mapply(args) {
 	var procedure = s.car(args);
 	if(!procedure.isProcedure())
-		return s.makeContractViolationError("mapply", args, "procedure?", procedure);
+		return s.wrongContract("mapply", args, "procedure?", procedure);
 	var argvs = s.cadr(args);
 	if(!argvs.isPair())
-		return s.makeContractViolationError("mapply", args, "pair?", argvs);
+		return s.wrongContract("mapply", args, "pair?", argvs);
 	return s.apply(procedure, argvs);
 }
 
@@ -430,14 +430,14 @@ function interactionEnvironment() {
 function stringToNumber(args) {
 	var obj = s.car(args);
 	if(!obj.isString())
-		return s.makeContractViolationError("string->number", args, "string?", obj);
+		return s.wrongContract("string->number", args, "string?", obj);
 	return ScmObject.makeReal(parseFloat(obj.data));
 }
 
 function numberToString(args) {
 	var obj = s.car(args);
 	if(!obj.isNumber())
-		return s.makeContractViolationError("number->string", args, "number?", obj);
+		return s.wrongContract("number->string", args, "number?", obj);
 	return ScmObject.makeString(obj.data.toString());
 }
 
@@ -448,12 +448,12 @@ function numberToString(args) {
 function makeString(args, argc) {
 	var k = s.car(args);
 	if(!isExactNonnegativeInteger(k))
-		return s.makeContractViolationError("make->string", args, "exact-nonnegative-integer?", k, 0);
+		return s.wrongContract("make->string", args, "exact-nonnegative-integer?", k, 0);
 	var c = ScmObject.makeChar('\0');
 	if(argc == 2) {
 		c = s.cadr(args);
 		if(!c.isChar())
-			return s.makeContractViolationError("make->string", args, "char?", c, 1);
+			return s.wrongContract("make->string", args, "char?", c, 1);
 	}
 	k = s.intVal(k);
 	c = s.charVal(c);
@@ -470,7 +470,7 @@ function string(args) {
 	for(; !list.isEmptyList(); list = s.cdr(list), i++) {
 		obj = s.car(list);
 		if(!obj.isChar())
-			return s.makeContractViolationError("string", args, "char?", obj, i);
+			return s.wrongContract("string", args, "char?", obj, i);
 		charArray.push(s.charVal(obj));
 	}
 	return ScmObject.makeString(charArray);
@@ -479,7 +479,7 @@ function string(args) {
 function stringLength(args) {
 	var obj = s.car(args);
 	if(!obj.isString())
-		return s.makeContractViolationError("string-length", args, "string?", obj, 0);
+		return s.wrongContract("string-length", args, "string?", obj, 0);
 	return ScmObject.makeInt(s.stringLen(obj));
 }
 
@@ -487,12 +487,12 @@ function stringRef(args) {
 	var str = s.car(args);
 	var k = s.cadr(args);
 	if(!str.isString())
-		return s.makeContractViolationError("string-ref", args, "string?", str, 0);
+		return s.wrongContract("string-ref", args, "string?", str, 0);
 	if(!isExactNonnegativeInteger(k))
-		return s.makeContractViolationError("string-ref", args, "exact-nonnegative-integer?", k, 1);
+		return s.wrongContract("string-ref", args, "exact-nonnegative-integer?", k, 1);
 	k = s.intVal(k);
 	if(indexRangeCheck("string-ref", "string", k, -1, s.stringLen(str), str))
-		return ScmObject.makeChar(s.stringVal(str)[k]);
+		return ScmObject.makeChar(s.charArrayVal(str)[k]);
 }
 
 function stringSet(args) {
@@ -501,14 +501,14 @@ function stringSet(args) {
 	var c = s.listRef(args, 2);
 
 	if(!str.isString())
-		return s.makeContractViolationError("string-set!", args, "string?", str, 0);
+		return s.wrongContract("string-set!", args, "string?", str, 0);
 	if(!isExactNonnegativeInteger(k))
-		return s.makeContractViolationError("string-set!", args, "exact-nonnegative-integer?", k, 1);
+		return s.wrongContract("string-set!", args, "exact-nonnegative-integer?", k, 1);
 	if(!c.isChar())
-		return s.makeContractViolationError("string-set!", args, "char?", c, 2);
+		return s.wrongContract("string-set!", args, "char?", c, 2);
 	k = s.intVal(k);
 	if(indexRangeCheck("string-set!", "string", k, -1, s.stringLen(str), str)) {
-		s.stringVal(str)[k] = s.charVal(c);
+		s.charArrayVal(str)[k] = s.charVal(c);
 		return s.voidValue;
 	}
 }
@@ -517,21 +517,21 @@ function stringEqual(args) {
 	var str1 = s.car(args);
 	var str2 = s.cadr(args);
 	if(!str1.isString())
-		return s.makeContractViolationError("string=?", args, "string?", str1, 0);
+		return s.wrongContract("string=?", args, "string?", str1, 0);
 	if(!str2.isString())
-		return s.makeContractViolationError("string=?", args, "string?", str2, 1);
-	return ScmObject.getBoolean(s.stringVal(str1).join("") == s.stringVal(str2).join(""));
+		return s.wrongContract("string=?", args, "string?", str2, 1);
+	return ScmObject.getBoolean(s.stringVal(str1) == s.stringVal(str2));
 }
 
 function stringCIEqual(args) {
 	var str1 = s.car(args);
 	var str2 = s.cadr(args);
 	if(!str1.isString())
-		return s.makeContractViolationError("string=?", args, "string?", str1, 0);
+		return s.wrongContract("string=?", args, "string?", str1, 0);
 	if(!str2.isString())
-		return s.makeContractViolationError("string=?", args, "string?", str2, 1);
+		return s.wrongContract("string=?", args, "string?", str2, 1);
 	return ScmObject.getBoolean(
-		s.stringVal(str1).join("").toLowerCase() == s.stringVal(str2).join("").toLowerCase());
+		s.stringVal(str1).toLowerCase() == s.stringVal(str2).toLowerCase());
 }
 
 function substring(args) {
@@ -539,34 +539,34 @@ function substring(args) {
 	var start = s.listRef(args, 1);
 	var end = s.listRef(args, 2);
 	if(!str.isString())
-		return s.makeContractViolationError("substring", args, "string?", str, 0);
+		return s.wrongContract("substring", args, "string?", str, 0);
 	if(!isExactNonnegativeInteger(start))
-		return s.makeContractViolationError("substring", args, "exact-nonnegative-integer?", start, 1);
+		return s.wrongContract("substring", args, "exact-nonnegative-integer?", start, 1);
 	if(!isExactNonnegativeInteger(end))
-		return s.makeContractViolationError("substring", args, "exact-nonnegative-integer?", end, 2);
+		return s.wrongContract("substring", args, "exact-nonnegative-integer?", end, 2);
 	start = s.intVal(start);
 	end = s.intVal(end);
 	if(indexRangeCheck("substring", "string", start, end, s.stringLen(str), str)) {
-		return ScmObject.makeString(s.stringVal(str).slice(start, end));
+		return ScmObject.makeString(s.charArrayVal(str).slice(start, end));
 	}
 }
 
 function stringAppend(args) {
-	var str = "";
+	var charArray = [];
 	var list = args, obj, i = 0;
 	for(; !list.isEmptyList(); list = s.cdr(list), i++) {
 		obj = s.car(list);
 		if(!obj.isString())
-			return s.makeContractViolationError("string->append", args, "string?", obj, i);
-		str += s.stringVal(obj);
+			return s.wrongContract("string->append", args, "string?", obj, i);
+		charArray = charArray.concat(s.charArrayVal(obj));
 	}
-	return ScmObject.makeString(str);
+	return ScmObject.makeString(charArray);
 }
 
 function stringToList(args) {
 	var obj = s.car(args);
 	if(!obj.isString())
-		return s.makeContractViolationError("string->list", args, "string?", obj, 0);
+		return s.wrongContract("string->list", args, "string?", obj, 0);
 	var list = s.nil;
 	for(var charArray = s.stringVal(obj), i = charArray.length - 1; i >= 0; i--) {
 		list = s.cons(ScmObject.makeChar(charArray[i]), list);
@@ -577,13 +577,13 @@ function stringToList(args) {
 function listToString(args) {
 	var list = s.car(args);
 	if(!s.isList(list))
-		return s.makeContractViolationError("list->string", args, "list?", list, 0);
+		return s.wrongContract("list->string", args, "list?", list, 0);
 	var obj;
 	var charArray = [];
 	for(var i = 0; !list.isEmptyList(); list = s.cdr(list), i++) {
 		obj = s.car(list);
 		if(!obj.isChar())
-			return s.makeContractViolationError("list->string", args, "char?", obj, i);
+			return s.wrongContract("list->string", args, "char?", obj, i);
 		charArray.push(s.charVal(obj));
 	}
 	return ScmObject.makeString(charArray);
@@ -592,19 +592,19 @@ function listToString(args) {
 function stringCopy(args) {
 	var str = s.car(args);
 	if(!str.isString())
-		return s.makeContractViolationError("string-copy", args, "string?", str, 0);
-	return ScmObject.makeString(s.stringVal(str).slice(0));
+		return s.wrongContract("string-copy", args, "string?", str, 0);
+	return ScmObject.makeString(s.charArrayVal(str).slice(0));
 }
 
 function stringFill(args) {
 	var str = s.car(args);
 	var c = s.cadr(args);
 	if(!str.isString())
-		return s.makeContractViolationError("string-fill!", args, "string?", str, 0);
+		return s.wrongContract("string-fill!", args, "string?", str, 0);
 	if(!c.isChar())
-		return s.makeContractViolationError("string-fill!", args, "char?", c, 1);
+		return s.wrongContract("string-fill!", args, "char?", c, 1);
 	c = s.charVal(c);
-	var charArray = s.stringVal(str);
+	var charArray = s.charArrayVal(str);
 	for(var i in charArray)
 		charArray[i] = c;
 	return s.voidValue;

@@ -41,7 +41,8 @@ s.charVal = function(obj) { return obj.data; }
 ScmObject.makeString = function(data) {
 	return new ScmObject(4, data);
 }
-s.stringVal = function(obj) { return obj.data; }
+s.charArrayVal = function(obj) { return obj.data; }
+s.stringVal = function(obj) { return obj.data.join(""); }
 s.stringLen = function(obj) { return obj.data.length; }
 
 ScmObject.makeBoolean = function(data) {
@@ -101,7 +102,7 @@ s.makeError = function() {
 s.makeArityMismatchError = function(procedureName, args, isAtleast, expected, given) {
 	s.makeError('arityMismatch', procedureName, s.listToArray(args), isAtleast, expected, given);
 }
-s.makeContractViolationError = function(procedureName, args, expected, given, argPosition) {
+s.wrongContract = function(procedureName, args, expected, given, argPosition) {
 	s.makeError('contractViolation', procedureName, s.listToArray(args), expected, given, argPosition);
 }
 s.makeIndexOutRangeError = function(procedureName, type, startIndex, endIndex, invalid, length, obj) {
@@ -119,6 +120,7 @@ ScmObject.makeVector = function(data) {
 ScmObject.makeMyObject = function(data) {
 	return new ScmObject(30, data);
 }
+s.objectVal = function(obj) { return obj.data; }
 
 s.arrayToList = function(array) {
 	var list = s.nil;

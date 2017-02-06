@@ -12,7 +12,7 @@ s.printObj = function(obj, display) {
 		str = "#\\" + s.charVal(obj);
 	}
 	else if(obj.isString()) {
-		str = s.stringVal(obj).join("");
+		str = s.stringVal(obj);
 		if(!display)
 			str = "\"" + str + "\"";
 	}
