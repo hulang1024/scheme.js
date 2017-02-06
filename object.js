@@ -96,18 +96,7 @@ ScmObject.makeNamespace = function(env) {
 ScmObject.makeUnspecified = function() {
 	return new ScmObject(11, undefined);
 }
-s.makeError = function() {
-	s.error = [].slice.call(arguments, 0);
-}
-s.makeArityMismatchError = function(procedureName, args, isAtleast, expected, given) {
-	s.makeError('arityMismatch', procedureName, s.listToArray(args), isAtleast, expected, given);
-}
-s.wrongContract = function(procedureName, args, expected, given, argPosition) {
-	s.makeError('contractViolation', procedureName, s.listToArray(args), expected, given, argPosition);
-}
-s.makeIndexOutRangeError = function(procedureName, type, startIndex, endIndex, invalid, length, obj) {
-	s.makeError('indexOutRange', procedureName, type, startIndex, endIndex, invalid, length, obj);
-}
+
 
 ScmObject.makeEmptyList = function(data) {
 	return new ScmObject(0, null);
