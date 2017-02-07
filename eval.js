@@ -23,9 +23,10 @@ s.evalString = function(str) {
 		return;
 	}
 
+	var obj;
 	for(var i = 0; i < exps.length; i++) {
 		try {
-			var obj = scheme.eval(exps[i], scheme.globalEnvironment);
+			obj = scheme.eval(exps[i], scheme.globalEnvironment);
 		} catch(e) {
 			scheme.console.value += e + "\n";
 			throw e;
@@ -37,6 +38,7 @@ s.evalString = function(str) {
 			break;
 		}
 	}
+	return obj;//last value
 }
 
 function scheme_eval_prim(argv) {
