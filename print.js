@@ -4,9 +4,8 @@
 var ScmObject = s.ScmObject;
 
 s.initPrint = function() {
-	var addGlobalPrimProc = s.addGlobalPrimProc;
-	addGlobalPrimProc("display", display, 1);
-	addGlobalPrimProc("newline", newline, 0);
+	s.addGlobalPrimProc("display", display, 1);
+	s.addGlobalPrimProc("newline", newline, 0);
 }
 
 function display(argv) {
@@ -15,6 +14,7 @@ function display(argv) {
 		s.console.value += val;
 	return s.voidValue;
 }
+
 function newline(argv) {
 	s.console.value += "\n";
 	return s.voidValue;

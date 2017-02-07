@@ -4,9 +4,7 @@
 var ScmObject = s.ScmObject;
 
 s.initChar = function() {
-	var addGlobalPrimProc = s.addGlobalPrimProc;
-	
-	addGlobalPrimProc("char?", isChar, 1);
+	s.addGlobalPrimProc("char?", char_p, 1);
 }
 
 
@@ -15,7 +13,7 @@ ScmObject.makeChar = function(data) {
 }
 s.charVal = function(obj) { return obj.data; }
 
-function isChar(argv) {
+function char_p(argv) {
 	return ScmObject.getBoolean(argv[0].isChar());
 }
 

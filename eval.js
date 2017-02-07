@@ -1,156 +1,68 @@
-﻿(function(s){
+﻿/*
+  eval-apply-loop
+ */
+(function(s){
+
 "use strict";
 
 var ScmObject = s.ScmObject;
 var EnvironmentFrame = s.EnvironmentFrame;
 
+s.initEval = function() {
+	s.addGlobalPrimProc("eval", scheme_eval_prim, 2);
+}
+
 s.eval = evaluate;
 s.apply = apply;
 
-function mapList(func, list) {
-	if(list.isEmptyList())
-		return s.nil;
-	else
-		return s.cons(func(s.car(list)), mapList(func, s.cdr(list)));
+s.evalString = function(str) {
+	scheme.error = null;
+	var exps = scheme.read(str);
+	if(exps.constructor == String) {
+		scheme.console.value += exps;
+		return;
+	}
+
+	for(var i = 0; i < exps.length; i++) {
+		try {
+			var obj = scheme.eval(exps[i], scheme.globalEnvironment);
+		} catch(e) {
+			scheme.console.value += e + "\n";
+			throw e;
+		} 
+		if(!scheme.error)
+			scheme.printValue(obj);
+		else {
+			scheme.printError();
+			break;
+		}
+	}
 }
 
-function pairsLength(pairs) {
-	return !pairs.isPair() ? 0 : 1 + pairsLength(s.cdr(pairs));
+function scheme_eval_prim(argv) {
+	var exp = argv[0];
+	var env = argv[1];
+	if(!env.isNamespace())
+		return s.wrongContract("meval", argv, "namespace?", env);
+	return s.eval(exp, env.data);
 }
 
-/*  语法过程  */
-function isSelfEvaluating(exp) {
-	if(exp.isNumber()) return true;
-	else if(exp.isChar()) return true;
-	else if(exp.isString()) return true;
-	else if(exp.isBoolean()) return true;
-	else false;
-}
-/*
-  if
-  (if <predicate> <consequent> <alternative>)
-*/
-function ifPredicate(exp) { return s.cadr(exp); }
-function ifConsequent(exp) { return s.caddr(exp); }
-function ifAlternative(exp) {
-	exp = s.cdddr(exp);
-	if(exp.isEmptyList())
-		return exp;
-	else // alternative
-		return s.car(exp);
-}
-function makeIf(predicate, consequent, alternative) {
-	return s.arrayToList([s.ifSymbol, predicate, consequent, alternative]);
-}
-
-/*
-  lambda
-  (lambda (<formal-parameters>) <body>)
-*/
-function lambdaParamters(exp) { return s.cadr(exp); }
-function lambdaBody(exp) { return s.cddr(exp); }
-function makeLambda(parameters, body) {
-	return s.cons(s.lambdaSymbol, s.cons(parameters, body));
-}
-// application
-function operator(exp) { return s.car(exp); }
-function operands(exp) { return s.cdr(exp); }
-function makeApplication(operator, operands) {
-	return s.cons(operator, operands);
-}
-/*
-  assignment
-  (set! <var> <exp>)
-*/
-function assignmentVar(exp) { return s.cadr(exp); }
-function assignmentValue(exp) { return s.caddr(exp); }
-/*
-  cond
-  (cond (<p1> <e1>)
-        (<p2> <e2>)
-		..
-		(else <e>))
-*/
-function condClauses(exp) { return s.cdr(exp); }
-function clauesPredicate(clause) { return s.car(clause); }
-function clauseActions(clause) { return s.cdr(clause); }
-function isElseClause(clause) { return clauesPredicate(clause) == s.elseSymbol; }
-/*
-  begin
-  (begin ...)
-*/
-function beginActions(exp) {
-	return s.cdr(exp);
-}
-function makeBegin(seq) {
-	return s.cons(s.beginSymbol, seq);
-}
-/*
-  let
-  (let ((<var1> <exp1>)
-        (<var2> <exp2>)
-		...)
-		<body>)
-*/
-function letBindings(exp) { return s.cadr(exp); }
-function letBody(exp) { return s.cddr(exp); }
-function letBindingVars(bindings) {
-	return mapList(function(bind){
-		return s.car(bind);
-	}, bindings);
-}
-function letBindingVals(bindings) {
-	return mapList(function(bind){
-		return s.cadr(bind);
-	}, bindings);
-}
-function letToCombination(exp) {
-	var bindings = letBindings(exp);
-	return makeApplication(makeLambda(letBindingVars(bindings), letBody(exp)), letBindingVals(bindings));
-}
-
-/*
- define
- (define <name> <exp>)
- (define (<name> <formal-parameters>) <body>)
-*/
-function definitionVar(exp) { 
-	if(s.cadr(exp).isSymbol())
-		return s.cadr(exp);
-	else
-		return s.caadr(exp);
-}
-function definitionVal(exp) {
-    if(s.cadr(exp).isSymbol())
-        return s.caddr(exp);
-    else {
-        var formals = s.cdadr(exp);
-        var body = s.cddr(exp);
-		// to lambda
-        return makeLambda(formals, body);
-    }
-}
-
-/*
-eval-apply为实现语言中 数据和过程的 递归(嵌套)组合手段与抽象手段
-@param exp 表达式
-@param env 环境，提供约束于表达式的变量与值的集合
-*/
 function evaluate(exp, env) {
 	if(s.error)
 		return s.error;
+	
 	if(exp == s.voidValue)
 		return exp;
+	
 	if(isSelfEvaluating(exp)) {
 		return exp;
 	}
-	// 变量
+
 	else if(exp.isSymbol()) {
 		return lookupVariableValue(exp, env);
 	}
-	// 过程应用
+
 	else if(s.isList(exp) && !exp.isEmptyList()) {
-		// 基本
 		var obj = s.car(exp);
 		if(obj.isSymbol()) {
 			if(obj == s.quoteSymbol) {
@@ -178,8 +90,6 @@ function evaluate(exp, env) {
 				return evaluate(letToCombination(exp), env);
 			}
 		}
-		// 其它过程应用
-		/*过程应用表达式的运算符部分可以是过程名，也可以是一个lambda或表达式，因此要求值*/
 		return apply(evaluate(operator(exp), env), listOfValues(operands(exp), env));
 	}
 	else
@@ -187,9 +97,6 @@ function evaluate(exp, env) {
 }
 
 
-/*
-将过程应用于实参
-*/
 function apply(procedure, argv) {
 	if(s.error)
 		return s.error;
@@ -206,6 +113,99 @@ function apply(procedure, argv) {
 	}
 	else
 		s.makeError('application', "expected a procedure that can be applied to arguments");
+}
+
+//------------------------
+// syntactic abstractions
+//------------------------
+// if
+function ifPredicate(exp) { return s.cadr(exp); }
+function ifConsequent(exp) { return s.caddr(exp); }
+function ifAlternative(exp) {
+	exp = s.cdddr(exp);
+	if(exp.isEmptyList())
+		return exp;
+	else // alternative
+		return s.car(exp);
+}
+function makeIf(predicate, consequent, alternative) {
+	return s.arrayToList([s.ifSymbol, predicate, consequent, alternative]);
+}
+
+// lambda
+function lambdaParamters(exp) { return s.cadr(exp); }
+function lambdaBody(exp) { return s.cddr(exp); }
+function makeLambda(parameters, body) {
+	return s.cons(s.lambdaSymbol, s.cons(parameters, body));
+}
+
+// application
+function operator(exp) { return s.car(exp); }
+function operands(exp) { return s.cdr(exp); }
+function makeApplication(operator, operands) {
+	return s.cons(operator, operands);
+}
+
+// assignment
+function assignmentVar(exp) { return s.cadr(exp); }
+function assignmentValue(exp) { return s.caddr(exp); }
+
+// cond
+function condClauses(exp) { return s.cdr(exp); }
+function clauesPredicate(clause) { return s.car(clause); }
+function clauseActions(clause) { return s.cdr(clause); }
+function isElseClause(clause) { return clauesPredicate(clause) == s.elseSymbol; }
+
+// begin
+function beginActions(exp) {
+	return s.cdr(exp);
+}
+function makeBegin(seq) {
+	return s.cons(s.beginSymbol, seq);
+}
+
+// let
+function letBindings(exp) { return s.cadr(exp); }
+function letBody(exp) { return s.cddr(exp); }
+function letBindingVars(bindings) {
+	return s.mapList(function(bind){
+		return s.car(bind);
+	}, bindings);
+}
+function letBindingVals(bindings) {
+	return s.mapList(function(bind){
+		return s.cadr(bind);
+	}, bindings);
+}
+function letToCombination(exp) {
+	var bindings = letBindings(exp);
+	return makeApplication(makeLambda(letBindingVars(bindings), letBody(exp)), letBindingVals(bindings));
+}
+
+// define variable/function
+function definitionVar(exp) { 
+	if(s.cadr(exp).isSymbol())
+		return s.cadr(exp);
+	else
+		return s.caadr(exp);
+}
+function definitionVal(exp) {
+    if(s.cadr(exp).isSymbol())
+        return s.caddr(exp);
+    else {
+        var formals = s.cdadr(exp);
+        var body = s.cddr(exp);
+		// to lambda
+        return makeLambda(formals, body);
+    }
+}
+
+function isSelfEvaluating(exp) {
+	if(exp.isNumber()) return true;
+	else if(exp.isChar()) return true;
+	else if(exp.isString()) return true;
+	else if(exp.isBoolean()) return true;
+	else false;
 }
 
 function listOfValues(operands, env) {
@@ -256,7 +256,7 @@ function evalLambda(exp, env) {
 		minArgs = s.listLength(formals);
 	}
 	else if(formals.isPair()) {
-		minArgs = pairsLength(formals);
+		minArgs = s.pairsLength(formals);
 		maxArgs = -1;
 	}
 	else if(formals.isSymbol()) {

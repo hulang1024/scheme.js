@@ -4,24 +4,21 @@
 var ScmObject = s.ScmObject;
 
 s.initString = function() {
-	var addGlobalPrimProc = s.addGlobalPrimProc;
-	
-	addGlobalPrimProc("string?", isString, 1);
-	addGlobalPrimProc("make-string", makeString, 1, 2);
-	addGlobalPrimProc("string", string, 0, -1);
-	addGlobalPrimProc("string-length", stringLength, 1);
-	addGlobalPrimProc("string-ref", stringRef, 2);
-	addGlobalPrimProc("string-set!", stringSet, 3);
-	addGlobalPrimProc("string=?", stringEqual, 2);
-	addGlobalPrimProc("string-ci=?", stringCIEqual, 2);
-	addGlobalPrimProc("substring", substring, 3);
-	addGlobalPrimProc("string->list", stringToList, 1);
-	addGlobalPrimProc("list->string", listToString, 1);
-	addGlobalPrimProc("string-copy", stringCopy, 1);
-	addGlobalPrimProc("string-fill!", stringFill, 2);
-	addGlobalPrimProc("string-append", stringAppend, 0, -1);
+	s.addGlobalPrimProc("string?", string_p, 1);
+	s.addGlobalPrimProc("make-string", makeString, 1, 2);
+	s.addGlobalPrimProc("string", string, 0, -1);
+	s.addGlobalPrimProc("string-length", stringLength, 1);
+	s.addGlobalPrimProc("string-ref", stringRef, 2);
+	s.addGlobalPrimProc("string-set!", stringSet, 3);
+	s.addGlobalPrimProc("string=?", stringEqual, 2);
+	s.addGlobalPrimProc("string-ci=?", stringCIEqual, 2);
+	s.addGlobalPrimProc("substring", substring, 3);
+	s.addGlobalPrimProc("string->list", stringToList, 1);
+	s.addGlobalPrimProc("list->string", listToString, 1);
+	s.addGlobalPrimProc("string-copy", stringCopy, 1);
+	s.addGlobalPrimProc("string-fill!", stringFill, 2);
+	s.addGlobalPrimProc("string-append", stringAppend, 0, -1);
 }
-
 
 ScmObject.makeString = function(data) {
 	return new ScmObject(4, data);
@@ -30,8 +27,7 @@ s.charArrayVal = function(obj) { return obj.data; }
 s.stringVal = function(obj) { return obj.data.join(""); }
 s.stringLen = function(obj) { return obj.data.length; }
 
-
-function isString(argv) {
+function string_p(argv) {
 	return ScmObject.getBoolean(argv[0].isString());
 }
 
@@ -39,26 +35,24 @@ function makeString(argv) {
 	var k = argv[0];
 	if(!isExactNonnegativeInteger(k))
 		return s.wrongContract("make->string", argv, "exact-nonnegative-integer?", k, 0);
-	var c = ScmObject.makeChar('\0');
+	k = s.intVal(k);
+	var c = '\0';
 	if(argv.length == 2) {
 		c = argv[1];
 		if(!c.isChar())
 			return s.wrongContract("make->string", argv, "char?", c, 1);
+		c = s.charVal(c);
 	}
-	k = s.intVal(k);
-	c = s.charVal(c);
 	var charArray = [];
-	for(; k > 0; k--) {
+	for(; k > 0; k--)
 		charArray.push(c);
-	}
 	return ScmObject.makeString(charArray);
 }
 
 function string(argv) {
 	var charArray = [];
-	var obj;
 	for(var i = 0; i < argv.length; i++) {
-		obj = argv[i];
+		var obj = argv[i];
 		if(!obj.isChar())
 			return s.wrongContract("string", argv, "char?", obj, i);
 		charArray.push(s.charVal(obj));
@@ -89,7 +83,6 @@ function stringSet(argv) {
 	var str = argv[0];
 	var k = argv[1];
 	var c = argv[2];
-
 	if(!str.isString())
 		return s.wrongContract("string-set!", argv, "string?", str, 0);
 	if(!isExactNonnegativeInteger(k))
@@ -143,9 +136,8 @@ function substring(argv) {
 
 function stringAppend(argv) {
 	var charArray = [];
-	var obj;
 	for(var i = 0; i < argv.length; i++) {
-		obj = argv[i];
+		var obj = argv[i];
 		if(!obj.isString())
 			return s.wrongContract("string->append", argv, "string?", obj, i);
 		charArray = charArray.concat(s.charArrayVal(obj));

@@ -11,5 +11,4 @@ ScmObject.makeMyObject = function(data) {
 }
 s.objectVal = function(obj) { return obj.data; }
 
-
 })(scheme);

@@ -4,14 +4,12 @@
 var ScmObject = s.ScmObject;
 
 s.initBool = function() {
-	var addGlobalPrimProc = s.addGlobalPrimProc;
-	
-	addGlobalPrimProc("boolean?", isBoolean, 1);
-	addGlobalPrimProc("not", not, 1);
-	addGlobalPrimProc("and", and, 0, -1);
-	addGlobalPrimProc("or", or, 0, -1);
-	addGlobalPrimProc("eq?", eq, 2);
-	addGlobalPrimProc("equal?", equal, 2);
+	s.addGlobalPrimProc("boolean?", boolean_p, 1);
+	s.addGlobalPrimProc("not", not, 1);
+	s.addGlobalPrimProc("and", and, 0, -1);
+	s.addGlobalPrimProc("or", or, 0, -1);
+	s.addGlobalPrimProc("eq?", eq, 2);
+	s.addGlobalPrimProc("equal?", equal, 2);
 }
 
 ScmObject.makeBoolean = function(data) {
@@ -21,18 +19,12 @@ ScmObject.makeBoolean = function(data) {
 s.True = ScmObject.makeBoolean(true);
 s.False = ScmObject.makeBoolean(false);
 
-s.isTrue = function(obj) {
-	return obj != s.False;
-}
-s.isFalse = function(obj) {
-	return obj == s.False;
-}
+s.isTrue = function(obj) { return obj != s.False; }
+s.isFalse = function(obj) { return obj == s.False; }
 
-ScmObject.getBoolean = function(data) {
-	return data ? s.True : s.False;
-}
+ScmObject.getBoolean = function(v) { return v ? s.True : s.False; }
 
-function isBoolean(argv) {
+function boolean_p(argv) {
 	return ScmObject.getBoolean(argv[0].isBoolean());
 }
 
@@ -74,4 +66,5 @@ function eq(argv) {
 function equal(argv) {
 	return eq(argv);
 }
+
 })(scheme);

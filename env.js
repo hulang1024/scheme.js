@@ -15,6 +15,7 @@ s.addGlobalPrimProc = function(name, func, minArgs, maxArgs) {
 s.addGlobalObject = function(name, obj) {
 	s.globalEnvironment.map[name] = obj;
 }
+
 s.globalEnvironment = new s.EnvironmentFrame({}, null);
 
 s.initBasicEnv = function() {
@@ -29,17 +30,17 @@ s.initBasicEnv = function() {
 	s.initFun();
 	s.initRead();
 	s.initPrint();
-	
+	s.initEval();
 	s.addGlobalPrimProc("interaction-environment", interactionEnvironment, 0);
 }
+
 ScmObject.makeNamespace = function(env) {
 	return new ScmObject(10, env);
 }
+
 function isNamespace(args) {
 	return ScmObject.getBoolean(s.car(args).isNamespace());
 }
-
-
 
 function interactionEnvironment() {
 	return ScmObject.makeNamespace(s.globalEnvironment);

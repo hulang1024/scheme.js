@@ -3,29 +3,19 @@
 
 var ScmObject = s.ScmObject;
 
-// 符号(作为标识符)
 var symbolReg = /^(?![0-9])[a-zA-Z_$0-9\!\-\?\*%\.\+\-\*\/\<\>\=\u4e00-\u9fa5]+$/;
-
-// 数值
 var decimalReg = /^[+-]?\d+$/;
-var hexReg = /^[+-]?0[xX][\da-fA-F]+$/;
-var octReg = /^[+-]?0[0-7]$/;
 var floatReg = /^[+-]?\d+\.\d+$/;
-
-// 字符
 var charReg = /^#\\/;
 var stringReg = /^\".*\"$/;
-
-// 布尔
 var booleanReg = /^#[tf]|(true|false)$^/;
-
 var vectorReg = /^#\(/;
 var emptyListReg = /^\(\)$/;
 
 s.initRead = function() {
 }
 
-s.parse = function(str) {
+s.read = function(str) {
 	//delete comment line
 	str += '\n';
 	var pstr = "";
@@ -132,7 +122,7 @@ function parseSExps(tokens) {
 			}
 			else {
 				var token = array[index];
-				if(decimalReg.test(token) || hexReg.test(token) || octReg.test(token)) {
+				if(decimalReg.test(token)) {
 					exps.push(ScmObject.makeInt(parseInt(token)));
 				}
 				else if(floatReg.test(token)) {

@@ -4,27 +4,24 @@
 var ScmObject = s.ScmObject;
 
 s.initNumber = function() {
-	var addGlobalPrimProc = s.addGlobalPrimProc;
+	s.addGlobalPrimProc("integer?", integer_p, 1);
+	s.addGlobalPrimProc("real?", real_p, 1);
+	s.addGlobalPrimProc("number?", number_p, 1);
 	
-	addGlobalPrimProc("integer?", isInteger, 1);
-	addGlobalPrimProc("real?", isReal, 1);
-	addGlobalPrimProc("number?", isNumber, 1);
+	s.addGlobalPrimProc("+", sum, 0, -1);
+	s.addGlobalPrimProc("-", sub, 1, -1);
+	s.addGlobalPrimProc("*", mul, 0, -1);
+	s.addGlobalPrimProc("/", div, 1, -1);
 	
-	addGlobalPrimProc("+", sum, 0, -1);
-	addGlobalPrimProc("-", sub, 1, -1);
-	addGlobalPrimProc("*", mul, 0, -1);
-	addGlobalPrimProc("/", div, 1, -1);
+	s.addGlobalPrimProc("=", equalNumber, 2, -1);
+	s.addGlobalPrimProc("<", lessThan, 2, -1);
+	s.addGlobalPrimProc(">", greaThan, 2, -1);
+	s.addGlobalPrimProc("<=", lteq, 2, -1);
+	s.addGlobalPrimProc(">=", gteq, 2, -1);
 	
-	addGlobalPrimProc("=", equalNumber, 2, -1);
-	addGlobalPrimProc("<", lessThan, 2, -1);
-	addGlobalPrimProc(">", greaThan, 2, -1);
-	addGlobalPrimProc("<=", lteq, 2, -1);
-	addGlobalPrimProc(">=", gteq, 2, -1);
-	
-	addGlobalPrimProc("string->number", stringToNumber, 1);
-	addGlobalPrimProc("number->string", numberToString, 1);
+	s.addGlobalPrimProc("string->number", stringToNumber, 1);
+	s.addGlobalPrimProc("number->string", numberToString, 1);
 }
-
 
 ScmObject.makeInt = function(data) {
 	return new ScmObject(1, data);
@@ -36,16 +33,15 @@ ScmObject.makeReal = function(data) {
 }
 s.floatVal = function(obj) { return obj.data; }
 
-
-function isInteger(argv) {
+function integer_p(argv) {
 	return ScmObject.getBoolean(argv[0].isInteger());
 }
 
-function isReal(argv) {
+function real_p(argv) {
 	return ScmObject.getBoolean(argv[0].isReal());
 }
 
-function isNumber(argv) {
+function number_p(argv) {
 	return ScmObject.getBoolean(argv[0].isNumber());
 }
 
@@ -213,4 +209,5 @@ function numberToString(argv) {
         return s.wrongContract("number->string", argv, "number?", obj);
     return ScmObject.makeString(obj.data.toString());
 }
+
 })(scheme);

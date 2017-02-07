@@ -21,6 +21,7 @@ s.ScmObject = function(type, data) {
 	this.isVector = function() { return this.type == 11; }
 	this.isMyObject = function() { return this.type == 30; }
 }
+
 var ScmObject = s.ScmObject;
 
 
@@ -56,8 +57,6 @@ s.setCompProcName = function(proc, name) { return proc.data[3] = name; }
 ScmObject.makeUnspecified = function() {
 	return new ScmObject(11, undefined);
 }
-
-// 基本常量值
 
 s.ok = ScmObject.makeUnspecified();
 s.voidValue = ScmObject.makeUnspecified();

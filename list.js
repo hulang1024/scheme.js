@@ -4,24 +4,44 @@
 var ScmObject = s.ScmObject;
 
 s.initList = function() {
-	var addGlobalPrimProc = s.addGlobalPrimProc;
-	
-	addGlobalPrimProc("pair?", isPair, 1);
-	addGlobalPrimProc("list?", isList, 1);
-	addGlobalPrimProc("null?", isNull, 1);
-	addGlobalPrimProc("cons", mcons, 2);
-	addGlobalPrimProc("car", mcar, 1);
-	addGlobalPrimProc("cdr", mcdr, 1);
-	addGlobalPrimProc("set-car!", setCar, 2);
-	addGlobalPrimProc("set-cdr!", setCdr, 2);
-	addGlobalPrimProc("list", list, 0, -1);
-	addGlobalPrimProc("list-ref", listRef, 2);
-	addGlobalPrimProc("length", length, 1);
+	s.addGlobalPrimProc("pair?", pair_p, 1);
+	s.addGlobalPrimProc("list?", list_p, 1);
+	s.addGlobalPrimProc("null?", null_p, 1);
+	s.addGlobalPrimProc("cons", cons_prim, 2);
+	s.addGlobalPrimProc("car", car_prim, 1);
+	s.addGlobalPrimProc("cdr", cdr_prim, 1);
+	s.addGlobalPrimProc("set-car!", setCar, 2);
+	s.addGlobalPrimProc("set-cdr!", setCdr, 2);
+	s.addGlobalPrimProc("list", list, 0, -1);
+	s.addGlobalPrimProc("list-ref", listRef, 2);
+	s.addGlobalPrimProc("length", length, 1);
 	cadrFuncNames.forEach(function(funcName){
-		addGlobalPrimProc(funcName, eval('scheme.m'+funcName), 1);
+		s.addGlobalPrimProc(funcName, window.eval('scheme.' + funcName + "_prim"), 1);
 	});
 }
 
+var cadrFuncNames = [
+	"caar", "cadr", "cdar", "cddr",
+	"caaar", "caadr", "cadar", "caddr", "cdaar", "cdadr", "cddar", "cdddr",
+	"caaaar", "caaadr", "caadar", "caaddr", "cadaar", "cadadr", "caddar",
+	"cadddr", "cdaaar", "cdaadr", "cdadar", "cdaddr", "cddaar", "cddadr", "cdddar", "cddddr"];
+
+function genCadrProcedures() {
+	cadrFuncNames.forEach(function(funcName){
+		var argName = "argv";
+		var exp = argName;
+		var cs = funcName.split('').slice(1, funcName.length - 1);
+		for(var i = cs.length - 1; i >= 0; i--)
+			exp = (cs[i] == 'a' ? "scheme.car" : "scheme.cdr") + "(" +  exp + ")";
+		var func = new Function(argName, "return " + exp);
+		var mfunName = funcName + "_prim";
+		var mfunc = new Function(argName, "return " + ("scheme." + funcName + "(argv[0])"));
+		s[funcName] = func;
+		s[mfunName] = mfunc;
+	});
+}
+
+genCadrProcedures();
 
 ScmObject.makePair = function(data) {
 	return new ScmObject(7, data);
@@ -59,6 +79,17 @@ s.pairToArray = function(pair) {
 	return array;
 }
 
+s.pairsLength = function(pairs) {
+	return !pairs.isPair() ? 0 : 1 + s.pairsLength(s.cdr(pairs));
+}
+
+s.mapList = function(func, list) {
+	if(list.isEmptyList())
+		return s.nil;
+	else
+		return s.cons(func(s.car(list)), s.mapList(func, s.cdr(list)));
+}
+
 s.cons = function(x, y) { return new ScmObject.makePair([x, y]); }
 s.car = function(pair) { return pair.data[0]; }
 s.cdr = function(pair) { return pair.data[1]; }
@@ -87,7 +118,7 @@ s.listLength = function(list) {
 	return len;
 }
 
-function isList(argv) {
+function list_p(argv) {
 	var obj = argv[0];
 	var b = false;
 	for(; !b && obj.isPair(); obj = s.cdr(obj))
@@ -98,47 +129,46 @@ function isList(argv) {
 	return ScmObject.getBoolean(b);
 }
 
-function isPair(argv) {
+function pair_p(argv) {
 	return ScmObject.getBoolean(argv[0].isPair());
 }
 
-function isNull(argv) {
+function null_p(argv) {
 	return ScmObject.getBoolean(argv[0].isEmptyList());
 }
-function mcons(argv){
+
+function cons_prim(argv){
 	return s.cons(argv[0], argv[1]);
 }
 
-function mcar(argv) {
+function car_prim(argv) {
 	var obj = argv[0];
-	if(obj.isPair())
-		return s.car(obj);
-	else
-		return s.wrongContract("mcar", argv, "mpair?", obj, 0);
+	if(!obj.isPair())
+		return s.wrongContract("mcar", argv, "pair?", obj, 0);
+	return s.car(obj);
 }
 
-function mcdr(argv) {
+function cdr_prim(argv) {
 	var obj = argv[0];
-	if(obj.isPair())
-		return s.cdr(obj);
-	else
-		return s.wrongContract("mcdr", argv, "mpair?", obj, 0);
+	if(!obj.isPair())
+		return s.wrongContract("mcdr", argv, "pair?", obj, 0);
+	return s.cdr(obj);
 }
 
 function setCar(argv) {
 	var pair = argv[0];
-	if(!pair.isPair())
-		return s.wrongContract("set-car!", argv, "mpair?", pair, 0);
 	var pcar = argv[1];
+	if(!pair.isPair())
+		return s.wrongContract("set-car!", argv, "pair?", pair, 0);
 	s.setCar(pair, pcar);
 	return s.voidValue;
 }
 
 function setCdr(argv) {
 	var pair = argv[0];
-	if(!pair.isPair())
-		return s.wrongContract("set-car!", argv, "mpair?", pair, 0);
 	var pcdr = argv[1];
+	if(!pair.isPair())
+		return s.wrongContract("set-car!", argv, "pair?", pair, 0);
 	s.setCdr(pair, pcdr);
 	return s.voidValue;
 }
@@ -152,9 +182,12 @@ function list(argv) {
 
 function listRef(argv) {
 	var pair = argv[0];
+	var index = argv[1];
 	if(!pair.isPair())
-		return s.wrongContract("list-ref", argv, "mpair?", pair, 0);
-	var index = argv[1].data;
+		return s.wrongContract("list-ref", argv, "pair?", pair, 0);
+	if(!index.isNumber())
+		return s.wrongContract("list-ref", argv, "number?", index, 1);
+	index = s.intVal(index);
 	for(var i = 0; i < index; i++)
 		pair = s.cdr(pair);
 	return s.car(pair);
@@ -166,27 +199,5 @@ function length(argv) {
 		return s.wrongContract("length", argv, "list?", list, 0);
 	return ScmObject.makeInt(s.listLength(list));
 }
-
-var cadrFuncNames = [
-	"caar", "cadr", "cdar", "cddr",
-	"caaar", "caadr", "cadar", "caddr", "cdaar", "cdadr", "cddar", "cdddr",
-	"caaaar", "caaadr", "caadar", "caaddr", "cadaar", "cadadr", "caddar",
-	"cadddr", "cdaaar", "cdaadr", "cdadar", "cdaddr", "cddaar", "cddadr", "cdddar", "cddddr"];
-function genCadrProcedures() {
-	cadrFuncNames.forEach(function(funcName){
-		var argName = "argv";
-		var exp = argName;
-		var cs = funcName.split('').slice(1, funcName.length - 1);
-		for(var i = cs.length - 1; i >= 0; i--)
-			exp = (cs[i] == 'a' ? "scheme.car" : "scheme.cdr") + "(" +  exp + ")";
-		var func = new Function(argName, "return " + exp);
-		var mfunName = 'm' + funcName;
-		var mfunc = new Function(argName, "return " + ("scheme." + funcName + "(argv[0])"));
-		s[funcName] = func;
-		s[mfunName] = mfunc;
-	});
-}
-genCadrProcedures();
-
 
 })(scheme);
