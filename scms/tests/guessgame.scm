@@ -1,20 +1,20 @@
-;;; 猜数字
+﻿;;; 猜数字
 ;;; author: problue
 (define (promptnum msg)
   (string->number (prompt msg)))
-
+(define times 0)
 (define (guess-loop)
   (define g (promptnum "数"))
-  (let ((right #f))
-    (cond ((< g answer) (alert "小了~"))
-          ((> g answer) (alert "大了~"))
-          (else (alert "恭喜,你猜对了!")
-                (set! right #t)))
-    (if (not right)
-      (if (confirm "是否继续?")
+  (set! times (+ times 1))
+  (let ((result #t))
+    (cond ((< g answer) (set! result "小了~"))
+          ((> g answer) (set! result "大了~"))
+          (else (alert (string-append "恭喜,你猜对了!尝试次数:"
+                                       (number->string times)))
+                (set! result #f)))
+    (if result
+      (if (confirm (string-append result "是否继续?"))
           (guess-loop)))))
-
-
 (alert "欢迎进入猜数字游戏~")
 (define max (promptnum "请输入游戏的最大数:"))
 (if (> max 1)
