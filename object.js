@@ -2,9 +2,9 @@
 (function(s){
 "use strict";
 
-s.ScmObject = function(type, data) {
+s.Object = function(type, val) {
 	this.type = type;
-	this.data = data;
+	this.val = val;
 	this.isInteger = function() { return this.type == 1; }
 	this.isReal = function() { return this.type == 1 || this.type == 2; }
 	this.isNumber = function() { return this.type == 1 || this.type == 2; }
@@ -20,45 +20,56 @@ s.ScmObject = function(type, data) {
 	this.isNamespace = function() { return this.type == 10; }
 	this.isVector = function() { return this.type == 11; }
 	this.isMyObject = function() { return this.type == 30; }
+	this.isUnspecified = function() { return this.type == 40; }
 }
 
-var ScmObject = s.ScmObject;
 
-
-ScmObject.makePrimProc = function(name, func, minArgs, maxArgs) {
+s.PrimitiveProcedure = function(name, func, minArgs, maxArgs) {
+	this.name = name;
+	this.func = func;
 	var arity = [];
 	if(minArgs !== undefined)
 		arity.push(minArgs);
 	if(maxArgs !== undefined)
 		arity.push(maxArgs);
-	return new ScmObject(8, [name, func, arity]);
+	this.arity = arity;
+	
+	this.getName = function(proc) { return this.name; }
+	this.getFunc = function(proc) { return this.func; }
+	this.getArity = function(proc) { return this.arity; }
 }
-s.primProcName = function(proc) { return proc.data[0]; }
-s.primProcFunc = function(proc) { return proc.data[1]; }
-s.primProcArity = function(proc) { return proc.data[2]; }
+s.makePrimitiveProcedure = function(name, func, minArgs, maxArgs) {
+	return new s.Object(8, new s.PrimitiveProcedure(name, func, minArgs, maxArgs));
+}
 
-
-ScmObject.makeCompProc = function(name, parameters, body, env, minArgs, maxArgs) {
+s.CompoundProcedure = function(name, parameters, body, env, minArgs, maxArgs) {
+	this.name = name;
+	this.parameters = parameters;
+	this.body = body;
+	this.env = env;
 	var arity = [];
 	if(minArgs !== undefined)
 		arity.push(minArgs);
 	if(maxArgs !== undefined)
 		arity.push(maxArgs);
-	return new ScmObject(9, [parameters, body, env, name, arity]);
+	this.arity = arity;
+	
+	this.getName = function() { return this.name; }
+	this.setName = function(name) { this.name = name; }
+	this.getParamters = function() { return this.parameters; }
+	this.getBody = function() { return this.body; }
+	this.getArity = function() { return this.arity; }
+	this.getEnv = function() { return this.env; }
 }
-s.compProcParamters = function(proc) { return proc.data[0]; }
-s.compProcBody = function(proc) { return proc.data[1]; }
-s.compProcEnv = function(proc) { return proc.data[2]; }
-s.compProcName = function(proc) { return proc.data[3] }
-s.compProcArity = function(proc) { return proc.data[4]; }
-s.setCompProcName = function(proc, name) { return proc.data[3] = name; }
-
-
-ScmObject.makeUnspecified = function() {
-	return new ScmObject(11, undefined);
+s.makeCompoundProcedure = function(name, parameters, body, env, minArgs, maxArgs) {
+	return new s.Object(9, new s.CompoundProcedure(name, parameters, body, env, minArgs, maxArgs));
 }
 
-s.ok = ScmObject.makeUnspecified();
-s.voidValue = ScmObject.makeUnspecified();
+s.makeUnspecified = function() {
+	return new s.Object(40, undefined);
+}
+
+s.ok = s.makeUnspecified();
+s.voidValue = s.makeUnspecified();
 
 })(scheme);

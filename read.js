@@ -1,8 +1,6 @@
 ﻿(function(s){
 "use strict";
 
-var ScmObject = s.ScmObject;
-
 var symbolReg = /^(?![0-9])[a-zA-Z_$0-9\!\-\?\*%\.\+\-\*\/\<\>\=\u4e00-\u9fa5]+$/;
 var decimalReg = /^[+-]?\d+$/;
 var floatReg = /^[+-]?\d+\.\d+$/;
@@ -123,16 +121,16 @@ function parseSExps(tokens) {
 			else {
 				var token = array[index];
 				if(decimalReg.test(token)) {
-					exps.push(ScmObject.makeInt(parseInt(token)));
+					exps.push(s.makeInt(parseInt(token)));
 				}
 				else if(floatReg.test(token)) {
-					exps.push(ScmObject.makeReal(parseFloat(token)));
+					exps.push(s.makeReal(parseFloat(token)));
 				}
 				else if(symbolReg.test(token)) {
-					exps.push(s.getSymbol(token));
+					exps.push(s.internSymbol(token));
 				}
 				else if(token[0] == "'") {//quote
-					var quoteSym = s.getSymbol('quote');
+					var quoteSym = s.internSymbol('quote');
 					var obj;
 					if(token == "'") {
 						obj = parse(array.slice(index+1, index+2))[0];
@@ -146,13 +144,13 @@ function parseSExps(tokens) {
 				else if(vectorReg.test(token)) {//vector
 				}
 				else if(charReg.test(token)) {
-					exps.push(ScmObject.makeChar(token.substr(2)));
+					exps.push(s.makeChar(token.substr(2)));
 				}
 				else if(stringReg.test(token)) {
-					exps.push(ScmObject.makeString(token.substr(1, token.length - 2).split("")));
+					exps.push(s.makeString(token.substr(1, token.length - 2).split("")));
 				}
 				else if(booleanReg.test(token)) {
-					exps.push(ScmObject.getBoolean(token == "#t" || token == "#true"));
+					exps.push(s.getBoolean(token == "#t" || token == "#true"));
 				}
 				else {
 					error = 1;

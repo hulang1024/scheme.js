@@ -1,8 +1,6 @@
 ﻿(function(s){
 "use strict";
 
-var ScmObject = s.ScmObject;
-
 s.initList = function() {
 	s.addGlobalPrimProc("pair?", pair_p, 1);
 	s.addGlobalPrimProc("list?", list_p, 1);
@@ -15,43 +13,59 @@ s.initList = function() {
 	s.addGlobalPrimProc("list", list, 0, -1);
 	s.addGlobalPrimProc("list-ref", listRef, 2);
 	s.addGlobalPrimProc("length", length, 1);
-	cadrFuncNames.forEach(function(funcName){
+	listFuncNames.forEach(function(funcName){
 		s.addGlobalPrimProc(funcName, window.eval('scheme.' + funcName + "_prim"), 1);
 	});
 }
 
-var cadrFuncNames = [
+var listFuncNames = [
 	"caar", "cadr", "cdar", "cddr",
 	"caaar", "caadr", "cadar", "caddr", "cdaar", "cdadr", "cddar", "cdddr",
 	"caaaar", "caaadr", "caadar", "caaddr", "cadaar", "cadadr", "caddar",
 	"cadddr", "cdaaar", "cdaadr", "cdadar", "cdaddr", "cddaar", "cddadr", "cdddar", "cddddr"];
 
-function genCadrProcedures() {
-	cadrFuncNames.forEach(function(funcName){
+function genListFuncs() {
+	listFuncNames.forEach(function(funcName){
 		var argName = "argv";
-		var exp = argName;
-		var cs = funcName.split('').slice(1, funcName.length - 1);
-		for(var i = cs.length - 1; i >= 0; i--)
-			exp = (cs[i] == 'a' ? "scheme.car" : "scheme.cdr") + "(" +  exp + ")";
-		var func = new Function(argName, "return " + exp);
-		var mfunName = funcName + "_prim";
-		var mfunc = new Function(argName, "return " + ("scheme." + funcName + "(argv[0])"));
-		s[funcName] = func;
-		s[mfunName] = mfunc;
+		s[funcName] = new Function(argName, genFuncBody(funcName, argName));
+		s[funcName + "_prim"] = new Function(argName, genPrimBody(funcName, argName));;
 	});
+	
+	function genFuncBody(funcName, argName) {
+		var body = argName;
+		for(var i = funcName.length - 2; i > 0; i--)
+			body = (funcName[i] == 'a' ? "scheme.car" : "scheme.cdr") + "(" +  body + ")";
+		return "return " + body;
+	}
+
+	function genPrimBody(funcName, argName) {
+		var body = "if(!(";
+		for(var j = funcName.length - 2; j > 0; j--) {
+			var pexp = "argv[0]";
+			for(var i = funcName.length - 2; i > j; i--)
+				pexp = (funcName[i] == 'a' ? "scheme.car" : "scheme.cdr") + "(" +  pexp + ")";
+			pexp += ".isPair()";
+			body += pexp;
+			if(j > 1)
+				body += "&&";
+		}
+		body += ")) return scheme.wrongContract(\"" + funcName + "\", \"pair?\", 0, " + argName + ");";
+		body += genFuncBody(funcName, argName + "[0]");
+		return body;
+	}
 }
 
-genCadrProcedures();
-
-ScmObject.makePair = function(data) {
-	return new ScmObject(7, data);
+genListFuncs();
+	
+s.makePair = function(val) {
+	return new s.Object(7, val);
 }
 
-ScmObject.makeEmptyList = function(data) {
-	return new ScmObject(0, null);
+s.makeEmptyList = function(val) {
+	return new s.Object(0, null);
 }
 
-s.nil = ScmObject.makeEmptyList();
+s.nil = s.makeEmptyList();
 
 s.arrayToList = function(array) {
 	var list = s.nil;
@@ -90,11 +104,14 @@ s.mapList = function(func, list) {
 		return s.cons(func(s.car(list)), s.mapList(func, s.cdr(list)));
 }
 
-s.cons = function(x, y) { return new ScmObject.makePair([x, y]); }
-s.car = function(pair) { return pair.data[0]; }
-s.cdr = function(pair) { return pair.data[1]; }
-s.setCar = function(pair, pcar) { pair.data[0] = pcar; }
-s.setCdr = function(pair, pcdr) { pair.data[1] = pcdr; }
+s.cons = function(x, y) { return new s.makePair([x, y]); }
+s.car = function(pair) { return pair.val[0]; }
+s.cdr = function(pair) { return pair.val[1]; }
+s.setCar = function(pair, pcar) { pair.val[0] = pcar; }
+s.setCdr = function(pair, pcdr) { pair.val[1] = pcdr; }
+s.list = list;
+s.car_prim = car_prim;
+s.cdr_prim = cdr_prim;
 
 s.isList = function(obj) {
 	for(; obj.isPair(); obj = s.cdr(obj))
@@ -126,15 +143,15 @@ function list_p(argv) {
 			b = true;
 	if(!b && obj.isEmptyList())
 		b = true;
-	return ScmObject.getBoolean(b);
+	return s.getBoolean(b);
 }
 
 function pair_p(argv) {
-	return ScmObject.getBoolean(argv[0].isPair());
+	return s.getBoolean(argv[0].isPair());
 }
 
 function null_p(argv) {
-	return ScmObject.getBoolean(argv[0].isEmptyList());
+	return s.getBoolean(argv[0].isEmptyList());
 }
 
 function cons_prim(argv){
@@ -144,14 +161,14 @@ function cons_prim(argv){
 function car_prim(argv) {
 	var obj = argv[0];
 	if(!obj.isPair())
-		return s.wrongContract("mcar", argv, "pair?", obj, 0);
+		return s.wrongContract("car", "pair?", 0, argv);
 	return s.car(obj);
 }
 
 function cdr_prim(argv) {
 	var obj = argv[0];
 	if(!obj.isPair())
-		return s.wrongContract("mcdr", argv, "pair?", obj, 0);
+		return s.wrongContract("cdr", "pair?", 0, argv);
 	return s.cdr(obj);
 }
 
@@ -159,7 +176,7 @@ function setCar(argv) {
 	var pair = argv[0];
 	var pcar = argv[1];
 	if(!pair.isPair())
-		return s.wrongContract("set-car!", argv, "pair?", pair, 0);
+		return s.wrongContract("set-car!", "pair?", 0, argv);
 	s.setCar(pair, pcar);
 	return s.voidValue;
 }
@@ -168,7 +185,7 @@ function setCdr(argv) {
 	var pair = argv[0];
 	var pcdr = argv[1];
 	if(!pair.isPair())
-		return s.wrongContract("set-car!", argv, "pair?", pair, 0);
+		return s.wrongContract("set-car!", "pair?", 0, argv);
 	s.setCdr(pair, pcdr);
 	return s.voidValue;
 }
@@ -184,9 +201,9 @@ function listRef(argv) {
 	var pair = argv[0];
 	var index = argv[1];
 	if(!pair.isPair())
-		return s.wrongContract("list-ref", argv, "pair?", pair, 0);
+		return s.wrongContract("list-ref", "pair?", 0, argv);
 	if(!index.isNumber())
-		return s.wrongContract("list-ref", argv, "number?", index, 1);
+		return s.wrongContract("list-ref", "number?", 0, argv);
 	index = s.intVal(index);
 	for(var i = 0; i < index; i++)
 		pair = s.cdr(pair);
@@ -196,8 +213,8 @@ function listRef(argv) {
 function length(argv) {
 	var list = argv[0];
 	if(!s.isList(list))
-		return s.wrongContract("length", argv, "list?", list, 0);
-	return ScmObject.makeInt(s.listLength(list));
+		return s.wrongContract("length", "list?", 0, argv);
+	return s.makeInt(s.listLength(list));
 }
 
 })(scheme);

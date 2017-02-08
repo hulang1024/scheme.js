@@ -3,57 +3,68 @@
 
 s.error = null;
 
-s.makeError = function() {
-	s.error = [].slice.call(arguments, 0);
+s.restError = function() { s.error = null; }
+
+s.Error = function(objs) {
+	this.objs = objs;
 }
-s.makeArityMismatchError = function(procedureName, args, isAtleast, expected, given) {
+
+s.makeError = function() {
+	s.error = new s.Error([].slice.call(arguments, 0));
+	throw s.error;
+}
+
+s.arityMismatchError = function(procedureName, args, isAtleast, expected, given) {
 	s.makeError('arityMismatch', procedureName, args, isAtleast, expected, given);
 }
-s.wrongContract = function(procedureName, args, expected, given, argPosition) {
-	s.makeError('contractViolation', procedureName, args, expected, given, argPosition);
+
+s.wrongContract = function(procedureName, expected, index, argv) {
+	s.makeError('contractViolation', procedureName, expected, index, argv);
 }
-s.makeIndexOutRangeError = function(procedureName, type, startIndex, endIndex, invalid, length, obj) {
+
+s.indexOutRangeError = function(procedureName, type, startIndex, endIndex, invalid, length, obj) {
 	s.makeError('indexOutRange', procedureName, type, startIndex, endIndex, invalid, length, obj);
 }
 
-s.printError = function() {
-	function printObjs(objs) {
-		var values = [];
+s.outputError = function() {
+	function getMutilLineArgStr(objs) {
+		var str = "";
 		objs.forEach(function(obj){
-			var val = s.printObj(obj);
-			if(val != null)
-				values.push(val);
+			str += "\n   " + s.displayToString(obj);
 		});
-		return values;
+		return str;
 	}
 	
-	var error = s.error;
+	var error = s.error.objs;
 	var errorType = error[0];
 	switch(errorType) {
 	case 'arityMismatch':
 		var procedureName = error[1];
-		var argvs = error[2];
+		var argv = error[2];
 		var isAtleast = error[3];
 		var expected = error[4];
 		var given = error[5];
 		var info = procedureName + ': ' + 'arity mismatch;';
 		info += "\n  the expected number of arguments does not match the given number";
-		info += "\n   expected: " + (isAtleast ? 'at least ' : '') + expected;
-		info += "\n   given: " + given;
-		if(argvs.length > 0)
-			info += "\n   arguments: \n\t" + printObjs(argvs);
+		info += "\n  expected: " + (isAtleast ? 'at least ' : '') + expected;
+		info += "\n  given: " + given;
+		if(argv.length > 0)
+			info += "\n  arguments...:" + getMutilLineArgStr(argv);
 		break;
 	case 'contractViolation':
 		var procedureName = error[1];
-		var argvs = error[2];
-		var expected = error[3];
-		var given = error[4];
-		var argPosition = error[5] + 1;
-		var info = procedureName + ': ' + 'contract violation;';
+		var expected = error[2];
+		var index = error[3];
+		var argv = error[4];
+		var given = argv[index];
+		var info = procedureName + ': ' + 'contract violation';
 		info += "\n  expected: " + expected;
-		info += "\n  given: " + s.printObj(given);
-		info += "\n  argument position: " + argPosition + "st";
-		info += "\n  arguments: \n\t" + printObjs(argvs);
+		info += "\n  given: " + s.writeToString(given);
+		if(argv.length > 1) {
+			info += "\n  argument position: " + (index + 1) + "rd";
+			var otherArgs = argv.filter(function(a,i){ return i != index; });
+			info += "\n  other arguments...:" + getMutilLineArgStr(otherArgs);
+		}
 		break;
 	case "indexOutRange":
 		var procedureName = error[1];
@@ -73,7 +84,7 @@ s.printError = function() {
 			else {
 				info += "\n  index: " + startIndex;
 				info += "\n  valid range: [0, " + (length - 1) + "]";
-				info += "\n  " + type + ": " + s.printObj(obj);
+				info += "\n  " + type + ": " + s.writeToString(obj);
 			}
 		}
 		else {
@@ -88,7 +99,7 @@ s.printError = function() {
 				info += "\n  starting index: " + startIndex;
 				info += "\n  valid range: [0, " + length + "]";
 			}
-			info += "\n  " + type + ": " + s.printObj(obj);
+			info += "\n  " + type + ": " + s.writeToString(obj);
 		}
 		break;
 	case 'undefined':
@@ -99,6 +110,6 @@ s.printError = function() {
 	default:
 		info = error[0] + ": " + error[1];
 	}
-	s.console.value += info + "\n";
+	s.outputLineToConsole(info);
 }
 })(scheme);

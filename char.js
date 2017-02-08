@@ -1,20 +1,18 @@
 ﻿(function(s){
 "use strict";
 
-var ScmObject = s.ScmObject;
-
 s.initChar = function() {
 	s.addGlobalPrimProc("char?", char_p, 1);
 }
 
 
-ScmObject.makeChar = function(data) {
-	return new ScmObject(3, data);
+s.makeChar = function(val) {
+	return new s.Object(3, val);
 }
-s.charVal = function(obj) { return obj.data; }
+s.charVal = function(obj) { return obj.val; }
 
 function char_p(argv) {
-	return ScmObject.getBoolean(argv[0].isChar());
+	return s.getBoolean(argv[0].isChar());
 }
 
 })(scheme);

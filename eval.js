@@ -2,11 +2,7 @@
   eval-apply-loop
  */
 (function(s){
-
 "use strict";
-
-var ScmObject = s.ScmObject;
-var EnvironmentFrame = s.EnvironmentFrame;
 
 s.initEval = function() {
 	s.addGlobalPrimProc("eval", scheme_eval_prim, 2);
@@ -16,10 +12,10 @@ s.eval = evaluate;
 s.apply = apply;
 
 s.evalString = function(str) {
-	scheme.error = null;
+	scheme.restError();
 	var exps = scheme.read(str);
 	if(exps.constructor == String) {
-		scheme.console.value += exps;
+		s.outputLineToConsole(exps);
 		return;
 	}
 
@@ -27,15 +23,13 @@ s.evalString = function(str) {
 	for(var i = 0; i < exps.length; i++) {
 		try {
 			obj = scheme.eval(exps[i], scheme.globalEnvironment);
+			if(!scheme.error)
+				scheme.outputValue(obj);
 		} catch(e) {
-			scheme.console.value += e + "\n";
-			throw e;
-		} 
-		if(!scheme.error)
-			scheme.printValue(obj);
-		else {
-			scheme.printError();
-			break;
+			if(e instanceof scheme.Error)
+				scheme.outputError();
+			else
+				throw e;
 		}
 	}
 	return obj;//last value
@@ -45,14 +39,11 @@ function scheme_eval_prim(argv) {
 	var exp = argv[0];
 	var env = argv[1];
 	if(!env.isNamespace())
-		return s.wrongContract("meval", argv, "namespace?", env);
-	return s.eval(exp, env.data);
+		return s.wrongContract("meval", "namespace?", 0, argv);
+	return s.eval(exp, env.val);
 }
 
 function evaluate(exp, env) {
-	if(s.error)
-		return s.error;
-	
 	if(exp == s.voidValue)
 		return exp;
 	
@@ -101,7 +92,7 @@ function evaluate(exp, env) {
 
 function apply(procedure, argv) {
 	if(s.error)
-		return s.error;
+		throw s.error;
 
 	if(procedure.isPrimProc()) {
 		return applyPrimitiveProcedure(procedure, argv);
@@ -109,8 +100,8 @@ function apply(procedure, argv) {
 	else if(procedure.isCompProc()) {
 		var result = checkCompoundProcedureArguments(procedure, argv);
 		if(result) {
-			var env = extendEnvironment(s.compProcParamters(procedure), argv, s.compProcEnv(procedure));
-			return evalSequence(s.compProcBody(procedure), env);
+			var newEnv = extendEnvironment(procedure.val.getParamters(), argv, procedure.val.getEnv());
+			return evalSequence(procedure.val.getBody(), newEnv);
 		}
 	}
 	else
@@ -230,10 +221,9 @@ function evalAssignment(exp, env) {
 
 function evalDefinition(exp, env) {
 	var variable = definitionVar(exp);
-	var valueExp = definitionVal(exp);
-	var value = evaluate(valueExp, env);
+	var value = evaluate(definitionVal(exp), env);
 	if(value.isCompProc())
-		s.setCompProcName(value, variable.data);
+		value.val.setName(variable.val);
 	defineVariable(variable, value, env);
 	return s.ok;
 }
@@ -268,7 +258,7 @@ function evalLambda(exp, env) {
 	else {
 		s.makeError('','not an identifier');
 	}
-	return ScmObject.makeCompProc("", formals, lambdaBody(exp), env, minArgs, maxArgs);
+	return s.makeCompoundProcedure("", formals, lambdaBody(exp), env, minArgs, maxArgs);
 }
 
 function evalSequence(exps, env) {
@@ -285,7 +275,7 @@ function condToIf(exp) {
 	
 	function expandClauses(clauses) {
 		if(clauses.isEmptyList())
-			return ScmObject.getBoolean(false);
+			return s.getBoolean(false);
 		var first = s.car(clauses);
 		var rest = s.cdr(clauses);
 		if(isElseClause(first))
@@ -311,19 +301,17 @@ function condToIf(exp) {
 
 function applyPrimitiveProcedure(proc, argv) {
 	var result = checkPimitiveProcedureArguments(proc, argv);
-	if(result) {
-		return s.primProcFunc(proc)(argv);
-	}
-	else
+	if(!result)
 		return result;
+	return proc.val.getFunc()(argv);
 }
 
 function lookupVariableValue(variable, env) {
 	var value;
-	while(env && ((value = env.map[variable.data]) == undefined))
+	while(env && ((value = env.map[variable.val]) == undefined))
 		env = env.baseEnv;
 	if(value == undefined)
-		return s.makeError('undefined', variable.data);
+		return s.makeError('undefined', variable.val);
 	return value;
 }
 
@@ -332,33 +320,33 @@ function extendEnvironment(variables, values, baseEnv) {
 	if(s.isList(variables)) {
 		variables = s.listToArray(variables);
 		for(var i = 0; i < variables.length; i++)
-			map[variables[i].data] = values[i];
+			map[variables[i].val] = values[i];
 	}
 	else if(variables.isPair()) {
 		variables = s.pairToArray(variables);
 		var i;
 		for(i = 0; i < variables.length - 1; i++)
-			map[variables[i].data] = values[i];
+			map[variables[i].val] = values[i];
 		var restParameterIndex = i;
 		var restValues = s.arrayToList(values.slice(restParameterIndex));
-		map[variables[restParameterIndex].data] = restValues;
+		map[variables[restParameterIndex].val] = restValues;
 	}
 	else if(variables.isSymbol()) {
 		var variable = variables;
-		map[variable.data] = s.arrayToList(values);
+		map[variable.val] = s.arrayToList(values);
 	}
 
-	return new EnvironmentFrame(map, baseEnv);
+	return new s.EnvironmentFrame(map, baseEnv);
 }
 
 function defineVariable(variable, value, env) {
-	var name = variable.data;
+	var name = variable.val;
 	env.map[name] = value;
 }
 
 function setVariableValue(variable, value, env) {
-	var name = variable.data;
-	while(env && !env.map.hasOwnProperty(name))
+	var name = variable.val;
+	while(env && env.map[name] == undefined)
 		env = env.baseEnv;
 	if(env == null)
 		return s.makeError('undefined', name);
@@ -366,21 +354,18 @@ function setVariableValue(variable, value, env) {
 }
 
 function checkPimitiveProcedureArguments(procedure, argv) {
-	var procedureName = s.primProcName(procedure);
-	var arity = s.primProcArity(procedure);
-	return matchArity(procedureName, argv, arity);
+	return matchArity(procedure, argv);
 }
 
 function checkCompoundProcedureArguments(procedure, argv) {
-	var procedureName = s.compProcName(procedure);
-	var arity = s.compProcArity(procedure);
-	return matchArity(procedureName, argv, arity);
+	return matchArity(procedure, argv);
 }
 
-function matchArity(procedureName, argv, arity) {
+function matchArity(procedure, argv) {
+	var arity = procedure.val.getArity();
 	var min = arity[0];
 	var mismatch = false;
-	var isAtleast = true;
+	var isAtleast = false;
 	var expected = "";
 	if(arity.length == 1) {
 		if(argv.length != min)
@@ -391,17 +376,17 @@ function matchArity(procedureName, argv, arity) {
 		var max;
 		if(arity[1] != -1) {
 			max = arity[1];
-			isAtleast = false;
 			expected = min + " to " + max;
 		} else {
 			max = 0x3FFFFFFE;
 			expected = min;
+			isAtleast = true;
 		}
 		if(!(min <= argv.length && argv.length <= max))
 			mismatch = true;
 	}
 	if(mismatch) 
-		s.makeArityMismatchError(procedureName, argv, isAtleast, expected, argv.length);
+		s.arityMismatchError(procedure.val.getName(), argv, isAtleast, expected, argv.length);
 	return !mismatch;
 }
 

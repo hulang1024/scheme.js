@@ -1,13 +1,11 @@
 ﻿(function(s){
 "use strict";
 
-var ScmObject = s.ScmObject;
-
 s.initVector = function() {
 }
 
-ScmObject.makeVector = function(data) {
-	return new ScmObject(11, data);
+s.makeVector = function(val) {
+	return new s.Object(11, val);
 }
 
 })(scheme);

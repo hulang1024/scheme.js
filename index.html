@@ -28,22 +28,23 @@ textarea {
     font-family: Courier New;
     font-size: 15px;
     width:100%;
-    border: 1px solid #ccc; 
-}			
+    border: 1px solid #ccc;
+	overflow-y:auto;
+}
+
 </style>
 </head>
 
 <body>
-    
 <div id="frame">
   <div id="toolbar">
     <button id="run">Run</button>
   </div>
   <div>
-  	<textarea id="exp" rows="26"></textarea>
+  	<textarea id="exp" rows="20"></textarea>
   </div>
   <div>
-  	<textarea id="console" rows="20">Welcome to JSScheme.</textarea>
+  	<textarea id="console" rows="16">Welcome to JSScheme.</textarea>
   </div>
 </div>
 

@@ -1,8 +1,6 @@
 ﻿(function(s){
 "use strict";
 
-var ScmObject = s.ScmObject;
-
 s.initBool = function() {
 	s.addGlobalPrimProc("boolean?", boolean_p, 1);
 	s.addGlobalPrimProc("not", not, 1);
@@ -12,24 +10,24 @@ s.initBool = function() {
 	s.addGlobalPrimProc("equal?", equal, 2);
 }
 
-ScmObject.makeBoolean = function(data) {
-	return new ScmObject(5, data);
+s.makeBoolean = function(val) {
+	return new s.Object(5, val);
 }
 
-s.True = ScmObject.makeBoolean(true);
-s.False = ScmObject.makeBoolean(false);
+s.True = s.makeBoolean(true);
+s.False = s.makeBoolean(false);
 
 s.isTrue = function(obj) { return obj != s.False; }
 s.isFalse = function(obj) { return obj == s.False; }
 
-ScmObject.getBoolean = function(v) { return v ? s.True : s.False; }
+s.getBoolean = function(v) { return v ? s.True : s.False; }
 
 function boolean_p(argv) {
-	return ScmObject.getBoolean(argv[0].isBoolean());
+	return s.getBoolean(argv[0].isBoolean());
 }
 
 function not(argv) {
-	return ScmObject.getBoolean(!argv[0].data);
+	return s.getBoolean(!argv[0].val);
 }
 
 function and(argv) {
@@ -58,9 +56,9 @@ function eq(argv) {
 	if(x.type != y.type)
 		return s.False;
 	if(x.isNumber() || x.isChar() || x.isString() || x.isBoolean)
-		return ScmObject.getBoolean(x.data == y.data);
+		return s.getBoolean(x.val == y.val);
 	else
-		return ScmObject.getBoolean(x == y);
+		return s.getBoolean(x == y);
 }
 
 function equal(argv) {

@@ -1,8 +1,6 @@
 ﻿(function(s){
 "use strict";
 
-var ScmObject = s.ScmObject;
-
 s.initNumber = function() {
 	s.addGlobalPrimProc("integer?", integer_p, 1);
 	s.addGlobalPrimProc("real?", real_p, 1);
@@ -23,26 +21,26 @@ s.initNumber = function() {
 	s.addGlobalPrimProc("number->string", numberToString, 1);
 }
 
-ScmObject.makeInt = function(data) {
-	return new ScmObject(1, data);
+s.makeInt = function(val) {
+	return new s.Object(1, val);
 }
-s.intVal = function(obj) { return obj.data; }
+s.intVal = function(obj) { return obj.val; }
 
-ScmObject.makeReal = function(data) {
-	return new ScmObject(2, data);
+s.makeReal = function(val) {
+	return new s.Object(2, val);
 }
-s.floatVal = function(obj) { return obj.data; }
+s.floatVal = function(obj) { return obj.val; }
 
 function integer_p(argv) {
-	return ScmObject.getBoolean(argv[0].isInteger());
+	return s.getBoolean(argv[0].isInteger());
 }
 
 function real_p(argv) {
-	return ScmObject.getBoolean(argv[0].isReal());
+	return s.getBoolean(argv[0].isReal());
 }
 
 function number_p(argv) {
-	return ScmObject.getBoolean(argv[0].isNumber());
+	return s.getBoolean(argv[0].isNumber());
 }
 
 function sum(argv) {
@@ -51,11 +49,11 @@ function sum(argv) {
 	for(var i = 0; i < argv.length; i++) {
 		obj = argv[i];
 		if(obj.isNumber())
-			sum += obj.data;
+			sum += obj.val;
 		else
-			return s.wrongContract("+", argv, "number?", obj, i);
+			return s.wrongContract("+", "number?", i, argv);
 	}
-	return ScmObject.makeReal(sum);
+	return s.makeReal(sum);
 }
 
 function mul(argv) {
@@ -64,74 +62,74 @@ function mul(argv) {
 	for(var i = 0; i < argv.length; i++) {
 		obj = argv[i];
 		if(obj.isNumber())
-			result *= obj.data;
+			result *= obj.val;
 		else
-			return s.wrongContract("*", argv, "number?", obj, i);
+			return s.wrongContract("*", "number?", i, argv);
 	}
-	return ScmObject.makeReal(result);
+	return s.makeReal(result);
 }
 
 function sub(argv) {
 	var result;
 	var obj;
 	if(argv.length > 1) {
-		result = argv[0].data;
+		result = argv[0].val;
 		for(var i = 1; i < argv.length; i++) {
 			obj = argv[i];
 			if(obj.isNumber())
-				result -= obj.data;
+				result -= obj.val;
 			else
-				return s.wrongContract("-", argv, "number?", obj, i);
+				return s.wrongContract("-", "number?", i, argv);
 		}
 	} else {
 		obj = argv[0];
 		if(obj.isNumber())
-			result = - obj.data;
+			result = - obj.val;
 		else
-			return s.wrongContract("-", argv, "number?", obj, 0);
+			return s.wrongContract("-", "number?", 0, argv);
 	}
-	return ScmObject.makeReal(result);
+	return s.makeReal(result);
 }
 
 function div(argv) {
 	var result;
 	var obj;
 	if(argv.length > 1) {
-		result = argv[0].data;
+		result = argv[0].val;
 		for(var i = 1; i < argv.length; i++) {
 			obj = argv[i];
 			if(obj.isNumber()) {
-				if(obj.data != 0)
-					result /= obj.data;
+				if(obj.val != 0)
+					result /= obj.val;
 				else
 					return s.makeError("/", "division by zero");
 			}
 			else
-				return s.wrongContract("/", argv, "number?", obj, i);
+				return s.wrongContract("/", "number?", i, argv);
 		}
 	} else {
 		obj = array[0];
 		if(obj.isNumber())
-			result = 1 / obj.data;
+			result = 1 / obj.val;
 		else
-			return s.wrongContract("/", argv, "number?", obj, 0);
+			return s.wrongContract("/", "number?", 0, argv);
 	}
-	return ScmObject.makeReal(result);
+	return s.makeReal(result);
 }
 
 function equalNumber(argv) {
 	var first = argv[0];
 	var obj;
 	if(!first.isNumber())
-		return s.wrongContract("=", argv, "number?", obj, 0);
+		return s.wrongContract("=", "number?", 0, argv);
 	for(var i = 0; i < argv.length; i++) {
 		obj = argv[i];
 		if(obj.isNumber()) {
-			if(first.data != obj.data)
+			if(first.val != obj.val)
 				return s.False;
 		}
 		else
-			return s.wrongContract("=", argv, "number?", obj, i);
+			return s.wrongContract("=", "number?", i, argv);
 	}
 	return s.True;
 }
@@ -142,10 +140,10 @@ function lessThan(argv) {
 		obj1 = argv[i];
 		obj2 = argv[i + 1];
 		if(!obj1.isReal())
-			return s.wrongContract("<", argv, "real?", obj, i);
+			return s.wrongContract("<", "real?", i, argv);
 		if(!obj2.isReal())
-			return s.wrongContract("<", argv, "real?", obj, i + 1);
-		if(obj1.data >= obj2.data)
+			return s.wrongContract("<", "real?", i+1, argv);
+		if(obj1.val >= obj2.val)
 			return s.False;
 	}
 	return s.True;
@@ -157,10 +155,10 @@ function greaThan(argv) {
 		obj1 = argv[i];
 		obj2 = argv[i + 1];
 		if(!obj1.isReal())
-			return s.wrongContract(">", argv, "real?", obj, i);
+			return s.wrongContract(">", "real?", i, argv);
 		if(!obj2.isReal())
-			return s.wrongContract(">", argv, "real?", obj, i + 1);
-		if(obj1.data <= obj2.data)
+			return s.wrongContract(">", "real?", i+1, argv);
+		if(obj1.val <= obj2.val)
 			return s.False;
 	}
 	return s.True;
@@ -172,10 +170,10 @@ function lteq(argv) {
 		obj1 = argv[i];
 		obj2 = argv[i + 1];
 		if(!obj1.isReal())
-			return s.wrongContract("<=", argv, "real?", obj, i);
+			return s.wrongContract("<=", "real?", i, argv);
 		if(!obj2.isReal())
-			return s.wrongContract("<=", argv, "real?", obj, i + 1);
-		if(obj1.data > obj2.data)
+			return s.wrongContract("<=", "real?", i+1, argv);
+		if(obj1.val > obj2.val)
 			return s.False;
 	}
 	return s.True;
@@ -187,10 +185,10 @@ function gteq(argv) {
 		obj1 = argv[i];
 		obj2 = argv[i + 1];
 		if(!obj1.isReal())
-			return s.wrongContract(">=", argv, "real?", obj, i);
+			return s.wrongContract(">=", "real?", i, argv);
 		if(!obj2.isReal())
-			return s.wrongContract(">=", argv, "real?", obj, i + 1);
-		if(obj1.data < obj2.data)
+			return s.wrongContract(">=", "real?", i+1, argv);
+		if(obj1.val < obj2.val)
 			return s.False;
 	}
 	return s.True;
@@ -199,15 +197,15 @@ function gteq(argv) {
 function stringToNumber(argv) {
     var obj = argv[0];
     if(!obj.isString())
-        return s.wrongContract("string->number", argv, "string?", obj);
-    return ScmObject.makeReal(parseFloat(obj.data));
+        return s.wrongContract("string->number", "string?", 0, argv);
+    return s.makeReal(parseFloat(obj.val));
 }
 
 function numberToString(argv) {
     var obj = argv[0];
     if(!obj.isNumber())
-        return s.wrongContract("number->string", argv, "number?", obj);
-    return ScmObject.makeString(obj.data.toString());
+        return s.wrongContract("number->string", "number?", 0, argv);
+    return s.makeString(obj.val.toString());
 }
 
 })(scheme);
