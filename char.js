@@ -2,17 +2,17 @@
 "use strict";
 
 s.initChar = function() {
-	s.addGlobalPrimProc("char?", char_p, 1);
+    s.addGlobalPrimProc("char?", char_p, 1);
 }
 
 
 s.makeChar = function(val) {
-	return new s.Object(3, val);
+    return new s.Object(3, val);
 }
 s.charVal = function(obj) { return obj.val; }
 
 function char_p(argv) {
-	return s.getBoolean(argv[0].isChar());
+    return s.getBoolean(argv[0].isChar());
 }
 
 })(scheme);

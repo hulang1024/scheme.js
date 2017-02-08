@@ -2,22 +2,22 @@
 "use strict";
 
 s.initSymbol = function() {
-	s.addGlobalPrimProc("symbol?", symbol_p, 1);
+    s.addGlobalPrimProc("symbol?", symbol_p, 1);
 }
 
 s.makeSymbol = function(val) {
-	return new s.Object(6, val);
+    return new s.Object(6, val);
 }
 s.symbolVal = function(obj) { return obj.val; }
 
 s.symbolTable = {};
 s.internSymbol = function(str) {
-	var sym = s.symbolTable[str];
-	if(sym == undefined) {
-		sym = s.makeSymbol(str);
-		s.symbolTable[str] = sym;
-	}
-	return sym;
+    var sym = s.symbolTable[str];
+    if(sym == undefined) {
+        sym = s.makeSymbol(str);
+        s.symbolTable[str] = sym;
+    }
+    return sym;
 }
 
 s.quoteSymbol = s.internSymbol('quote');
@@ -32,7 +32,7 @@ s.letSymbol = s.internSymbol('let');
 s.dotSymbol = s.internSymbol('.');
 
 function symbol_p(argv) {
-	return s.getBoolean(argv[0].isSymbol());
+    return s.getBoolean(argv[0].isSymbol());
 }
 
 })(scheme);
