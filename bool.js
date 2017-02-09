@@ -31,7 +31,7 @@ function eq(argv) {
     var y = argv[1];
     if(x.type != y.type)
         return s.False;
-    if(x.isNumber() || x.isChar() || x.isString() || x.isBoolea())
+    if(x.isNumber() || x.isChar() || x.isString() || x.isBoolean())
         return s.getBoolean(x.val == y.val);
     return s.getBoolean(x == y);
 }
