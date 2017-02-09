@@ -30,6 +30,8 @@ s.condSymbol = s.internSymbol('cond');
 s.elseSymbol = s.internSymbol('else');
 s.letSymbol = s.internSymbol('let');
 s.dotSymbol = s.internSymbol('.');
+s.andSymbol = s.internSymbol('and');
+s.orSymbol = s.internSymbol('or');
 
 function symbol_p(argv) {
     return s.getBoolean(argv[0].isSymbol());
