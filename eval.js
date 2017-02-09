@@ -43,9 +43,9 @@ function eval_prim(argv) {
     return s.eval(exp, env.val);
 }
 
-//----------
-// eval
-//----------
+//------------
+// evaluations
+//------------
 function evaluate(exp, env) {
     if(exp == s.voidValue)
         return exp;
@@ -386,11 +386,7 @@ function definitionVal(exp) {
 }
 
 function isSelfEvaluating(exp) {
-    if(exp.isNumber()) return true;
-    else if(exp.isChar()) return true;
-    else if(exp.isString()) return true;
-    else if(exp.isBoolean()) return true;
-    else false;
+    return (exp.isNumber() || exp.isChar() || exp.isString() || exp.isBoolean());
 }
 
 })(scheme);
