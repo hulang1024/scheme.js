@@ -5,7 +5,7 @@
 "use strict";
 
 s.initEval = function() {
-    s.addGlobalPrimProc("eval", scheme_eval_prim, 2);
+    s.addGlobalPrimProc("eval", eval_prim, 2);
 }
 
 s.eval = evaluate;
@@ -35,7 +35,7 @@ s.evalString = function(str) {
     return obj;//last value
 }
 
-function scheme_eval_prim(argv) {
+function eval_prim(argv) {
     var exp = argv[0];
     var env = argv[1];
     if(!env.isNamespace())
@@ -43,6 +43,9 @@ function scheme_eval_prim(argv) {
     return s.eval(exp, env.val);
 }
 
+//----------
+// eval
+//----------
 function evaluate(exp, env) {
     if(exp == s.voidValue)
         return exp;
@@ -89,7 +92,7 @@ function evaluate(exp, env) {
         s.makeError('eval', "不支持的表达式类型");
 }
 
-
+// eval application
 function apply(procedure, argv) {
     if(s.error)
         throw s.error;
@@ -106,99 +109,6 @@ function apply(procedure, argv) {
     }
     else
         s.makeError('application', "expected a procedure that can be applied to arguments");
-}
-
-//------------------------
-// syntactic abstractions
-//------------------------
-// if
-function ifPredicate(exp) { return s.cadr(exp); }
-function ifConsequent(exp) { return s.caddr(exp); }
-function ifAlternative(exp) {
-    exp = s.cdddr(exp);
-    if(exp.isEmptyList())
-        return exp;
-    else // alternative
-        return s.car(exp);
-}
-function makeIf(predicate, consequent, alternative) {
-    return s.arrayToList([s.ifSymbol, predicate, consequent, alternative]);
-}
-
-// lambda
-function lambdaParamters(exp) { return s.cadr(exp); }
-function lambdaBody(exp) { return s.cddr(exp); }
-function makeLambda(parameters, body) {
-    return s.cons(s.lambdaSymbol, s.cons(parameters, body));
-}
-
-// application
-function operator(exp) { return s.car(exp); }
-function operands(exp) { return s.cdr(exp); }
-function makeApplication(operator, operands) {
-    return s.cons(operator, operands);
-}
-
-// assignment
-function assignmentVar(exp) { return s.cadr(exp); }
-function assignmentValue(exp) { return s.caddr(exp); }
-
-// cond
-function condClauses(exp) { return s.cdr(exp); }
-function clauesPredicate(clause) { return s.car(clause); }
-function clauseActions(clause) { return s.cdr(clause); }
-function isElseClause(clause) { return clauesPredicate(clause) == s.elseSymbol; }
-
-// begin
-function beginActions(exp) {
-    return s.cdr(exp);
-}
-function makeBegin(seq) {
-    return s.cons(s.beginSymbol, seq);
-}
-
-// let
-function letBindings(exp) { return s.cadr(exp); }
-function letBody(exp) { return s.cddr(exp); }
-function letBindingVars(bindings) {
-    return s.mapList(function(bind){
-        return s.car(bind);
-    }, bindings);
-}
-function letBindingVals(bindings) {
-    return s.mapList(function(bind){
-        return s.cadr(bind);
-    }, bindings);
-}
-function letToCombination(exp) {
-    var bindings = letBindings(exp);
-    return makeApplication(makeLambda(letBindingVars(bindings), letBody(exp)), letBindingVals(bindings));
-}
-
-// define variable/function
-function definitionVar(exp) { 
-    if(s.cadr(exp).isSymbol())
-        return s.cadr(exp);
-    else
-        return s.caadr(exp);
-}
-function definitionVal(exp) {
-    if(s.cadr(exp).isSymbol())
-        return s.caddr(exp);
-    else {
-        var formals = s.cdadr(exp);
-        var body = s.cddr(exp);
-        // to lambda
-        return makeLambda(formals, body);
-    }
-}
-
-function isSelfEvaluating(exp) {
-    if(exp.isNumber()) return true;
-    else if(exp.isChar()) return true;
-    else if(exp.isString()) return true;
-    else if(exp.isBoolean()) return true;
-    else false;
 }
 
 function listOfValues(operands, env) {
@@ -388,6 +298,99 @@ function matchArity(procedure, argv) {
     if(mismatch) 
         s.arityMismatchError(procedure.val.getName(), argv, isAtleast, expected, argv.length);
     return !mismatch;
+}
+
+//------------------------
+// syntactic abstractions
+//------------------------
+// if
+function ifPredicate(exp) { return s.cadr(exp); }
+function ifConsequent(exp) { return s.caddr(exp); }
+function ifAlternative(exp) {
+    exp = s.cdddr(exp);
+    if(exp.isEmptyList())
+        return exp;
+    else // alternative
+        return s.car(exp);
+}
+function makeIf(predicate, consequent, alternative) {
+    return s.arrayToList([s.ifSymbol, predicate, consequent, alternative]);
+}
+
+// lambda
+function lambdaParamters(exp) { return s.cadr(exp); }
+function lambdaBody(exp) { return s.cddr(exp); }
+function makeLambda(parameters, body) {
+    return s.cons(s.lambdaSymbol, s.cons(parameters, body));
+}
+
+// application
+function operator(exp) { return s.car(exp); }
+function operands(exp) { return s.cdr(exp); }
+function makeApplication(operator, operands) {
+    return s.cons(operator, operands);
+}
+
+// assignment
+function assignmentVar(exp) { return s.cadr(exp); }
+function assignmentValue(exp) { return s.caddr(exp); }
+
+// cond
+function condClauses(exp) { return s.cdr(exp); }
+function clauesPredicate(clause) { return s.car(clause); }
+function clauseActions(clause) { return s.cdr(clause); }
+function isElseClause(clause) { return clauesPredicate(clause) == s.elseSymbol; }
+
+// begin
+function beginActions(exp) {
+    return s.cdr(exp);
+}
+function makeBegin(seq) {
+    return s.cons(s.beginSymbol, seq);
+}
+
+// let
+function letBindings(exp) { return s.cadr(exp); }
+function letBody(exp) { return s.cddr(exp); }
+function letBindingVars(bindings) {
+    return s.mapList(function(bind){
+        return s.car(bind);
+    }, bindings);
+}
+function letBindingVals(bindings) {
+    return s.mapList(function(bind){
+        return s.cadr(bind);
+    }, bindings);
+}
+function letToCombination(exp) {
+    var bindings = letBindings(exp);
+    return makeApplication(makeLambda(letBindingVars(bindings), letBody(exp)), letBindingVals(bindings));
+}
+
+// define variable/function
+function definitionVar(exp) { 
+    if(s.cadr(exp).isSymbol())
+        return s.cadr(exp);
+    else
+        return s.caadr(exp);
+}
+function definitionVal(exp) {
+    if(s.cadr(exp).isSymbol())
+        return s.caddr(exp);
+    else {
+        var formals = s.cdadr(exp);
+        var body = s.cddr(exp);
+        // to lambda
+        return makeLambda(formals, body);
+    }
+}
+
+function isSelfEvaluating(exp) {
+    if(exp.isNumber()) return true;
+    else if(exp.isChar()) return true;
+    else if(exp.isString()) return true;
+    else if(exp.isBoolean()) return true;
+    else false;
 }
 
 })(scheme);
