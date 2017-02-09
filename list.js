@@ -191,10 +191,7 @@ function setCdr(argv) {
 }
 
 function list(argv) {
-    var l = s.nil;
-    for(var i = argv.length - 1; i >= 0; i--)
-        l = s.cons(argv[i], l);
-    return l;
+    return s.arrayToList(argv);
 }
 
 function listRef(argv) {
