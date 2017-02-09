@@ -59,36 +59,36 @@ function evaluate(exp, env) {
     }
 
     else if(s.isList(exp) && !exp.isEmptyList()) {
-        var obj = s.car(exp);
-        if(obj.isSymbol()) {
-            if(obj == s.quoteSymbol) {
+        var first = s.car(exp);
+        if(first.isSymbol()) {
+            if(first == s.quoteSymbol) {
                 return evalQuotation(exp);
             }
-            else if(obj == s.assignmentSymbol) {
+            else if(first == s.assignmentSymbol) {
                 return evalAssignment(exp, env);
             }
-            else if(obj == s.defineSymbol) {
+            else if(first == s.defineSymbol) {
                 return evalDefinition(exp, env);
             }
-            else if(obj == s.ifSymbol) {
+            else if(first == s.ifSymbol) {
                 return evalIf(exp, env);
             }
-            else if(obj == s.lambdaSymbol) {
+            else if(first == s.lambdaSymbol) {
                 return evalLambda(exp, env);
             }
-            else if(obj == s.beginSymbol) {
+            else if(first == s.beginSymbol) {
                 return evalSequence(beginActions(exp), env);
             }
-            else if(obj == s.condSymbol) {
+            else if(first == s.condSymbol) {
                 return evaluate(condToIf(exp), env);
             }
-            else if(obj == s.andSymbol) {
+            else if(first == s.andSymbol) {
                 return evaluate(andToIf(exp), env);
             }
-            else if(obj == s.orSymbol) {
+            else if(first == s.orSymbol) {
                 return evaluate(orToIf(exp), env);
             }
-            else if(obj == s.letSymbol) {
+            else if(first == s.letSymbol) {
                 return evaluate(letToCombination(exp), env);
             }
         }
