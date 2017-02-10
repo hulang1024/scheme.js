@@ -11,50 +11,39 @@ var vectorReg = /^#\(/;
 var emptyListReg = /^\(\)$/;
 
 s.initRead = function() {
+    s.addGlobalPrimProc("read", read, 0, 1);
 }
 
-s.read = function(str) {
+function read(argv) {
+    var objs;
+    do {
+        objs = s.readMutil(window.prompt());
+    } while (!objs.length);
+    return objs[0];
+}
+
+s.readMutil = function(src) {
     //delete comment line
-    str += '\n';
+    src += '\n';
     var pstr = "";
     var state = 0;
-    for(var i=0;i<str.length;i++) {
-        if(str[i]=="\"") {
+    for(var i=0;i<src.length;i++) {
+        if(src[i]=="\"") {
             switch(state) {
             case 0: state = 1; break;
             case 1: state = 0; break;
             }
         }
-        else if(str[i] == ";") {
+        else if(src[i] == ";") {
             if(state == 0) {
-                i++;
-                while(i < str.length && str[i] != '\n') i++;
+                for(i++; i < src.length && src[i] != '\n'; ) i++;
             }
         }
-        pstr += str[i];
+        pstr += src[i];
     }
-    
-    var tokens = parseTokens(pstr);
-    var exps = parseSExps(tokens);
-    return exps;
-}
 
-function parseTokens(str) {
-    // 用正则表达式处理拆分
-    var splits = str.split(/(\s+)|([\(\)]{1})/g);
-    //console.log(splits);
-    //进一步处理
-    var tokens = [];
-    for(var i = 0; i < splits.length; i++) {
-        var str = splits[i];
-        if(str != undefined && str.trim().length > 0) {
-            tokens.push(str);
-        }
-    }
-    return tokens;
-}
-
-function parseSExps(tokens) {
+    var splits = pstr.split(/(".*")|(\s+)|([\(\)]{1})/g);
+    var tokens = splits.filter(function(str) { return str && str.trim(); });
     tokens = tokens.map(function(t){
         if(t == '(') return '[';
         else if(t == ')') return ']';
@@ -70,25 +59,21 @@ function parseSExps(tokens) {
     }).join(',');
     var arrayExp = "[" + tokens.replace(/\[,/g,'[').replace(/,\]/g,']') + "]";
     var array;
-    var error;
     try {
         //console.log('token arrayExp:');
         //console.log(arrayExp);
         array = eval(arrayExp);
     } catch(e) {
-        return "read:unexpected";
+        s.makeError("read", "unexpected");
+        return;
     }
-    var exps = parse(array);
-    if(error == 1)
-        return "read:unexpected";
-    else
-        return exps;
+    return inner(array);
     
-    function parse(array) {
-        var exps = [];
+    function inner(array) {
+        var result = [];
         for(var index = 0; index < array.length; index++) {
             if(array[index].constructor == Array) {
-                var array1 = parse(array[index]);
+                var array1 = inner(array[index]);
                 var pair;
                 if(array1.length > 0) {
                     var currPair;
@@ -104,62 +89,61 @@ function parseSExps(tokens) {
                                 if(i == array1.length - 1)
                                     s.setCdr(currPair, array1[i]);
                                 else {
-                                    error = 1;
+                                    s.makeError("read", "unexpected");
                                     break;
                                 }
                             }
                             currPair = nextPair;
                         }
                     } else {
-                        error = 1;
+                        s.makeError("read", "unexpected");
                     }
                 } else {
                     pair = s.nil;
                 }
-                exps.push(pair);
+                result.push(pair);
             }
             else {
                 var token = array[index];
                 if(decimalReg.test(token)) {
-                    exps.push(s.makeInt(parseInt(token)));
+                    result.push(s.makeInt(parseInt(token)));
                 }
                 else if(floatReg.test(token)) {
-                    exps.push(s.makeReal(parseFloat(token)));
+                    result.push(s.makeReal(parseFloat(token)));
                 }
                 else if(symbolReg.test(token)) {
-                    exps.push(s.internSymbol(token));
+                    result.push(s.internSymbol(token));
                 }
                 else if(token[0] == "'") {//quote
                     var quoteSym = s.internSymbol('quote');
                     var obj;
                     if(token == "'") {
-                        obj = parse(array.slice(index+1, index+2))[0];
+                        obj = inner(array.slice(index+1, index+2))[0];
                         index++;
                     }
                     else {
                         obj = parseSExps(parseTokens(token.substring(1)))[0];
                     }
-                    exps.push(s.cons(quoteSym, s.cons(obj, s.nil)));
+                    result.push(s.cons(quoteSym, s.cons(obj, s.nil)));
                 }
                 else if(vectorReg.test(token)) {//vector
                 }
                 else if(charReg.test(token)) {
-                    exps.push(s.makeChar(token.substr(2)));
+                    result.push(s.makeChar(token.substr(2)));
                 }
                 else if(stringReg.test(token)) {
-                    exps.push(s.makeString(token.substr(1, token.length - 2).split("")));
+                    result.push(s.makeString(token.substr(1, token.length - 2).split("")));
                 }
                 else if(booleanReg.test(token)) {
-                    exps.push(s.getBoolean(token == "#t" || token == "#true"));
+                    result.push(s.getBoolean(token == "#t" || token == "#true"));
                 }
                 else {
-                    error = 1;
+                    s.makeError("read", "unexpected");
                 }
             }
         }
-        return exps;
+        return result;
     }
-
 }
 
 })(scheme);

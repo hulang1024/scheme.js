@@ -11,28 +11,21 @@ s.initEval = function() {
 s.eval = evaluate;
 s.apply = apply;
 
-s.evalString = function(str) {
+s.evalString = function(formsStr) {
     scheme.restError();
-    var exps = scheme.read(str);
-    if(exps.constructor == String) {
-        s.outputLineToConsole(exps);
-        return;
-    }
-
-    var obj;
-    for(var i = 0; i < exps.length; i++) {
-        try {
-            obj = scheme.eval(exps[i], scheme.globalEnvironment);
-            if(!scheme.error)
-                scheme.outputValue(obj);
-        } catch(e) {
-            if(e instanceof scheme.Error)
-                scheme.outputError();
-            else
-                throw e;
+    var exps, valObj;
+    try {
+        exps = scheme.readMutil(formsStr);
+        for(var i = 0; i < exps.length; i++) {
+            valObj = scheme.eval(exps[i], scheme.globalEnvironment);
+            scheme.outputValue(valObj);
         }
+    } catch(e) {
+        if(e instanceof scheme.Error)
+            scheme.outputError();
+        throw e;
     }
-    return obj;//last value
+    return valObj;//last value
 }
 
 function eval_prim(argv) {
@@ -43,9 +36,9 @@ function eval_prim(argv) {
     return s.eval(exp, env.val);
 }
 
-//------------
+//-------------
 // evaluations
-//------------
+//-------------
 function evaluate(exp, env) {
     if(exp == s.voidValue)
         return exp;
