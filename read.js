@@ -122,7 +122,7 @@ s.readMutil = function(src) {
                         index++;
                     }
                     else {
-                        obj = parseSExps(parseTokens(token.substring(1)))[0];
+                        obj = s.readMutil(token.substring(1))[0];
                     }
                     result.push(s.cons(quoteSym, s.cons(obj, s.nil)));
                 }
