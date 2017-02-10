@@ -1,4 +1,4 @@
-;author: http://www.paulgraham.com/rootsoflisp.html
+﻿;author: http://www.paulgraham.com/rootsoflisp.html
 (define (atom x)
   (not (pair? x)))
 (define null. null?)
@@ -29,7 +29,7 @@
     ;cond#1.e是原子,查找它在环境中的值
     ((atom e) (assoc. e a))
     ;e是表
-    ;cond#2.(a...)，a是原子,包括所有的原始操作符
+    ;cond#2.(a...),a是原子,包括所有的原始操作符
     ((atom (car e))
      (cond 
        ((eq (car e) 'quote) (cadr e))
@@ -90,11 +90,20 @@
 (eval. '(f '(b c))
        '((x 1) (f (lambda (x) (cons 'a x)))))
 ;test cond#3
-;(eval.'((label firstatom (lambda (x)
-;                            (cond ((atom x) x)
-;                                  ('t (firstatom (car x))))))
-;        y)
-;      '((y ((a b) (c d)))))
+(eval. '((label firstatom (lambda (x)
+                            (cond ((atom x) x)
+                                  ('t (firstatom (car x))))))
+        y)
+      '((y ((a b) (c d)))))
 ;;test cond#4
-;(eval. '((lambda (x y) (cons x (cdr y))) 'a '(b c d))
-;       '())
+(eval. '((lambda (x y) (cons x (cdr y))) 'a '(b c d))
+       '())
+
+
+(eval. '((lambda (x y) (cons x (cdr y)))
+         'a
+         '(b c d))
+       '())
+
+(eval. '(cons x (cdr y))
+       '((x a) (y (b c d))))

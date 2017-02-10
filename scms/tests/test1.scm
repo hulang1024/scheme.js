@@ -49,12 +49,11 @@ x
   (lambda (i)
     (for-range 1 i
       (lambda (j)
-        (display i)
-        (display "*")
-        (display j)
-        (display "=")
-        (display (* i j))
-        (display ".")))
+        (display (string-append
+          (number->string i)
+          "*"
+          (number->string j)
+          "="
+          (number->string (* i j))
+          " "))))
     (newline)))
-	
-
