@@ -48,13 +48,13 @@ s.readMutil = function(src) {
         if(t == '(') return '[';
         else if(t == ')') return ']';
         else {
-            var tk = t;
-            if(t[0] == '#' && t[1] == '\\')
-                tk = t[0] + '\\' + t.substring(1);
-            if(t[0] == "'") {
+            if(t[0] == "#" && t[1] == "\\")
+                return "'" + t[0] + "\\" + t.substring(1) + "'";
+            else if(t[0] == "'")
                 return "\"\\" + t[0] + t.substring(1) + "\"";
-            }
-            return "'" + tk + "'";
+            else if(t[0] == "\"")
+                return "'" + t.replace(/'/g, "\\'") + "'";
+            return "'" + t + "'";
         }
     }).join(',');
     var arrayExp = "[" + tokens.replace(/\[,/g,'[').replace(/,\]/g,']') + "]";

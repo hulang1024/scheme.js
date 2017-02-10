@@ -61,7 +61,7 @@ s.outputError = function() {
         info += "\n  expected: " + expected;
         info += "\n  given: " + s.writeToString(given);
         if(argv.length > 1) {
-            info += "\n  argument position: " + (index + 1) + "rd";
+            info += "\n  argument position: " + (index + 1);
             var otherArgs = argv.filter(function(a,i){ return i != index; });
             info += "\n  other arguments...:" + getMutilLineArgStr(otherArgs);
         }
