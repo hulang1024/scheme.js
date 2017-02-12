@@ -212,9 +212,9 @@ function condToIf(exp) {
 function andToIf(exp, env) {
     var exps = andExps(exp);
     return exps.isEmptyList() ? s.True : expandExps(exps);
-    var unconflictId = "id" + new Date().getTime();
+    var gensym = s.genSymbol();
     function expandExps(exps) {
-        var tempVar = s.makeSymbol(unconflictId);
+        var tempVar = s.makeSymbol(gensym);
         var predicate = makeApplication(s.makeSymbol("not"), s.cons(tempVar, s.nil));
         var rest = s.cdr(exps);
         return makeLet(
@@ -227,9 +227,9 @@ function andToIf(exp, env) {
 function orToIf(exp, env) {
     var exps = orExps(exp);
     return exps.isEmptyList() ? s.False : expandExps(exps);
-    var unconflictId = "id" + new Date().getTime();
+    var gensym = s.genSymbol();
     function expandExps(exps) {
-        var tempVar = s.makeSymbol(unconflictId);
+        var tempVar = s.makeSymbol(gensym);
         var predicate = tempVar;
         var rest = s.cdr(exps);
         return makeLet(

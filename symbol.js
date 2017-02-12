@@ -37,4 +37,10 @@ function symbol_p(argv) {
     return s.getBoolean(argv[0].isSymbol());
 }
 
+var gensymNum = 0;
+s.genSymbol = function() {
+    gensymNum++;
+    return "__gensym_" + gensymNum;
+}
+
 })(scheme);
