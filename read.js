@@ -41,13 +41,15 @@ scheme.readMutil = function(src) {
         }
         pstr += src[i];
     }
+    pstr = pstr.substring(0, pstr.length-1);
 
     function getTokens(splits) {
         var tokens = [], part, s;
         for(var i = 0; i < splits.length; i++) {
             part = splits[i];
-            if(part && part.trim()) {
+            if(part && part.trim() && part != "\n") {
                 if(part[0] == "\"") {
+                    var b = true;
                     for(i++; i < splits.length; ) {
                         s = splits[i++];
                         if(s) {
@@ -59,11 +61,14 @@ scheme.readMutil = function(src) {
                                 part += s;
                                 if(s[s.length-1] == "\"") {
                                     tokens.push(part);
+                                    b = false;
                                     break;
                                 }
                             }
                         }
                     }
+                    if(b)
+                        tokens.push(part);
                 }
                 else
                     tokens.push(part);
@@ -78,8 +83,8 @@ scheme.readMutil = function(src) {
         else {
             if(t[0] == "#" && t[1] == "\\")
                 return "'" + t[0] + "\\" + t.substring(1) + "'";
-            else if(t[0] == "\"")
-                return "'" + t[0] + t.substring(1).trim() + "'";
+            //else if(t[0] == "\"")
+            //    return "'" + t[0] + t.substring(1) + "'";
             else if(t[0] == "'")
                 return "\"\\" + t[0] + t.substring(1) + "\"";
             else if(t[0] == "\"")
