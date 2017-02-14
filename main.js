@@ -89,8 +89,12 @@ function setInteractionsViewDisplay(display) {
 function run() {
     clearConsole();
     setInteractionsViewDisplay("block");
-    divDefinitions.style.height = (contentHeight - consoleHeight) + "px";
-    divConsole.style.height = consoleHeight + "px";
+    if(divDefinitions.style.display == "block") {
+        divDefinitions.style.height = (contentHeight - consoleHeight) + "px";
+        divConsole.style.height = consoleHeight + "px";
+    } else {
+        divConsole.style.height = "100%";
+    }
     
     scheme.evalString(textareaDefinitions.value);
     appendConsoleInput();
