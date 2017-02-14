@@ -16,40 +16,6 @@ window.onload = function(){
     });
 }
 
-function run() {
-    clearConsole();
-    scheme.evalString(textareaDefinitions.value);
-    appendConsoleInput();
-}
-
-function toggleDefinitions() {
-    var nowDisplay = divDefinitions.style.display == "block" ? "none" : "block";
-    divDefinitions.style.display = nowDisplay;
-    if(nowDisplay == "none") {
-        divDefinitions.style.height = "0%";
-        divConsole.style.height = "100%";
-    } else {
-        divDefinitions.style.height = "50%";
-        divConsole.style.height = "50%";
-    }
-    btnToggleDefinitions.innerHTML = (nowDisplay == "block" ? "Hide" : "Show") + " Definitions";
-}
-
-function evalConsoleInput() {
-    var code = consoleInput.value;
-    
-    scheme.evalString(code);
-
-    var p = consoleInput.parentNode;
-    p.removeChild(consoleInput);
-    p.children[0].className += " dead";
-    var codeSpan = document.createElement("span");
-    codeSpan.innerText = code;
-    p.appendChild(codeSpan);
-    appendConsoleInput();
-}
-
-
 function initFrame() {
     var content = document.getElementById("content");
     content.style.height = (window.innerHeight ||
@@ -70,16 +36,46 @@ function initFrame() {
     consoleInput.focus();
 }
 
+function toggleDefinitions() {
+    var nowDisplay = divDefinitions.style.display == "block" ? "none" : "block";
+    divDefinitions.style.display = nowDisplay;
+    if(nowDisplay == "none") {
+        divDefinitions.style.height = "0%";
+        divConsole.style.height = "100%";
+    } else {
+        divDefinitions.style.height = "50%";
+        divConsole.style.height = "50%";
+    }
+    btnToggleDefinitions.innerHTML = (nowDisplay == "block" ? "Hide" : "Show") + " Definitions";
+}
+
+function run() {
+    clearConsole();
+    scheme.evalString(textareaDefinitions.value);
+    appendConsoleInput();
+}
+
+function evalConsoleInput() {
+    var code = consoleInput.value;
+    
+    scheme.evalString(code);
+
+    var p = consoleInput.parentNode;
+    p.removeChild(consoleInput);
+    p.children[0].className += " dead";
+    var codeSpan = document.createElement("span");
+    codeSpan.innerText = code;
+    p.appendChild(codeSpan);
+    appendConsoleInput();
+}
+
 function clearConsole() {
     divConsole.innerHTML = "<p>Welcome to <a target=\"_blank\" href=\"http://github.com/hlpp/JSScheme\">JSScheme</a>.</p>";
 }
 
 function appendConsoleInput() {
     divConsole.innerHTML += "<p class=\"input\"><span class=\"prompt\">&gt;</span><input type=\"text\" id=\"consoleInput\" /></p>";
-    resetConsoleInput();
-}
 
-function resetConsoleInput() {
     consoleInput = document.getElementById("consoleInput");
     consoleInput.onkeydown = function(event) {
         if(event.keyCode == 13) {
@@ -87,7 +83,6 @@ function resetConsoleInput() {
                 evalConsoleInput();
         }
     }
-    
     consoleInput.focus();
 }
 
