@@ -18,7 +18,7 @@ function display(argv) {
 }
 
 function newline(argv) {
-    s.outputToConsole("\n");
+    s.outputToConsole("</br>");
     return s.voidValue;
 }
 
@@ -138,7 +138,7 @@ s.outputValue = function(obj) {
     var val = s.writeToString(obj);
     if(val != null) {
         s.outputToConsole(val);
-        s.outputToConsole("\n");
+        s.outputToConsole("</br>");
     }
 }
 
