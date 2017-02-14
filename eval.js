@@ -11,11 +11,10 @@ s.initEval = function() {
 s.eval = evaluate;
 s.apply = apply;
 
-s.evalString = function(formsStr) {
+s.evalObjects = function(exps) {
     scheme.restError();
-    var exps, valObj;
+    var valObj;
     try {
-        exps = scheme.readMutil(formsStr);
         for(var i = 0; i < exps.length; i++) {
             valObj = scheme.eval(exps[i], scheme.globalEnvironment);
             scheme.outputValue(valObj);
@@ -26,6 +25,19 @@ s.evalString = function(formsStr) {
         console.error(e);
     }
     return valObj;//last value
+}
+
+s.evalString = function(formsStr) {
+    scheme.restError();
+    var exps;
+    try {
+        exps = scheme.readMutil(formsStr);
+    } catch(e) {
+        if(e instanceof scheme.Error)
+            scheme.outputError();
+        console.error(e);
+    }
+    return s.evalObjects(exps);
 }
 
 function eval_prim(argv) {

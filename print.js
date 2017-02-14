@@ -26,39 +26,62 @@ s.displayToString = function(obj) {
     return s.writeToString(obj, true);
 }
 
-s.writeToString = function(obj, display) {
+var syntaxColorSchemes = {
+    "string": "#298026",
+    "symbol": "#0000AF",
+    "constant": "#298026",
+    "comment": "rgb(194,158,31)",
+    "parenthesis": "rgb(181,60,36)"
+};
+function wrapSyntaxColorHTML(type, str) {
+    return "<span style=\"color:" + syntaxColorSchemes[type] + "\">" + str + "</span>";
+}
+
+s.writeToString = function(obj, display, writeHtml) {
     var str = null;
     if(obj.isUnspecified())
         str = null;
     else if(obj.isNumber()) {
         str = obj.val;
+        if(writeHtml)
+            str = wrapSyntaxColorHTML("constant", str);
     }
     else if(obj.isChar()) {
         str = "#\\" + s.charVal(obj);
+        if(writeHtml)
+            str = wrapSyntaxColorHTML("constant", str);
     }
     else if(obj.isString()) {
         str = s.stringVal(obj);
         if(!display)
             str = "\"" + str + "\"";
+        if(writeHtml)
+            str = wrapSyntaxColorHTML("string", str);
     }
     else if(obj.isSymbol()) {
         str = s.symbolVal(obj);
+        if(writeHtml)
+            str = wrapSyntaxColorHTML("symbol", str);
     }
     else if(obj.isBoolean()) {
         str = obj.val ? "#t" : "#f";
+        if(writeHtml)
+            str = wrapSyntaxColorHTML("constant", str);
     }
     else if(obj.isEmptyList()) {
         str = "()";
+        if(writeHtml)
+            str = wrapSyntaxColorHTML("parenthesis", str);
     }
     else if(s.isList(obj)) {
         if(s.car(obj) == s.quoteSymbol) {
-            str = s.writeQuote(obj);
+            str = s.writeQuote(obj, writeHtml);
         }
         else
-            str = s.writeList(obj);
+            str = s.writeList(obj, writeHtml);
     }
     else if(obj.isPair()) {
-        str = s.writePair(obj);
+        str = s.writePair(obj, writeHtml);
     }
     else if(obj.isProcedure()) {
         str = '#<procedure:' + obj.val.getName() + '>';
@@ -72,31 +95,40 @@ s.writeToString = function(obj, display) {
     return str;
 }
 
-s.writeQuote = function(list) {
+s.writeQuote = function(list, writeHtml) {
     if(s.car(list) == s.quoteSymbol)
-        return "'" + s.writeQuote(s.cdr(list));
+        return "'" + s.writeQuote(s.cdr(list), writeHtml);
     else 
-        return s.writeToString(s.car(list));
+        return s.writeToString(s.car(list), false, writeHtml);
 }
 
-s.writeList = function(list) {
-    var objs = [];
+s.writeList = function(list, writeHtml) {
+    var strs = [];
     var obj = list;
     for(; obj.isPair(); obj = s.cdr(obj)) {
-        objs.push(s.writeToString(s.car(obj)));
+        strs.push(s.writeToString(s.car(obj), false, writeHtml));
     }
-    return '(' + objs.join(' ') + ')';
+    if(writeHtml)
+        return wrapSyntaxColorHTML("parenthesis", "(")
+            + strs.join(' ') + wrapSyntaxColorHTML("parenthesis", ")");
+    else
+        return '(' + strs.join(' ') + ')';
 }
 
-s.writePair = function(pair) {
+s.writePair = function(pair, writeHtml) {
     var str = '(';
+    if(writeHtml)
+        str = wrapSyntaxColorHTML("parenthesis", "(");
     for(var i = 0; i < pair.val.length; i++) {
         var obj = pair.val[i];
-        str += obj.isPair() ? s.writePair(obj) : s.writeToString(obj);
+        str += obj.isPair() ? s.writePair(obj, writeHtml) : s.writeToString(obj, false, writeHtml);
         if(i < pair.val.length - 1)
             str += ' . ';
     }
-    str += ')';
+    if(writeHtml)
+        str += wrapSyntaxColorHTML("parenthesis", ")");
+    else
+        str += ')';
     return str;
 }
 
@@ -114,7 +146,7 @@ s.outputToConsole = function(str, error, write) {
     if(!s.console)
         return;
     var response = document.createElement('span');
-    response.innerText = str;
+    response.innerHTML = str;
     response.className = "scheme_response";
     if(write)
         response.className += " scheme_write_object";

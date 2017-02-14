@@ -125,13 +125,15 @@ function run() {
 function evalConsoleInput() {
     var code = consoleInput.value;
     
-    scheme.evalString(code);
+    var objs = scheme.readMutil(code);
+    scheme.evalObjects(objs);
     
     var p = consoleInput.parentNode;
     p.removeChild(consoleInput);
     p.children[0].className += " dead";
     var codeSpan = document.createElement("span");
-    codeSpan.innerText = code;
+    for(var i = 0; i < objs.length; i++)
+        codeSpan.innerHTML += scheme.writeToString(objs[i], false, true);
     p.appendChild(codeSpan);
     appendConsoleInput();
 }
