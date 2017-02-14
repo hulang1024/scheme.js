@@ -1,4 +1,4 @@
-﻿(function(s){
+﻿(function(scheme){
 "use strict";
 
 var symbolReg = /^(?![0-9])[a-zA-Z_$0-9\!\-\?\*%\.\+\-\*\/\<\>\=\u4e00-\u9fa5]+$/;
@@ -10,19 +10,19 @@ var booleanReg = /^#[tf]|(true|false)$^/;
 var vectorReg = /^#\(/;
 var emptyListReg = /^\(\)$/;
 
-s.initRead = function() {
-    s.addGlobalPrimProc("read", read, 0, 1);
+scheme.initRead = function() {
+    scheme.addGlobalPrimProc("read", read, 0, 1);
 }
 
 function read(argv) {
     var objs;
     do {
-        objs = s.readMutil(window.prompt());
+        objs = scheme.readMutil(window.prompt());
     } while (!objs.length);
     return objs[0];
 }
 
-s.readMutil = function(src) {
+scheme.readMutil = function(src) {
     //delete comment line
     src += '\n';
     var pstr = "";
@@ -42,8 +42,36 @@ s.readMutil = function(src) {
         pstr += src[i];
     }
 
-    var splits = pstr.split(/(".*"\s+)|(\s+)|([\(\)]{1})/g);
-    var tokens = splits.filter(function(str) { return str && str.trim(); });
+    function getTokens(splits) {
+        var tokens = [], part, s;
+        for(var i = 0; i < splits.length; i++) {
+            part = splits[i];
+            if(part && part.trim()) {
+                if(part[0] == "\"") {
+                    for(i++; i < splits.length; ) {
+                        s = splits[i++];
+                        if(s) {
+                            if(s == ")") {
+                                tokens.push(part);
+                                tokens.push(")");
+                            }
+                            else {
+                                part += s;
+                                if(s[s.length-1] == "\"") {
+                                    tokens.push(part);
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+                else
+                    tokens.push(part);
+            }
+        }
+        return tokens;
+    }
+    var tokens = getTokens(pstr.split(/(\s+)|([\(\)]{1})/g));
     tokens = tokens.map(function(t){
         if(t == '(') return '[';
         else if(t == ')') return ']';
@@ -66,7 +94,7 @@ s.readMutil = function(src) {
         //console.log(arrayExp);
         array = eval(arrayExp);
     } catch(e) {
-        s.makeError("read", "unexpected");
+        scheme.makeError("read", "unexpected");
         return;
     }
     return inner(array);
@@ -79,73 +107,72 @@ s.readMutil = function(src) {
                 var pair;
                 if(array1.length > 0) {
                     var currPair;
-                    if(array1[0] != s.dotSymbol) {
-                        pair = currPair = s.cons(array1[0], s.nil);
+                    if(array1[0] != scheme.dotSymbol) {
+                        pair = currPair = scheme.cons(array1[0], scheme.nil);
                         for(var i = 1; i < array1.length; i++) {
                             var elem = array1[i];
-                            if(elem != s.dotSymbol) {
-                                var nextPair = s.cons(array1[i], s.nil);
-                                s.setCdr(currPair, nextPair);
+                            if(elem != scheme.dotSymbol) {
+                                var nextPair = scheme.cons(array1[i], scheme.nil);
+                                scheme.setCdr(currPair, nextPair);
                             } else {
                                 ++i;
                                 if(i == array1.length - 1)
-                                    s.setCdr(currPair, array1[i]);
+                                    scheme.setCdr(currPair, array1[i]);
                                 else {
-                                    s.makeError("read", "unexpected");
+                                    scheme.makeError("read", "unexpected");
                                     break;
                                 }
                             }
                             currPair = nextPair;
                         }
                     } else {
-                        s.makeError("read", "unexpected");
+                        scheme.makeError("read", "unexpected");
                     }
                 } else {
-                    pair = s.nil;
+                    pair = scheme.nil;
                 }
                 result.push(pair);
             }
             else {
                 var token = array[index];
                 if(decimalReg.test(token)) {
-                    result.push(s.makeInt(parseInt(token)));
+                    result.push(scheme.makeInt(parseInt(token)));
                 }
                 else if(floatReg.test(token)) {
-                    result.push(s.makeReal(parseFloat(token)));
+                    result.push(scheme.makeReal(parseFloat(token)));
                 }
                 else if(symbolReg.test(token)) {
-                    result.push(s.internSymbol(token));
+                    result.push(scheme.internSymbol(token));
                 }
                 else if(token[0] == "'") {//quote
-                    var quoteSym = s.internSymbol('quote');
+                    var quoteSym = scheme.internSymbol('quote');
                     var obj;
                     if(token == "'") {
                         obj = inner(array.slice(index+1, index+2))[0];
                         index++;
                     }
                     else {
-                        obj = s.readMutil(token.substring(1))[0];
+                        obj = scheme.readMutil(token.substring(1))[0];
                     }
-                    result.push(s.cons(quoteSym, s.cons(obj, s.nil)));
+                    result.push(scheme.cons(quoteSym, scheme.cons(obj, scheme.nil)));
                 }
                 else if(vectorReg.test(token)) {//vector
                 }
                 else if(charReg.test(token)) {
-                    result.push(s.makeChar(token.substr(2)));
+                    result.push(scheme.makeChar(token.substr(2)));
                 }
                 else if(stringReg.test(token)) {
-                    result.push(s.makeString(token.substr(1, token.length - 2).split("")));
+                    result.push(scheme.makeString(token.substr(1, token.length - 2).split("")));
                 }
                 else if(booleanReg.test(token)) {
-                    result.push(s.getBoolean(token == "#t" || token == "#true"));
+                    result.push(scheme.getBoolean(token == "#t" || token == "#true"));
                 }
                 else {
-                    s.makeError("read", "unexpected");
+                    scheme.makeError("read", "unexpected");
                 }
             }
         }
         return result;
     }
 }
-
-})(scheme);
+})(scheme);
