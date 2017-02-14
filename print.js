@@ -8,12 +8,12 @@ s.initPrint = function() {
 }
 
 function write(argv) {
-    s.outputToConsole(s.writeToString(argv[0], false));
+    s.outputToConsole(s.writeToString(argv[0], false), false, true);
     return s.voidValue;
 }
 
 function display(argv) {
-    s.outputToConsole(s.displayToString(argv[0]));
+    s.outputToConsole(s.displayToString(argv[0], false), false, true);
     return s.voidValue;
 }
 
@@ -104,16 +104,20 @@ s.outputValue = function(obj) {
     if(obj.isUnspecified())
         return;
     var val = s.writeToString(obj);
-    if(val != null)
+    if(val != null) {
         s.outputToConsole(val);
+        s.outputToConsole("\n");
+    }
 }
 
-s.outputToConsole = function(str, error) {
+s.outputToConsole = function(str, error, write) {
     if(!s.console)
         return;
-    var response = document.createElement('p');
+    var response = document.createElement('span');
     response.innerText = str;
-    response.className = "response";
+    response.className = "scheme_response";
+    if(write)
+        response.className += " scheme_write_object";
     if(error)
         response.className += " scheme_error_info";
     s.console.appendChild(response);
