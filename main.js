@@ -64,7 +64,7 @@ function initFrame() {
 }
 
 function clearConsole() {
-    divConsole.innerHTML = "<p>Welcome to <a target=\"_blank\" href=\"http://github.com/hlpp/JSScheme\">JSScheme</a></p>";
+    divConsole.innerHTML = "<p>Welcome to <a target=\"_blank\" href=\"http://github.com/hlpp/JSScheme\">JSScheme</a>.</p>";
 }
 
 function appendConsoleInput() {
