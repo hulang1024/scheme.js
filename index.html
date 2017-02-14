@@ -14,13 +14,14 @@ body,* {
 
 #frame {
     width: 100%;
-    padding: 2px;
-    margin: 10px auto;
+    margin: 0 auto;
 }
 
 #toolbar {
     width: 100%;
     height: 25px;
+    margin-bottom: 4px;
+    margin-top: 4px;
 }
 #toolbar button {
     height: 25px;
@@ -29,19 +30,16 @@ body,* {
     width: 50px;
 }
 #toolbar #clearConsole {
-    width: 100px;
 }
-#toolbar #toggleDefinitions {
-    width: 150px;
+#toolbar #toggleDefinitions, #toggleInteractions {
 }
 
 #content {
     width: 100%;
-    font-family: "Menlo", consolas, monospace;
+    font-family: Courier New;
     font-size: 15px;
 }
 #definitions {
-    height: 50%;
 }
 #definitions #definitions_textarea {
     width: 100%;
@@ -53,14 +51,14 @@ body,* {
 
 #console {
     width: 100%;
-    height: 50%;
     overflow: auto;
     margin-top: 2px;
     border: 1px solid #ccc;
     background-color:white;
+    padding: 4px;
 }
 #console .prompt {
-    color: #3583FC;
+    color: black;
     font-weight: bold;
     margin-right: 6px;
 }
@@ -73,13 +71,16 @@ body,* {
     border: 0;
     outline:none;
 }
-#console .input {
-    
-}
-#console .response {
-    color: brown;
+#console .code_echo {
+    color: #298026;
 }
 
+#console .scheme_response {
+    color: #262680;
+}
+#console .scheme_write_object {
+    color: #960096;
+}
 #console .scheme_error_info {
     color: red;
 }
@@ -90,6 +91,7 @@ body,* {
 <div id="frame">
     <div id="toolbar">
         <button id="toggleDefinitions">Hide Definitions</button>
+        <button id="toggleInteractions">Hide Interactions</button>
         <button id="clearConsole">Clear Console</button>
         <button id="run">Run</button>
     </div>

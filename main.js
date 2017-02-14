@@ -3,9 +3,11 @@ var divDefinitions = document.getElementById('definitions');
 var textareaDefinitions = document.getElementById('definitions_textarea');
 var divConsole = document.getElementById('console');
 var btnToggleDefinitions = document.getElementById('toggleDefinitions');
+var btnToggleInteractions = document.getElementById('toggleInteractions');
 var btnClearConsole = document.getElementById('clearConsole');
 var btnRun = document.getElementById('run');
 var consoleInput;
+var contentHeight, definitionsHeight, consoleHeight;
 
 window.onload = function(){
     loadSchemeKernelJS(function(){
@@ -17,14 +19,20 @@ window.onload = function(){
 }
 
 function initFrame() {
-    var content = document.getElementById("content");
-    content.style.height = (window.innerHeight ||
+    contentHeight = (window.innerHeight ||
         document.documentElement.clientHeight ||
-        document.body.clientHeight) + "px";
+        document.body.clientHeight);
+    var content = document.getElementById("content");
+    content.style.height = contentHeight + "px";
     divDefinitions.style.display = "block";
     divConsole.style.display = "block";
-    
+    definitionsHeight = contentHeight * 0.4;
+    consoleHeight = contentHeight - definitionsHeight;
+    divDefinitions.style.height = definitionsHeight + "px";
+    divConsole.style.height = consoleHeight + "px";
+        
     btnToggleDefinitions.onclick = toggleDefinitions;
+    btnToggleInteractions.onclick = toggleInteractions;
     btnClearConsole.onclick = function() {
         clearConsole();
         appendConsoleInput();
@@ -38,19 +46,52 @@ function initFrame() {
 
 function toggleDefinitions() {
     var nowDisplay = divDefinitions.style.display == "block" ? "none" : "block";
-    divDefinitions.style.display = nowDisplay;
+    setDefinitionsViewDisplay(nowDisplay);
     if(nowDisplay == "none") {
+        if(divConsole.style.display == "none")
+            setInteractionsViewDisplay("block");
         divDefinitions.style.height = "0%";
         divConsole.style.height = "100%";
+        consoleInput.focus();
     } else {
-        divDefinitions.style.height = "50%";
-        divConsole.style.height = "50%";
+        divDefinitions.style.height = definitionsHeight + "px";
+        divConsole.style.height = (contentHeight - definitionsHeight) + "px";
+        textareaDefinitions.focus();
     }
-    btnToggleDefinitions.innerHTML = (nowDisplay == "block" ? "Hide" : "Show") + " Definitions";
+}
+
+function toggleInteractions() {
+    var nowDisplay = divConsole.style.display == "block" ? "none" : "block";
+    setInteractionsViewDisplay(nowDisplay);
+    if(nowDisplay == "none") {
+        if(divDefinitions.style.display == "none")
+            setDefinitionsViewDisplay("block");
+        divDefinitions.style.height = "100%";
+        divConsole.style.height = "0%";
+        textareaDefinitions.focus();
+    } else {
+        divDefinitions.style.height = (contentHeight - consoleHeight) + "px";
+        divConsole.style.height = consoleHeight + "px";
+        consoleInput.focus();
+    }
+}
+
+function setDefinitionsViewDisplay(display) {
+    divDefinitions.style.display = display;
+    btnToggleDefinitions.innerHTML = (display == "block" ? "Hide" : "Show") + " Definitions";
+}
+
+function setInteractionsViewDisplay(display) {
+    divConsole.style.display = display;
+    btnToggleInteractions.innerHTML = (display == "block" ? "Hide" : "Show") + " Interactions";
 }
 
 function run() {
     clearConsole();
+    setInteractionsViewDisplay("block");
+    divDefinitions.style.height = (contentHeight - consoleHeight) + "px";
+    divConsole.style.height = consoleHeight + "px";
+    
     scheme.evalString(textareaDefinitions.value);
     appendConsoleInput();
 }
@@ -70,11 +111,11 @@ function evalConsoleInput() {
 }
 
 function clearConsole() {
-    divConsole.innerHTML = "<p>Welcome to <a target=\"_blank\" href=\"http://github.com/hlpp/JSScheme\">JSScheme</a>.</p>";
+    divConsole.innerHTML = "<p>Welcome to <a target=\"_blank\" href=\"http://github.com/hlpp/JSScheme\" style=\"color:blue\">JSScheme</a>.</p>";
 }
 
 function appendConsoleInput() {
-    divConsole.innerHTML += "<p class=\"input\"><span class=\"prompt\">&gt;</span><input type=\"text\" id=\"consoleInput\" /></p>";
+    divConsole.innerHTML += "<p class=\"code_echo\"><span class=\"prompt\">&gt;</span><input type=\"text\" id=\"consoleInput\" /></p>";
 
     consoleInput = document.getElementById("consoleInput");
     consoleInput.onkeydown = function(event) {
@@ -85,6 +126,7 @@ function appendConsoleInput() {
     }
     consoleInput.focus();
 }
+
 
 function loadSchemeKernelJS(after) {
     loadJSSeq([
