@@ -146,12 +146,15 @@ s.outputToConsole = function(str, error, write) {
     if(!s.console)
         return;
     var response = document.createElement('span');
-    response.innerHTML = str;
     response.className = "scheme_response";
     if(write)
         response.className += " scheme_write_object";
-    if(error)
+    if(error) {
         response.className += " scheme_error_info";
+        response.innerText = str;
+    } else {
+        response.innerHTML = str;
+    }
     s.console.appendChild(response);
 }
 
