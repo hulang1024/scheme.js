@@ -9,6 +9,25 @@ var btnRun = document.getElementById('run');
 var consoleInput;
 var contentHeight, definitionsHeight, consoleHeight;
 
+function HistoryLook() {
+    var inputs = [];
+    var index = 0;
+    
+    this.lastInput = null;
+    
+    this.push = function(input) {
+        inputs.push(input);
+        index = inputs.length;
+    }
+    this.hasPrev = function() { return index - 1 >= 0; }
+    this.hasNext = function() { return index + 1 <= inputs.length - 1; }
+    this.prev = function() { return inputs[--index]; }
+    this.next = function() { return inputs[++index]; }
+    this.bottom = function() { index = inputs.length; }
+}
+
+var historyLook = new HistoryLook();
+
 window.onload = function(){
     loadSchemeKernelJS(function(){
         loadSchemeLibJS(function(){
@@ -38,7 +57,10 @@ function initFrame() {
         appendConsoleInput();
     }
     btnRun.onclick = run;
-    
+    divConsole.onclick = function(event) {
+        if(event.toElement == divConsole)
+            consoleInput.focus();
+    }
     clearConsole();
     appendConsoleInput();
     consoleInput.focus();
@@ -104,7 +126,7 @@ function evalConsoleInput() {
     var code = consoleInput.value;
     
     scheme.evalString(code);
-
+    
     var p = consoleInput.parentNode;
     p.removeChild(consoleInput);
     p.children[0].className += " dead";
@@ -123,10 +145,50 @@ function appendConsoleInput() {
 
     consoleInput = document.getElementById("consoleInput");
     consoleInput.onkeydown = function(event) {
-        if(event.keyCode == 13) {
-            if(consoleInput.value.trim().length)
+        switch(event.keyCode) {
+        case 13://enter
+            if(consoleInput.value.trim().length) {
+                historyLook.push(consoleInput.value);
+                historyLook.lastInput = null;
                 evalConsoleInput();
+            }
+            break;
+        case 38://up
+            if(historyLook.lastInput == null)
+                historyLook.lastInput = consoleInput.value.trim();
+            if(historyLook.hasPrev()) {
+                consoleInput.value = historyLook.prev();
+                moveToEnd(consoleInput);
+            }
+            break;
+        case 40://down
+            if(historyLook.lastInput == null)
+                historyLook.lastInput = consoleInput.value.trim();
+            if(historyLook.hasNext())
+                consoleInput.value = historyLook.next();
+            else {
+                historyLook.bottom();
+                consoleInput.value = historyLook.lastInput;
+            }
+            moveToEnd(consoleInput);
+            break;
+        default:
+            if(!historyLook.hasNext())
+                historyLook.lastInput = (consoleInput.value + String.fromCharCode(event.keyCode)).trim();
         }
+        
+        function moveToEnd(obj) {
+            obj.focus(); 
+            var len = obj.value.length; 
+            if (document.selection) { 
+                var sel = obj.createTextRange(); 
+                sel.moveStart('character', len);
+                sel.collapse(); 
+                sel.select(); 
+            } else if (typeof obj.selectionStart == 'number' && typeof obj.selectionEnd == 'number') { 
+                obj.selectionStart = obj.selectionEnd = len; 
+            } 
+        } 
     }
     consoleInput.focus();
 }
