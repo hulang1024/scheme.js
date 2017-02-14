@@ -26,7 +26,7 @@ function initFrame() {
     content.style.height = contentHeight + "px";
     divDefinitions.style.display = "block";
     divConsole.style.display = "block";
-    definitionsHeight = contentHeight * 0.4;
+    definitionsHeight = contentHeight * 0.5;
     consoleHeight = contentHeight - definitionsHeight;
     divDefinitions.style.height = definitionsHeight + "px";
     divConsole.style.height = consoleHeight + "px";
