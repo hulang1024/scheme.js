@@ -111,11 +111,12 @@ s.outputValue = function(obj) {
 s.outputToConsole = function(str, error) {
     if(!s.console)
         return;
-    var p = document.createElement('p');
-    p.innerText = str;
+    var response = document.createElement('p');
+    response.innerText = str;
+    response.className = "response";
     if(error)
-        p.style.color = "red";
-    s.console.appendChild(p);
+        response.className += " scheme_error_info";
+    s.console.appendChild(response);
 }
 
 })(scheme);

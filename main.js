@@ -2,8 +2,9 @@
 var divDefinitions = document.getElementById('definitions');
 var textareaDefinitions = document.getElementById('definitions_textarea');
 var divConsole = document.getElementById('console');
-var btnRun = document.getElementById('run');
 var btnToggleDefinitions = document.getElementById('toggleDefinitions');
+var btnClearConsole = document.getElementById('clearConsole');
+var btnRun = document.getElementById('run');
 var consoleInput;
 
 window.onload = function(){
@@ -56,10 +57,16 @@ function initFrame() {
         document.body.clientHeight) + "px";
     divDefinitions.style.display = "block";
     divConsole.style.display = "block";
+    
+    btnToggleDefinitions.onclick = toggleDefinitions;
+    btnClearConsole.onclick = function() {
+        clearConsole();
+        appendConsoleInput();
+    }
+    btnRun.onclick = run;
+    
     clearConsole();
     appendConsoleInput();
-    btnRun.onclick = run;
-    btnToggleDefinitions.onclick = toggleDefinitions;
     consoleInput.focus();
 }
 
@@ -68,7 +75,7 @@ function clearConsole() {
 }
 
 function appendConsoleInput() {
-    divConsole.innerHTML += "<p><span class=\"input_begin\">&gt;</span><input type=\"text\" id=\"consoleInput\" /></p>";
+    divConsole.innerHTML += "<p class=\"input\"><span class=\"prompt\">&gt;</span><input type=\"text\" id=\"consoleInput\" /></p>";
     resetConsoleInput();
 }
 

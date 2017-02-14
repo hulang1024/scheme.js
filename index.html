@@ -22,22 +22,28 @@ body,* {
     width: 100%;
     height: 25px;
 }
+#toolbar button {
+    height: 25px;
+}
 #toolbar #run {
     width: 50px;
-    height: 25px;
+}
+#toolbar #clearConsole {
+    width: 100px;
 }
 #toolbar #toggleDefinitions {
     width: 150px;
-    height: 25px;
 }
 
+#content {
+    width: 100%;
+    font-family: "Menlo", consolas, monospace;
+    font-size: 15px;
+}
 #definitions {
     height: 50%;
-    display: block;
 }
 #definitions #definitions_textarea {
-    font-family: Courier New;
-    font-size: 15px;
     width: 100%;
     height: 100%;
     border: 1px solid #ccc;
@@ -46,30 +52,36 @@ body,* {
 }
 
 #console {
-    font-family: Courier New;
-    font-size: 15px;
     width: 100%;
     height: 50%;
     overflow: auto;
     margin-top: 2px;
     border: 1px solid #ccc;
     background-color:white;
-    display: block;
 }
-#console .input_begin {
-    color:blue;
-    margin-right: 2px;
+#console .prompt {
+    color: #3583FC;
+    font-weight: bold;
+    margin-right: 6px;
 }
 #console .dead {
-    color: gray;
+    color: #BDC3CD;
 }
 #console #consoleInput {
-    font-family: Courier New;
     font-size: 15px;
-    width: 98%;
-    height: 20px;
+    width: 96%;
     border: 0;
     outline:none;
+}
+#console .input {
+    
+}
+#console .response {
+    color: brown;
+}
+
+#console .scheme_error_info {
+    color: red;
 }
 </style>
 </head>
@@ -78,6 +90,7 @@ body,* {
 <div id="frame">
     <div id="toolbar">
         <button id="toggleDefinitions">Hide Definitions</button>
+        <button id="clearConsole">Clear Console</button>
         <button id="run">Run</button>
     </div>
     <div id="content">
