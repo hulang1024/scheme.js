@@ -23,7 +23,7 @@ s.evalString = function(formsStr) {
     } catch(e) {
         if(e instanceof scheme.Error)
             scheme.outputError();
-        throw e;
+        console.error(e);
     }
     return valObj;//last value
 }

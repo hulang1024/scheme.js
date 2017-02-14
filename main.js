@@ -1,21 +1,87 @@
-﻿// REPL
-
-var textareaExp = document.getElementById('exp');
-var textareaConsole = document.getElementById('console');
+﻿// REPL Console
+var divDefinitions = document.getElementById('definitions');
+var textareaDefinitions = document.getElementById('definitions_textarea');
+var divConsole = document.getElementById('console');
 var btnRun = document.getElementById('run');
+var btnToggleDefinitions = document.getElementById('toggleDefinitions');
+var consoleInput;
 
 window.onload = function(){
     loadSchemeKernelJS(function(){
         loadSchemeLibJS(function(){
-            scheme.console = textareaConsole;
-            btnRun.onclick = run;
+            initFrame();
+            scheme.console = divConsole;
         });
     });
 }
 
 function run() {
-    scheme.console.value = "Welcome to JSScheme.\n";
-    scheme.evalString(textareaExp.value.trim());
+    clearConsole();
+    scheme.evalString(textareaDefinitions.value);
+    appendConsoleInput();
+}
+
+function toggleDefinitions() {
+    var nowDisplay = divDefinitions.style.display == "block" ? "none" : "block";
+    divDefinitions.style.display = nowDisplay;
+    if(nowDisplay == "none") {
+        divDefinitions.style.height = "0%";
+        divConsole.style.height = "100%";
+    } else {
+        divDefinitions.style.height = "50%";
+        divConsole.style.height = "50%";
+    }
+    btnToggleDefinitions.innerHTML = (nowDisplay == "block" ? "Hide" : "Show") + " Definitions";
+}
+
+function evalConsoleInput() {
+    var code = consoleInput.value;
+    
+    scheme.evalString(code);
+
+    var p = consoleInput.parentNode;
+    p.removeChild(consoleInput);
+    p.children[0].className += " dead";
+    var codeSpan = document.createElement("span");
+    codeSpan.innerText = code;
+    p.appendChild(codeSpan);
+    appendConsoleInput();
+}
+
+
+function initFrame() {
+    var content = document.getElementById("content");
+    content.style.height = (window.innerHeight ||
+        document.documentElement.clientHeight ||
+        document.body.clientHeight) + "px";
+    divDefinitions.style.display = "block";
+    divConsole.style.display = "block";
+    clearConsole();
+    appendConsoleInput();
+    btnRun.onclick = run;
+    btnToggleDefinitions.onclick = toggleDefinitions;
+    consoleInput.focus();
+}
+
+function clearConsole() {
+    divConsole.innerHTML = "<p>Welcome to <a target=\"_blank\" href=\"http://github.com/hlpp/JSScheme\">JSScheme</a></p>";
+}
+
+function appendConsoleInput() {
+    divConsole.innerHTML += "<p><span class=\"input_begin\">&gt;</span><input type=\"text\" id=\"consoleInput\" /></p>";
+    resetConsoleInput();
+}
+
+function resetConsoleInput() {
+    consoleInput = document.getElementById("consoleInput");
+    consoleInput.onkeydown = function(event) {
+        if(event.keyCode == 13) {
+            if(consoleInput.value.trim().length)
+                evalConsoleInput();
+        }
+    }
+    
+    consoleInput.focus();
 }
 
 function loadSchemeKernelJS(after) {

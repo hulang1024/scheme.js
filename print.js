@@ -105,17 +105,17 @@ s.outputValue = function(obj) {
         return;
     var val = s.writeToString(obj);
     if(val != null)
-        s.outputLineToConsole(val);
+        s.outputToConsole(val);
 }
 
-s.outputLineToConsole = function(str) {
-    if(s.console)
-        s.console.value += str + "\n";
-}
-
-s.outputToConsole = function(str) {
-    if(s.console)
-        s.console.value += str;
+s.outputToConsole = function(str, error) {
+    if(!s.console)
+        return;
+    var p = document.createElement('p');
+    p.innerText = str;
+    if(error)
+        p.style.color = "red";
+    s.console.appendChild(p);
 }
 
 })(scheme);

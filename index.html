@@ -11,41 +11,81 @@ body,* {
     margin:0;
     padding:0;
 }
+
 #frame {
-    width: 600px;
+    width: 100%;
+    padding: 2px;
     margin: 10px auto;
 }
+
 #toolbar {
     width: 100%;
     height: 25px;
 }
-#toolbar button {
+#toolbar #run {
     width: 50px;
     height: 25px;
     float: right;
 }
-textarea {
-    font-family: Courier New;
-    font-size: 15px;
-    width:100%;
-    border: 1px solid #ccc;
-    overflow-y:auto;
+#toolbar #toggleDefinitions {
+    width: 150px;
+    height: 25px;
 }
 
+#definitions {
+    height: 50%;
+    display: block;
+}
+#definitions #definitions_textarea {
+    font-family: Courier New;
+    font-size: 15px;
+    width: 100%;
+    height: 100%;
+    border: 1px solid #ccc;
+    overflow-y:auto;
+    resize: none;
+}
+
+#console {
+    font-family: Courier New;
+    font-size: 15px;
+    width: 100%;
+    height: 50%;
+    overflow: auto;
+    margin-top: 2px;
+    border: 1px solid #ccc;
+    background-color:white;
+    display: block;
+}
+#console .input_begin {
+    color:blue;
+    margin-right: 2px;
+}
+#console .dead {
+    color: gray;
+}
+#console #consoleInput {
+    font-family: Courier New;
+    font-size: 15px;
+    border:none;
+    width: 98%;
+    height:20px;
+}
 </style>
 </head>
 
 <body>
 <div id="frame">
-  <div id="toolbar">
-    <button id="run">Run</button>
-  </div>
-  <div>
-    <textarea id="exp" rows="20"></textarea>
-  </div>
-  <div>
-    <textarea id="console" rows="16">Welcome to JSScheme.</textarea>
-  </div>
+    <div id="toolbar">
+        <button id="toggleDefinitions">Hide Definitions</button>
+        <button id="run">Run</button>
+    </div>
+    <div id="content">
+        <div id="definitions">
+            <textarea id="definitions_textarea"></textarea>
+        </div>
+        <div id="console" rows="16"></div>
+    </div>
 </div>
 
 <script src="main.js?v=1.1"></script>

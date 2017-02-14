@@ -42,7 +42,7 @@ s.readMutil = function(src) {
         pstr += src[i];
     }
 
-    var splits = pstr.split(/(".*")|(\s+)|([\(\)]{1})/g);
+    var splits = pstr.split(/(".*"\s+)|(\s+)|([\(\)]{1})/g);
     var tokens = splits.filter(function(str) { return str && str.trim(); });
     tokens = tokens.map(function(t){
         if(t == '(') return '[';
@@ -50,6 +50,8 @@ s.readMutil = function(src) {
         else {
             if(t[0] == "#" && t[1] == "\\")
                 return "'" + t[0] + "\\" + t.substring(1) + "'";
+            else if(t[0] == "\"")
+                return "'" + t[0] + t.substring(1).trim() + "'";
             else if(t[0] == "'")
                 return "\"\\" + t[0] + t.substring(1) + "\"";
             else if(t[0] == "\"")

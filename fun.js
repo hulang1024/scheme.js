@@ -3,7 +3,7 @@
 
 s.initFun = function() {
     s.addGlobalPrimProc("procedure?", procedure_p, 1);
-    s.addGlobalPrimProc("apply", apply, 2);
+    s.addGlobalPrimProc("apply", apply, 2, -1);
     s.addGlobalPrimProc("for-each", forEach, 2);
 }
 

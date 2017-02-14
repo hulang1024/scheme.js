@@ -19,6 +19,8 @@ s.initString = function() {
 }
 
 s.makeString = function(val) {
+    if(typeof val == "string")
+        val = val.split("");
     return new s.Object(4, val);
 }
 s.charArrayVal = function(obj) { return obj.val; }
