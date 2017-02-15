@@ -124,14 +124,15 @@ function run() {
 
 function evalConsoleInput() {
     var code = consoleInput.value;
-    
     var objs = scheme.readMutil(code);
     scheme.evalObjects(objs);
-    
+ 
     var p = consoleInput.parentNode;
     p.removeChild(consoleInput);
     p.children[0].className += " dead";
     var codeSpan = document.createElement("span");
+    var pad = code.substring(0, code.search(/[^\s]/g)).replace(/\s/g, "&nbsp;");
+    codeSpan.innerHTML += pad;
     for(var i = 0; i < objs.length; i++)
         codeSpan.innerHTML += scheme.writeToString(objs[i], false, true);
     p.appendChild(codeSpan);

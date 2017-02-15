@@ -84,10 +84,10 @@ s.writeToString = function(obj, display, writeHtml) {
         str = s.writePair(obj, writeHtml);
     }
     else if(obj.isProcedure()) {
-        str = '#<procedure:' + obj.val.getName() + '>';
+        str = '#[procedure:' + obj.val.getName() + ']';
     }
     else if(obj.isNamespace())
-        str = '#<namespace:0>';
+        str = '#[namespace:0]';
     else if(obj.isMyObject())
         str = "#object";
     else
@@ -151,10 +151,9 @@ s.outputToConsole = function(str, error, write) {
         response.className += " scheme_write_object";
     if(error) {
         response.className += " scheme_error_info";
-        response.innerText = str;
-    } else {
-        response.innerHTML = str;
+        str = str.replace(/\n/g, "</br>").replace(/\s/g, "&nbsp;");
     }
+    response.innerHTML = str;
     s.console.appendChild(response);
 }
 
