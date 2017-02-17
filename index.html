@@ -2,7 +2,8 @@
 <html>
 <head>
 <meta charset="utf-8">
-<title>JSScheme</title>
+<title>JSScheme - Little IDE</title>
+<link rel="stylesheet" href="ide/lib/codemirror/codemirror.css">
 <style>
 body {
     background: #f6f6f6;
@@ -39,6 +40,7 @@ body,* {
     font-family: Courier New;
     font-size: 15px;
 }
+
 #definitions {
 }
 #definitions #definitions_textarea {
@@ -67,6 +69,7 @@ body,* {
     color: #BDC3CD;
 }
 #console #consoleInput {
+    font-family: Courier New;
     font-size: 15px;
     width: 96%;
     border: 0;
@@ -75,7 +78,6 @@ body,* {
 #console .code_echo {
     color: black;
 }
-
 #console .scheme_response {
     color: #0000AF;
 }
@@ -104,6 +106,10 @@ body,* {
     </div>
 </div>
 
-<script src="main.js?v=1.2"></script>
+<script src="ide/lib/codemirror/codemirror.js"></script>
+<script src="ide/lib/codemirror/mode/scheme.js"></script>
+<script src="ide/lib/codemirror/addon/edit/matchbrackets.js"></script>
+<script src="ide/console.js?v=1.1"></script>
+<script src="ide/main.js?v=1.2"></script>
 </body>
 </html>

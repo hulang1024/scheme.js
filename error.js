@@ -110,6 +110,6 @@ s.outputError = function() {
     default:
         info = error[0] + ": " + error[1];
     }
-    s.outputToConsole(info, true);
+    s.console.log("error", info);
 }
 })(scheme);

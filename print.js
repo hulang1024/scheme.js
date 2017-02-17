@@ -8,17 +8,17 @@ s.initPrint = function() {
 }
 
 function write(argv) {
-    s.outputToConsole(s.writeToString(argv[0], false), false, true);
+    s.console.log("write", s.writeToString(argv[0], false));
     return s.voidValue;
 }
 
 function display(argv) {
-    s.outputToConsole(s.displayToString(argv[0], false), false, true);
+    s.console.log("display", s.displayToString(argv[0], false));
     return s.voidValue;
 }
 
 function newline(argv) {
-    s.outputToConsole("</br>");
+    s.console.log(null, "</br>");
     return s.voidValue;
 }
 
@@ -33,55 +33,40 @@ var syntaxColorSchemes = {
     "comment": "rgb(194,158,31)",
     "parenthesis": "rgb(181,60,36)"
 };
-function wrapSyntaxColorHTML(type, str) {
-    return "<span style=\"color:" + syntaxColorSchemes[type] + "\">" + str + "</span>";
-}
 
-s.writeToString = function(obj, display, writeHtml) {
+s.writeToString = function(obj, display) {
     var str = null;
     if(obj.isUnspecified())
         str = null;
     else if(obj.isNumber()) {
         str = obj.val;
-        if(writeHtml)
-            str = wrapSyntaxColorHTML("constant", str);
     }
     else if(obj.isChar()) {
         str = "#\\" + s.charVal(obj);
-        if(writeHtml)
-            str = wrapSyntaxColorHTML("constant", str);
     }
     else if(obj.isString()) {
         str = s.stringVal(obj);
         if(!display)
             str = "\"" + str + "\"";
-        if(writeHtml)
-            str = wrapSyntaxColorHTML("string", str);
     }
     else if(obj.isSymbol()) {
         str = s.symbolVal(obj);
-        if(writeHtml)
-            str = wrapSyntaxColorHTML("symbol", str);
     }
     else if(obj.isBoolean()) {
         str = obj.val ? "#t" : "#f";
-        if(writeHtml)
-            str = wrapSyntaxColorHTML("constant", str);
     }
     else if(obj.isEmptyList()) {
         str = "()";
-        if(writeHtml)
-            str = wrapSyntaxColorHTML("parenthesis", str);
     }
     else if(s.isList(obj)) {
         if(s.car(obj) == s.quoteSymbol) {
-            str = s.writeQuote(obj, writeHtml);
+            str = s.writeQuote(obj);
         }
         else
-            str = s.writeList(obj, writeHtml);
+            str = s.writeList(obj);
     }
     else if(obj.isPair()) {
-        str = s.writePair(obj, writeHtml);
+        str = s.writePair(obj);
     }
     else if(obj.isProcedure()) {
         str = '#[procedure:' + obj.val.getName() + ']';
@@ -95,41 +80,30 @@ s.writeToString = function(obj, display, writeHtml) {
     return str;
 }
 
-s.writeQuote = function(list, writeHtml) {
+s.writeQuote = function(list) {
     if(s.car(list) == s.quoteSymbol)
-        return "'" + s.writeQuote(s.cdr(list), writeHtml);
+        return "'" + s.writeQuote(s.cdr(list));
     else 
-        return s.writeToString(s.car(list), false, writeHtml);
+        return s.writeToString(s.car(list), false);
 }
 
-s.writeList = function(list, writeHtml) {
+s.writeList = function(list) {
     var strs = [];
     var obj = list;
-    for(; obj.isPair(); obj = s.cdr(obj)) {
-        strs.push(s.writeToString(s.car(obj), false, writeHtml));
-    }
-    if(writeHtml)
-        return wrapSyntaxColorHTML("parenthesis", "(")
-            + strs.join(' ') + wrapSyntaxColorHTML("parenthesis", ")");
-    else
-        return '(' + strs.join(' ') + ')';
+    for(; obj.isPair(); obj = s.cdr(obj))
+        strs.push(s.writeToString(s.car(obj), false));
+    return '(' + strs.join(' ') + ')';
 }
 
-s.writePair = function(pair, writeHtml) {
+s.writePair = function(pair) {
     var str = '(';
-    if(writeHtml)
-        str = wrapSyntaxColorHTML("parenthesis", "(");
     for(var i = 0; i < pair.val.length; i++) {
         var obj = pair.val[i];
-        str += obj.isPair() ? s.writePair(obj, writeHtml) : s.writeToString(obj, false, writeHtml);
+        str += obj.isPair() ? s.writePair(obj) : s.writeToString(obj, false);
         if(i < pair.val.length - 1)
             str += ' . ';
     }
-    if(writeHtml)
-        str += wrapSyntaxColorHTML("parenthesis", ")");
-    else
-        str += ')';
-    return str;
+    return str + ')';
 }
 
 s.outputValue = function(obj) {
@@ -137,24 +111,8 @@ s.outputValue = function(obj) {
         return;
     var val = s.writeToString(obj);
     if(val != null) {
-        s.outputToConsole(val);
-        s.outputToConsole("</br>");
+        s.console.log(null, val + "</br>");
     }
-}
-
-s.outputToConsole = function(str, error, write) {
-    if(!s.console)
-        return;
-    var response = document.createElement('span');
-    response.className = "scheme_response";
-    if(write)
-        response.className += " scheme_write_object";
-    if(error) {
-        response.className += " scheme_error_info";
-        str = str.replace(/\n/g, "</br>").replace(/\s/g, "&nbsp;");
-    }
-    response.innerHTML = str;
-    s.console.appendChild(response);
 }
 
 })(scheme);
