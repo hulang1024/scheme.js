@@ -80,7 +80,7 @@
      @param type "write","display","error",""
     */
     this.log = function(type, info) {
-        if(info instanceof String)
+        if(typeof info == "string")
             info = info.replace(/\n/g, "</br>").replace(/\s/g, "&nbsp;");
         var response = document.createElement('span');
         

@@ -22,8 +22,11 @@ window.onload = function(){
             
             definitionEditor = CodeMirror.fromTextArea(textareaDefinitions, {
                 lineNumbers: true,
-                matchBrackets: true
+                matchBrackets: true,
+                width: "100%",
+                height: "100%"
             });
+            definitionEditor.setSize('height',"100%");
             
             btnRun = document.getElementById('run');
             contentHeight = window.innerHeight ||
