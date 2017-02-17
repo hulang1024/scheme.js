@@ -1,0 +1,74 @@
+body {
+    background: #f6f6f6;
+}
+body,* {
+    margin:0;
+    padding:0;
+}
+
+#frame {
+    width: 100%;
+    margin: 0 auto;
+}
+
+#toolbar {
+    width: 100%;
+    height: 25px;
+    margin-bottom: 4px;
+    margin-top: 4px;
+}
+#toolbar button {
+    height: 25px;
+}
+#toolbar #run {
+    width: 50px;
+}
+#toolbar #clearConsole {
+}
+#toolbar #toggleDefinitions, #toggleInteractions {
+}
+
+#content {
+    width: 100%;
+    font-family: Courier New;
+    font-size: 15px;
+}
+
+#definitions {
+}
+#definitions #definitions_textarea {
+    font-size: 15px;
+    width: 100%;
+    height: 100%;
+    border: 1px solid #ccc;
+    overflow-y:auto;
+    resize: none;
+}
+
+#console {
+    width: 100%;
+    overflow: auto;
+    margin-top: 2px;
+    border: 1px solid #ccc;
+    background-color:white;
+    padding: 4px;
+}
+#console .prompt {
+    color: black;
+    font-weight: bold;
+    margin-right: 6px;
+}
+#console .dead {
+    color: #BDC3CD;
+}
+#console #consoleInput {
+    font-family: Courier New;
+    font-size: 15px;
+    width: 96%;
+    border: 0;
+    outline:none;
+}
+#console .code_echo {color: black;}
+#console .scheme_response {color: #0000AF;}
+#console .scheme_write_object {color: #960096;}
+#console .scheme_error_info {color: red;}

@@ -23,10 +23,9 @@ window.onload = function(){
             definitionEditor = CodeMirror.fromTextArea(textareaDefinitions, {
                 lineNumbers: true,
                 matchBrackets: true,
-                width: "100%",
-                height: "100%"
             });
             definitionEditor.setSize('height',"100%");
+            definitionEditor.setOption('theme',"scheme-classic-color");
             
             btnRun = document.getElementById('run');
             contentHeight = window.innerHeight ||
