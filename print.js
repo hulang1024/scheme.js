@@ -26,14 +26,6 @@ s.displayToString = function(obj) {
     return s.writeToString(obj, true);
 }
 
-var syntaxColorSchemes = {
-    "string": "#298026",
-    "symbol": "#0000AF",
-    "constant": "#298026",
-    "comment": "rgb(194,158,31)",
-    "parenthesis": "rgb(181,60,36)"
-};
-
 s.writeToString = function(obj, display) {
     var str = null;
     if(obj.isUnspecified())
