@@ -1,0 +1,21 @@
+/*
+    Name:       scheme-classic-color
+    Author:     problue
+*/
+.cm-s-scheme-classic-color .cm-keyword {color: #0000AF;}
+.cm-s-scheme-classic-color .cm-atom {color: #298026;}
+.cm-s-scheme-classic-color .cm-number {color: #164;}
+.cm-s-scheme-classic-color .cm-def {color: #00f;}
+.cm-s-scheme-classic-color .cm-variable,
+.cm-s-scheme-classic-color .cm-punctuation,
+.cm-s-scheme-classic-color .cm-property,
+.cm-s-scheme-classic-color .cm-operator {color:#0000AF;}
+.cm-s-scheme-classic-color .cm-variable-2 {color: #05a;}
+.cm-s-scheme-classic-color .cm-variable-3 {color: #085;}
+.cm-s-scheme-classic-color .cm-comment {color: #a50;}
+.cm-s-scheme-classic-color .cm-string {color: #298026;}
+.cm-s-scheme-classic-color .cm-string-2 {color: #298026;}
+.cm-s-scheme-classic-color .cm-builtin {color: #0000AF;}
+.cm-s-scheme-classic-color .cm-bracket {color: rgb(181,60,36);}
+
+div.CodeMirror span.CodeMirror-matchingbracket {color: #0f0;}
