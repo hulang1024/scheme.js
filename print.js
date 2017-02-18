@@ -50,18 +50,18 @@ s.writeToString = function(obj, display) {
     else if(obj.isEmptyList()) {
         str = "()";
     }
-    else if(s.isList(obj)) {
-        if(s.car(obj) == s.quoteSymbol) {
-            str = s.writeQuote(obj);
-        }
-        else
-            str = s.writeList(obj);
-    }
     else if(obj.isPair()) {
-        str = s.writePair(obj);
+        if(s.isList(obj)) {
+            if(s.car(obj) == s.quoteSymbol)
+                str = s.writeQuote(obj);
+            else
+                str = s.writeList(obj);
+        } else {
+            str = s.writePair(obj);
+        }
     }
     else if(obj.isProcedure()) {
-        str = '#[procedure:' + obj.val.getName() + ']';
+        str = '#[procedure:' + obj.val.getName() + "]";
     }
     else if(obj.isNamespace())
         str = '#[namespace:0]';
@@ -89,12 +89,10 @@ s.writeList = function(list) {
 
 s.writePair = function(pair) {
     var str = '(';
-    for(var i = 0; i < pair.val.length; i++) {
-        var obj = pair.val[i];
-        str += obj.isPair() ? s.writePair(obj) : s.writeToString(obj, false);
-        if(i < pair.val.length - 1)
-            str += ' . ';
-    }
+    var obj = pair;
+    for(; obj.isPair(); obj = s.cdr(obj))
+        str += s.writeToString(s.car(obj), false) + " ";
+    str += ". " + s.writeToString(obj, false);
     return str + ')';
 }
 

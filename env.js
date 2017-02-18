@@ -42,34 +42,14 @@ function isNamespace(args) {
 
 s.lookupVariableValue = function(variable, env) {
     var value;
-    while(env && ((value = env.map[variable.val]) == undefined))
+    while(env && !((value = env.map[variable.val]) instanceof s.Object))
         env = env.baseEnv;
-    if(value == undefined)
+    if(!(value instanceof s.Object))
         return s.makeError('undefined', variable.val);
     return value;
 }
 
-s.extendEnvironment = function(variables, values, baseEnv) {
-    var map = {};
-    if(s.isList(variables)) {
-        variables = s.listToArray(variables);
-        for(var i = 0; i < variables.length; i++)
-            map[variables[i].val] = values[i];
-    }
-    else if(variables.isPair()) {
-        variables = s.pairToArray(variables);
-        var i;
-        for(i = 0; i < variables.length - 1; i++)
-            map[variables[i].val] = values[i];
-        var restParameterIndex = i;
-        var restValues = s.arrayToList(values.slice(restParameterIndex));
-        map[variables[restParameterIndex].val] = restValues;
-    }
-    else if(variables.isSymbol()) {
-        var variable = variables;
-        map[variable.val] = s.arrayToList(values);
-    }
-
+s.extendEnvironment = function(map, baseEnv) {
     return new s.EnvironmentFrame(map, baseEnv);
 }
 

@@ -47,48 +47,24 @@ scheme.readMutil = function(src) {
         var tokens = [], part, s;
         for(var i = 0; i < splits.length; i++) {
             part = splits[i];
-            if(part && part.trim() && part != "\n") {
-                if(part[0] == "\"") {
-                    var b = true;
-                    for(i++; i < splits.length; ) {
-                        s = splits[i++];
-                        if(s) {
-                            if(s == ")") {
-                                tokens.push(part);
-                                tokens.push(")");
-                            }
-                            else {
-                                part += s;
-                                if(s[s.length-1] == "\"") {
-                                    tokens.push(part);
-                                    b = false;
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                    if(b)
-                        tokens.push(part);
-                }
-                else
-                    tokens.push(part);
+            if(part && part.trim()) {
+                tokens.push(part);
             }
         }
         return tokens;
     }
-    var tokens = getTokens(pstr.split(/(\s+)|([\(\)]{1})/g));
+    var tokens = getTokens(pstr.split(/(".*")|(\s+)|([\(\)]{1})/g));
     tokens = tokens.map(function(t){
         if(t == '(') return '[';
         else if(t == ')') return ']';
         else {
             if(t[0] == "#" && t[1] == "\\")
                 return "'" + t[0] + "\\" + t.substring(1) + "'";
-            //else if(t[0] == "\"")
-            //    return "'" + t[0] + t.substring(1) + "'";
+            else if(t[0] == "\"")
+                return "'" + t[0] + t.substring(1) + "'";
             else if(t[0] == "'")
                 return "\"\\" + t[0] + t.substring(1) + "\"";
-            else if(t[0] == "\"")
-                return "'" + t.replace(/'/g, "\\'") + "'";
+
             return "'" + t + "'";
         }
     }).join(',');

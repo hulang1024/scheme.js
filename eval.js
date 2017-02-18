@@ -1,5 +1,6 @@
 ﻿/*
-  eval-apply-loop
+  包含eval-apply循环
+  以及eval过程，evalObjects、evalString等外部接口。
  */
 (function(s){
 "use strict";
@@ -55,7 +56,7 @@ function evaluate(exp, env) {
     if(exp == s.voidValue)
         return exp;
     
-    if(isSelfEvaluating(exp)) {
+    if(s.isSelfEvaluating(exp)) {
         return exp;
     }
 
@@ -82,7 +83,7 @@ function evaluate(exp, env) {
                 return evalLambda(exp, env);
             }
             else if(first == s.beginSymbol) {
-                return evalSequence(beginActions(exp), env);
+                return evalSequence(s.beginActions(exp), env);
             }
             else if(first == s.condSymbol) {
                 return evaluate(condToIf(exp), env);
@@ -97,7 +98,7 @@ function evaluate(exp, env) {
                 return evaluate(letToCombination(exp), env);
             }
         }
-        return apply(evaluate(operator(exp), env), listOfValues(operands(exp), env));
+        return apply(evaluate(s.operator(exp), env), listOfValues(s.operands(exp), env));
     }
     else
         s.makeError('eval', "unknown expression type");
@@ -112,14 +113,40 @@ function apply(procedure, argv) {
         return applyPrimitiveProcedure(procedure, argv);
     }
     else if(procedure.isCompProc()) {
-        var result = checkCompoundProcedureArguments(procedure, argv);
-        if(result) {
-            var newEnv = s.extendEnvironment(procedure.val.getParamters(), argv, procedure.val.getEnv());
+        var right = checkCompoundProcedureArguments(procedure, argv);
+        if(right) {
+            var map = {};
+            var variables = procedure.val.getParamters();
+            if(s.isList(variables)) { // 固定数量参数
+                variables = s.listToArray(variables);
+                for(var index = 0; index < variables.length; index++)
+                    map[variables[index].val] = argv[index];
+            }
+            else if(variables.isPair()) { //
+                variables = s.pairToArray(variables);
+                var index;
+                for(index = 0; index < variables.length - 1; index++)
+                    map[variables[index].val] = argv[index];
+                var restArgv = s.arrayToList(argv.slice(index));
+                map[variables[index].val] = restArgv;
+            }
+            else if(variables.isSymbol()) {
+                map[variables.val] = s.arrayToList(argv);
+            }
+            
+            var newEnv = s.extendEnvironment(map, procedure.val.getEnv());
             return evalSequence(procedure.val.getBody(), newEnv);
         }
     }
     else
         s.makeError('application', "expected a procedure that can be applied to arguments");
+}
+
+function applyPrimitiveProcedure(proc, argv) {
+    var result = checkPimitiveProcedureArguments(proc, argv);
+    if(!result)
+        return result;
+    return proc.val.getFunc()(argv);
 }
 
 function listOfValues(operands, env) {
@@ -136,13 +163,13 @@ function evalQuotation(exp) {
 }
 
 function evalAssignment(exp, env) {
-    s.setVariableValue(assignmentVar(exp), evaluate(assignmentValue(exp), env), env);
+    s.setVariableValue(s.assignmentVar(exp), evaluate(s.assignmentValue(exp), env), env);
     return s.ok;
 }
 
 function evalDefinition(exp, env) {
-    var variable = definitionVar(exp);
-    var value = evaluate(definitionVal(exp), env);
+    var variable = s.definitionVar(exp);
+    var value = evaluate(s.definitionVal(exp), env);
     if(value.isCompProc())
         value.val.setName(variable.val);
     s.defineVariable(variable, value, env);
@@ -150,10 +177,10 @@ function evalDefinition(exp, env) {
 }
 
 function evalIf(exp, env) {
-    if(s.isTrue(evaluate(ifPredicate(exp), env)))
-        return evaluate(ifConsequent(exp), env);
+    if(s.isTrue(evaluate(s.ifPredicate(exp), env)))
+        return evaluate(s.ifConsequent(exp), env);
     else {
-        var alt = ifAlternative(exp);
+        var alt = s.ifAlternative(exp);
         if(alt.isEmptyList()) {
             return s.voidValue;
         } else {
@@ -163,7 +190,7 @@ function evalIf(exp, env) {
 }
 
 function evalLambda(exp, env) {
-    var formals = lambdaParamters(exp);
+    var formals = s.lambdaParamters(exp);
     var minArgs, maxArgs;
     if(s.isList(formals)) {
         minArgs = s.listLength(formals);
@@ -179,7 +206,7 @@ function evalLambda(exp, env) {
     else {
         s.makeError('','not an identifier');
     }
-    return s.makeCompoundProcedure("", formals, lambdaBody(exp), env, minArgs, maxArgs);
+    return s.makeCompoundProcedure("", formals, s.lambdaBody(exp), env, minArgs, maxArgs);
 }
 
 function evalSequence(exps, env) {
@@ -192,75 +219,68 @@ function evalSequence(exps, env) {
 }
 
 function condToIf(exp) {
-    return expandClauses(condClauses(exp));
+    return expandClauses(s.condClauses(exp));
     
     function expandClauses(clauses) {
         if(clauses.isEmptyList())
             return s.False;
         var first = s.car(clauses);
         var rest = s.cdr(clauses);
-        if(isElseClause(first))
+        if(s.isElseClause(first))
             if(rest.isEmptyList())
-                return sequenceExp(clauseActions(first));
+                return sequenceExp(s.clauseActions(first));
             else
                 s.makeError('badSyntax', "'else' clause must be last");
         else {
-            var predicate = clauesPredicate(first);
-            var actionSequence= sequenceExp(clauseActions(first));
+            var predicate = s.clauesPredicate(first);
+            var actionSequence= sequenceExp(s.clauseActions(first));
             if(actionSequence.isEmptyList())
-                return makeIf(s.True, predicate, expandClauses(rest));
+                return s.makeIf(s.True, predicate, expandClauses(rest));
             else
-                return makeIf(predicate, actionSequence, expandClauses(rest));
+                return s.makeIf(predicate, actionSequence, expandClauses(rest));
         }
     }
     
     function sequenceExp(seq) {
         if(seq.isEmptyList()) return seq;
         else if(s.cdr(seq).isEmptyList()) return s.car(seq);
-        return makeBegin(seq);
+        return s.makeBegin(seq);
     }
 }
 
 function andToIf(exp, env) {
-    var exps = andExps(exp);
+    var exps = s.andExps(exp);
     return exps.isEmptyList() ? s.True : expandExps(exps);
     var gensym = s.genSymbol();
     function expandExps(exps) {
         var tempVar = s.makeSymbol(gensym);
-        var predicate = makeApplication(s.makeSymbol("not"), s.cons(tempVar, s.nil));
+        var predicate = s.makeApplication(s.makeSymbol("not"), s.cons(tempVar, s.nil));
         var rest = s.cdr(exps);
-        return makeLet(
-            makeBindings(s.arrayToList( [s.arrayToList( [tempVar, s.car(exps)] ) ])),
-            makeIf(predicate, tempVar,
+        return s.makeLet(
+            s.makeBindings(s.arrayToList( [s.arrayToList( [tempVar, s.car(exps)] ) ])),
+            s.makeIf(predicate, tempVar,
                 (rest.isEmptyList() ? tempVar : expandExps(rest))));
     }
 }
 
 function orToIf(exp, env) {
-    var exps = orExps(exp);
+    var exps = s.orExps(exp);
     return exps.isEmptyList() ? s.False : expandExps(exps);
     var gensym = s.genSymbol();
     function expandExps(exps) {
         var tempVar = s.makeSymbol(gensym);
         var predicate = tempVar;
         var rest = s.cdr(exps);
-        return makeLet(
-            makeBindings(s.arrayToList( [s.arrayToList( [tempVar, s.car(exps)] ) ])),
-            makeIf(predicate, tempVar,
+        return s.makeLet(
+            s.makeBindings(s.arrayToList( [s.arrayToList( [tempVar, s.car(exps)] ) ])),
+            s.makeIf(predicate, tempVar,
                 (rest.isEmptyList() ? s.False : expandExps(rest))));
     }
 }
 
 function letToCombination(exp) {
-    var bindings = letBindings(exp);
-    return makeApplication(makeLambda(letBindingVars(bindings), letBody(exp)), letBindingVals(bindings));
-}
-
-function applyPrimitiveProcedure(proc, argv) {
-    var result = checkPimitiveProcedureArguments(proc, argv);
-    if(!result)
-        return result;
-    return proc.val.getFunc()(argv);
+    var bindings = s.letBindings(exp);
+    return s.makeApplication(s.makeLambda(s.letBindingVars(bindings), s.letBody(exp)), s.letBindingVals(bindings));
 }
 
 function checkPimitiveProcedureArguments(procedure, argv) {
@@ -298,102 +318,6 @@ function matchArity(procedure, argv) {
     if(mismatch) 
         s.arityMismatchError(procedure.val.getName(), argv, isAtleast, expected, argv.length);
     return !mismatch;
-}
-
-//------------------------
-// syntactic abstractions
-//------------------------
-// if
-function ifPredicate(exp) { return s.cadr(exp); }
-function ifConsequent(exp) { return s.caddr(exp); }
-function ifAlternative(exp) {
-    exp = s.cdddr(exp);
-    if(exp.isEmptyList())
-        return exp;
-    else // alternative
-        return s.car(exp);
-}
-function makeIf(predicate, consequent, alternative) {
-    return s.arrayToList([s.ifSymbol, predicate, consequent, alternative]);
-}
-
-// lambda
-function lambdaParamters(exp) { return s.cadr(exp); }
-function lambdaBody(exp) { return s.cddr(exp); }
-function makeLambda(parameters, body) {
-    return s.cons(s.lambdaSymbol, s.cons(parameters, body));
-}
-
-// application
-function operator(exp) { return s.car(exp); }
-function operands(exp) { return s.cdr(exp); }
-function makeApplication(operator, operands) {
-    return s.cons(operator, operands);
-}
-
-// assignment
-function assignmentVar(exp) { return s.cadr(exp); }
-function assignmentValue(exp) { return s.caddr(exp); }
-
-// cond
-function condClauses(exp) { return s.cdr(exp); }
-function clauesPredicate(clause) { return s.car(clause); }
-function clauseActions(clause) { return s.cdr(clause); }
-function isElseClause(clause) { return clauesPredicate(clause) == s.elseSymbol; }
-
-// and
-function andExps(exp) { return s.cdr(exp); }
-// or
-function orExps(exp) { return s.cdr(exp); }
-
-// begin
-function beginActions(exp) {
-    return s.cdr(exp);
-}
-function makeBegin(seq) {
-    return s.cons(s.beginSymbol, seq);
-}
-
-// let
-function letBindings(exp) { return s.cadr(exp); }
-function letBody(exp) { return s.cddr(exp); }
-function letBindingVars(bindings) {
-    return s.mapList(function(bind){
-        return s.car(bind);
-    }, bindings);
-}
-function letBindingVals(bindings) {
-    return s.mapList(function(bind){
-        return s.cadr(bind);
-    }, bindings);
-}
-function makeBindings(bindings) {
-    return bindings;
-}
-function makeLet(bindings, body) {
-    return s.arrayToList([s.letSymbol, bindings, body]);
-}
-
-// define variable/function
-function definitionVar(exp) { 
-    if(s.cadr(exp).isSymbol())
-        return s.cadr(exp);
-    else
-        return s.caadr(exp);
-}
-function definitionVal(exp) {
-    if(s.cadr(exp).isSymbol())
-        return s.caddr(exp);
-    else {
-        var formals = s.cdadr(exp);
-        var body = s.cddr(exp);
-        // to lambda
-        return makeLambda(formals, body);
-    }
-}
-
-function isSelfEvaluating(exp) {
-    return (exp.isNumber() || exp.isChar() || exp.isString() || exp.isBoolean());
 }
 
 })(scheme);

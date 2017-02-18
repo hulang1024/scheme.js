@@ -3,9 +3,9 @@
 
 s.initBool = function() {
     s.addGlobalPrimProc("boolean?", boolean_p, 1);
+    s.addGlobalPrimProc("eq?", eq_p, 2);
+    s.addGlobalPrimProc("equal?", equal_p, 2);
     s.addGlobalPrimProc("not", not, 1);
-    s.addGlobalPrimProc("eq?", eq, 2);
-    s.addGlobalPrimProc("equal?", equal, 2);
 }
 
 s.makeBoolean = function(val) {
@@ -22,22 +22,39 @@ function boolean_p(argv) {
     return s.getBoolean(argv[0].isBoolean());
 }
 
-function not(argv) {
-    return s.isTrue(argv[0]) ? s.False : s.True;
-}
-
-function eq(argv) {
+function eq_p(argv) {
     var x = argv[0];
     var y = argv[1];
     if(x.type != y.type)
         return s.False;
-    if(x.isNumber() || x.isChar() || x.isString() || x.isBoolean())
+    if(x.isSymbol())
+        return s.getBoolean(s.symbolVal(x).toUpperCase() == s.symbolVal(y).toUpperCase());
+    else if(x.isNumber() || x.isChar() || x.isString() || x.isBoolean())
         return s.getBoolean(x.val == y.val);
-    return s.getBoolean(x == y);
+    else
+        return s.getBoolean(x == y);
 }
 
-function equal(argv) {
-    return eq(argv);
+function equal_p(argv) {
+    var obj1 = argv[0];
+    var obj2 = argv[1];
+    var iseq = eq_p(argv);
+    if(s.isTrue(iseq))
+        return iseq;
+    else if(obj1.isPair()) {
+        while(obj1.isPair() && obj2.isPair()) {
+            if(s.isFalse(eq_p([s.car(obj1), s.car(obj2)])))
+                return s.False;
+            obj1 = s.cdr(obj1);
+            obj2 = s.cdr(obj2);
+        }
+        return s.getBoolean(!(obj1.isPair() || obj2.isPair()));
+    }
+    else
+        return s.False;
 }
 
+function not(argv) {
+    return s.isTrue(argv[0]) ? s.False : s.True;
+}
 })(scheme);
