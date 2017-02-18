@@ -1,20 +1,20 @@
 ﻿(function(s){
 "use strict";
 
-s.initList = function() {
-    s.addGlobalPrimProc("pair?", pair_p, 1);
-    s.addGlobalPrimProc("list?", list_p, 1);
-    s.addGlobalPrimProc("null?", null_p, 1);
-    s.addGlobalPrimProc("cons", cons_prim, 2);
-    s.addGlobalPrimProc("car", car_prim, 1);
-    s.addGlobalPrimProc("cdr", cdr_prim, 1);
-    s.addGlobalPrimProc("set-car!", setCar, 2);
-    s.addGlobalPrimProc("set-cdr!", setCdr, 2);
-    s.addGlobalPrimProc("list", list, 0, -1);
-    s.addGlobalPrimProc("list-ref", listRef, 2);
-    s.addGlobalPrimProc("length", length, 1);
+s.initList = function(env) {
+    s.addPrimProc(env, "pair?", pair_p, 1);
+    s.addPrimProc(env, "list?", list_p, 1);
+    s.addPrimProc(env, "null?", null_p, 1);
+    s.addPrimProc(env, "cons", cons_prim, 2);
+    s.addPrimProc(env, "car", car_prim, 1);
+    s.addPrimProc(env, "cdr", cdr_prim, 1);
+    s.addPrimProc(env, "set-car!", setCar, 2);
+    s.addPrimProc(env, "set-cdr!", setCdr, 2);
+    s.addPrimProc(env, "list", list, 0, -1);
+    s.addPrimProc(env, "list-ref", listRef, 2);
+    s.addPrimProc(env, "length", length, 1);
     listFuncNames.forEach(function(funcName){
-        s.addGlobalPrimProc(funcName, window.eval('scheme.' + funcName + "_prim"), 1);
+        s.addPrimProc(env, funcName, window.eval('scheme.' + funcName + "_prim"), 1);
     });
 }
 
@@ -161,14 +161,14 @@ function cons_prim(argv){
 function car_prim(argv) {
     var obj = argv[0];
     if(!obj.isPair())
-        return s.wrongContract("car", "pair?", 0, argv);
+        return s.wrongContract(env, "car", "pair?", 0, argv);
     return s.car(obj);
 }
 
 function cdr_prim(argv) {
     var obj = argv[0];
     if(!obj.isPair())
-        return s.wrongContract("cdr", "pair?", 0, argv);
+        return s.wrongContract(env, "cdr", "pair?", 0, argv);
     return s.cdr(obj);
 }
 
@@ -176,7 +176,7 @@ function setCar(argv) {
     var pair = argv[0];
     var pcar = argv[1];
     if(!pair.isPair())
-        return s.wrongContract("set-car!", "pair?", 0, argv);
+        return s.wrongContract(env, "set-car!", "pair?", 0, argv);
     s.setCar(pair, pcar);
     return s.voidValue;
 }
@@ -185,7 +185,7 @@ function setCdr(argv) {
     var pair = argv[0];
     var pcdr = argv[1];
     if(!pair.isPair())
-        return s.wrongContract("set-car!", "pair?", 0, argv);
+        return s.wrongContract(env, "set-car!", "pair?", 0, argv);
     s.setCdr(pair, pcdr);
     return s.voidValue;
 }
@@ -198,9 +198,9 @@ function listRef(argv) {
     var pair = argv[0];
     var index = argv[1];
     if(!pair.isPair())
-        return s.wrongContract("list-ref", "pair?", 0, argv);
+        return s.wrongContract(env, "list-ref", "pair?", 0, argv);
     if(!index.isNumber())
-        return s.wrongContract("list-ref", "number?", 0, argv);
+        return s.wrongContract(env, "list-ref", "number?", 0, argv);
     index = s.intVal(index);
     for(var i = 0; i < index; i++)
         pair = s.cdr(pair);
@@ -210,7 +210,7 @@ function listRef(argv) {
 function length(argv) {
     var list = argv[0];
     if(!s.isList(list))
-        return s.wrongContract("length", "list?", 0, argv);
+        return s.wrongContract(env, "length", "list?", 0, argv);
     return s.makeInt(s.listLength(list));
 }
 

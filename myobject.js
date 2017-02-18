@@ -1,7 +1,7 @@
 ﻿(function(s){
 "use strict";
 
-s.initMyObject = function() {
+s.initMyObject = function(env) {
 }
 
 s.makeMyObject = function(val) {

@@ -1,7 +1,7 @@
 ﻿(function(s){
 "use strict";
 
-s.initVector = function() {
+s.initVector = function(env) {
 }
 
 s.makeVector = function(val) {

@@ -1,11 +1,11 @@
 ﻿(function(s){
 "use strict";
 
-s.initBool = function() {
-    s.addGlobalPrimProc("boolean?", boolean_p, 1);
-    s.addGlobalPrimProc("eq?", eq_p, 2);
-    s.addGlobalPrimProc("equal?", equal_p, 2);
-    s.addGlobalPrimProc("not", not, 1);
+s.initBool = function(env) {
+    s.addPrimProc(env, "boolean?", boolean_p, 1);
+    s.addPrimProc(env, "eq?", eq_p, 2);
+    s.addPrimProc(env, "equal?", equal_p, 2);
+    s.addPrimProc(env, "not", not, 1);
 }
 
 s.makeBoolean = function(val) {

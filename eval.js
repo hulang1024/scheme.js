@@ -5,19 +5,36 @@
 (function(s){
 "use strict";
 
-s.initEval = function() {
-    s.addGlobalPrimProc("eval", eval_prim, 2);
+s.initEval = function(env) {
+    s.addPrimProc(env, "eval", eval_prim, 2);
 }
 
 s.eval = evaluate;
 s.apply = apply;
 
-s.evalObjects = function(exps) {
+s.evalString = function(str) {
+    return s.evalStringWithEnv(str, s.makeInitedBasicEnv());
+}
+
+s.evalStringWithEnv = function(str, env) {
+    scheme.restError();
+    var exps;
+    try {
+        exps = scheme.readMutil(str);
+    } catch(e) {
+        if(e instanceof scheme.Error)
+            scheme.outputError();
+        console.error(e);
+    }
+    return s.evalObjects(exps, env);
+}
+
+s.evalObjects = function(exps, env) {
     scheme.restError();
     var valObj;
     try {
         for(var i = 0; i < exps.length; i++) {
-            valObj = scheme.eval(exps[i], scheme.globalEnvironment);
+            valObj = scheme.eval(exps[i], env);
             scheme.outputValue(valObj);
         }
     } catch(e) {
@@ -26,19 +43,6 @@ s.evalObjects = function(exps) {
         console.error(e);
     }
     return valObj;//last value
-}
-
-s.evalString = function(formsStr) {
-    scheme.restError();
-    var exps;
-    try {
-        exps = scheme.readMutil(formsStr);
-    } catch(e) {
-        if(e instanceof scheme.Error)
-            scheme.outputError();
-        console.error(e);
-    }
-    return s.evalObjects(exps);
 }
 
 function eval_prim(argv) {
@@ -134,7 +138,7 @@ function apply(procedure, argv) {
                 map[variables.val] = s.arrayToList(argv);
             }
             
-            var newEnv = s.extendEnvironment(map, procedure.val.getEnv());
+            var newEnv = s.extendEnv(map, procedure.val.getEnv());
             return evalSequence(procedure.val.getBody(), newEnv);
         }
     }

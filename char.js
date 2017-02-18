@@ -1,8 +1,8 @@
 ﻿(function(s){
 "use strict";
 
-s.initChar = function() {
-    s.addGlobalPrimProc("char?", char_p, 1);
+s.initChar = function(env) {
+    s.addPrimProc(env, "char?", char_p, 1);
 }
 
 

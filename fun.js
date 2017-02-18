@@ -1,10 +1,10 @@
 ﻿(function(s){
 "use strict";
 
-s.initFun = function() {
-    s.addGlobalPrimProc("procedure?", procedure_p, 1);
-    s.addGlobalPrimProc("apply", apply, 2, -1);
-    s.addGlobalPrimProc("for-each", forEach, 2);
+s.initFun = function(env) {
+    s.addPrimProc(env, "procedure?", procedure_p, 1);
+    s.addPrimProc(env, "apply", apply, 2, -1);
+    s.addPrimProc(env, "for-each", forEach, 2);
 }
 
 function procedure_p(argv) {

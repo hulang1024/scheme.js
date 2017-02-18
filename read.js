@@ -10,8 +10,8 @@ var booleanReg = /^#[tf]|(true|false)$^/;
 var vectorReg = /^#\(/;
 var emptyListReg = /^\(\)$/;
 
-scheme.initRead = function() {
-    scheme.addGlobalPrimProc("read", read, 0, 1);
+scheme.initRead = function(env) {
+    scheme.addPrimProc(env, "read", read, 0, 1);
 }
 
 function read(argv) {

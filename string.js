@@ -1,21 +1,21 @@
 ﻿(function(s){
 "use strict";
 
-s.initString = function() {
-    s.addGlobalPrimProc("string?", string_p, 1);
-    s.addGlobalPrimProc("make-string", makeString, 1, 2);
-    s.addGlobalPrimProc("string", string, 0, -1);
-    s.addGlobalPrimProc("string-length", stringLength, 1);
-    s.addGlobalPrimProc("string-ref", stringRef, 2);
-    s.addGlobalPrimProc("string-set!", stringSet, 3);
-    s.addGlobalPrimProc("string=?", stringEqual, 2);
-    s.addGlobalPrimProc("string-ci=?", stringCIEqual, 2);
-    s.addGlobalPrimProc("substring", substring, 3);
-    s.addGlobalPrimProc("string->list", stringToList, 1);
-    s.addGlobalPrimProc("list->string", listToString, 1);
-    s.addGlobalPrimProc("string-copy", stringCopy, 1);
-    s.addGlobalPrimProc("string-fill!", stringFill, 2);
-    s.addGlobalPrimProc("string-append", stringAppend, 0, -1);
+s.initString = function(env) {
+    s.addPrimProc(env, "string?", string_p, 1);
+    s.addPrimProc(env, "make-string", makeString, 1, 2);
+    s.addPrimProc(env, "string", string, 0, -1);
+    s.addPrimProc(env, "string-length", stringLength, 1);
+    s.addPrimProc(env, "string-ref", stringRef, 2);
+    s.addPrimProc(env, "string-set!", stringSet, 3);
+    s.addPrimProc(env, "string=?", stringEqual, 2);
+    s.addPrimProc(env, "string-ci=?", stringCIEqual, 2);
+    s.addPrimProc(env, "substring", substring, 3);
+    s.addPrimProc(env, "string->list", stringToList, 1);
+    s.addPrimProc(env, "list->string", listToString, 1);
+    s.addPrimProc(env, "string-copy", stringCopy, 1);
+    s.addPrimProc(env, "string-fill!", stringFill, 2);
+    s.addPrimProc(env, "string-append", stringAppend, 0, -1);
 }
 
 s.makeString = function(val) {

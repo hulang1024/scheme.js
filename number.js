@@ -1,24 +1,24 @@
 ﻿(function(s){
 "use strict";
 
-s.initNumber = function() {
-    s.addGlobalPrimProc("integer?", integer_p, 1);
-    s.addGlobalPrimProc("real?", real_p, 1);
-    s.addGlobalPrimProc("number?", number_p, 1);
+s.initNumber = function(env) {
+    s.addPrimProc(env, "integer?", integer_p, 1);
+    s.addPrimProc(env, "real?", real_p, 1);
+    s.addPrimProc(env, "number?", number_p, 1);
     
-    s.addGlobalPrimProc("+", sum, 0, -1);
-    s.addGlobalPrimProc("-", sub, 1, -1);
-    s.addGlobalPrimProc("*", mul, 0, -1);
-    s.addGlobalPrimProc("/", div, 1, -1);
+    s.addPrimProc(env, "+", sum, 0, -1);
+    s.addPrimProc(env, "-", sub, 1, -1);
+    s.addPrimProc(env, "*", mul, 0, -1);
+    s.addPrimProc(env, "/", div, 1, -1);
     
-    s.addGlobalPrimProc("=", equalNumber, 2, -1);
-    s.addGlobalPrimProc("<", lessThan, 2, -1);
-    s.addGlobalPrimProc(">", greaThan, 2, -1);
-    s.addGlobalPrimProc("<=", lteq, 2, -1);
-    s.addGlobalPrimProc(">=", gteq, 2, -1);
+    s.addPrimProc(env, "=", equalNumber, 2, -1);
+    s.addPrimProc(env, "<", lessThan, 2, -1);
+    s.addPrimProc(env, ">", greaThan, 2, -1);
+    s.addPrimProc(env, "<=", lteq, 2, -1);
+    s.addPrimProc(env, ">=", gteq, 2, -1);
     
-    s.addGlobalPrimProc("string->number", stringToNumber, 1);
-    s.addGlobalPrimProc("number->string", numberToString, 1);
+    s.addPrimProc(env, "string->number", stringToNumber, 1);
+    s.addPrimProc(env, "number->string", numberToString, 1);
 }
 
 s.makeInt = function(val) {
@@ -197,14 +197,14 @@ function gteq(argv) {
 function stringToNumber(argv) {
     var obj = argv[0];
     if(!obj.isString())
-        return s.wrongContract("string->number", "string?", 0, argv);
+        return s.wrongContract(env, "string->number", "string?", 0, argv);
     return s.makeReal(parseFloat(obj.val));
 }
 
 function numberToString(argv) {
     var obj = argv[0];
     if(!obj.isNumber())
-        return s.wrongContract("number->string", "number?", 0, argv);
+        return s.wrongContract(env, "number->string", "number?", 0, argv);
     return s.makeString(obj.val.toString());
 }
 

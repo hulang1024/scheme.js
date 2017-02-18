@@ -1,35 +1,43 @@
 ﻿(function(s){
 "use strict";
 
-s.EnvironmentFrame = function(map, baseEnv) {
+s.EnvFrame = function(map, baseEnv) {
     this.map = map;
     this.baseEnv = baseEnv;
 }
 
-s.addGlobalPrimProc = function(name, func, minArgs, maxArgs) {
-    s.globalEnvironment.map[name] = s.makePrimitiveProcedure(name, func, minArgs, maxArgs);
+s.addPrimProc = function(env, name, func, minArgs, maxArgs) {
+    env.map[name] = s.makePrimitiveProcedure(name, func, minArgs, maxArgs);
 }
 
-s.addGlobalObject = function(name, obj) {
-    s.globalEnvironment.map[name] = obj;
+s.addObject = function(env, name, obj) {
+    env.map[name] = obj;
 }
 
-s.globalEnvironment = new s.EnvironmentFrame({}, null);
+s.globalEnvironment = null;
 
-s.initBasicEnv = function() {
-    s.initBool();
-    s.initSymbol();
-    s.initNumber();
-    s.initChar();
-    s.initString();
-    s.initList();
-    s.initVector();
-    s.initMyObject();
-    s.initFun();
-    s.initRead();
-    s.initPrint();
-    s.initEval();
-    s.addGlobalPrimProc("interaction-environment", interactionEnvironment, 0);
+s.initBasicEnv = function(env) {
+    s.initBool(env);
+    s.initSymbol(env);
+    s.initNumber(env);
+    s.initChar(env);
+    s.initString(env);
+    s.initList(env);
+    s.initVector(env);
+    s.initMyObject(env);
+    s.initFun(env);
+    s.initRead(env);
+    s.initPrint(env);
+    s.initEval(env);
+    s.initMyObject(env);
+    s.initALib(env);
+    s.addPrimProc(env, "interaction-environment", interactionEnvironment, 0);
+}
+
+s.makeInitedBasicEnv = function() {
+    s.globalEnvironment = new s.EnvFrame({}, null);
+    s.initBasicEnv(s.globalEnvironment);
+    return s.globalEnvironment;
 }
 
 s.makeNamespace = function(env) {
@@ -49,8 +57,8 @@ s.lookupVariableValue = function(variable, env) {
     return value;
 }
 
-s.extendEnvironment = function(map, baseEnv) {
-    return new s.EnvironmentFrame(map, baseEnv);
+s.extendEnv = function(map, baseEnv) {
+    return new s.EnvFrame(map, baseEnv);
 }
 
 s.defineVariable = function(variable, value, env) {

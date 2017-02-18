@@ -1,10 +1,10 @@
 ﻿(function(s){
 "use strict";
 
-s.initPrint = function() {
-    s.addGlobalPrimProc("write", write, 1);
-    s.addGlobalPrimProc("display", display, 1);
-    s.addGlobalPrimProc("newline", newline, 0);
+s.initPrint = function(env) {
+    s.addPrimProc(env, "write", write, 1);
+    s.addPrimProc(env, "display", display, 1);
+    s.addPrimProc(env, "newline", newline, 0);
 }
 
 function write(argv) {
