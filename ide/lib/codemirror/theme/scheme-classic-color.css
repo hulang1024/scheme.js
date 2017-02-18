@@ -18,4 +18,5 @@
 .cm-s-scheme-classic-color .cm-builtin {color: #0000AF;}
 .cm-s-scheme-classic-color .cm-bracket {color: rgb(181,60,36);}
 
-div.CodeMirror span.CodeMirror-matchingbracket {color: #0f0;}
+div.CodeMirror span.CodeMirror-matchingbracket {background-color: pink;color:red;font-weight: bold;}
+div.CodeMirror span.CodeMirror-nonmatchingbracket {background-color: pink;}
