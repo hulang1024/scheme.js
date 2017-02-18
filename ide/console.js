@@ -20,7 +20,7 @@
             if(consoleInput.value.trim().length) {
                 historyLook.push(consoleInput.value);
                 historyLook.lastInput = null;
-                scheme.evalString(consoleInput.value);
+                scheme.evalStringWithEnv(consoleInput.value, scheme.globalEnvironment);
                 self.echoCodeAndResetInput();
             }
             break;
