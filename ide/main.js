@@ -99,9 +99,9 @@ function run() {
 
 function loadSchemeKernelJS(after) {
     loadJSSeq([
-        "object.js", "read.js", "print.js", "env.js", "error.js", "bool.js",
-        "symbol.js", "number.js", "char.js", "string.js", "list.js", "vector.js", "myobject.js", "fun.js",
-        "lib/client-javascript-lib.js", "eval.js"],
+        "object", "read", "print", "env", "error", "bool",
+        "symbol", "number", "char", "string", "list", "vector", "myobject", "fun", "syntax",
+        "lib/client-javascript-lib", "eval"],
         function(){
             scheme.initBasicEnv();
             after();
@@ -109,7 +109,7 @@ function loadSchemeKernelJS(after) {
 }
 
 function loadSchemeLibJS(after) {
-    loadJSSeq(["lib/alib.scm.js"], after);
+    loadJSSeq(["lib/alib.scm"], after);
 }
 
 function loadJSSeq(jsseq, after) {
@@ -122,7 +122,7 @@ function loadJSSeq(jsseq, after) {
         }
     
         var s = document.createElement("script");
-        s.src = jsseq[index] + "?v=" + index + "_" + new Date().getTime();
+        s.src = jsseq[index] + ".js?v=" + new Date().getTime();
         s.onload = function() {
             loadNextJS(index + 1);
         }

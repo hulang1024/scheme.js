@@ -9,7 +9,6 @@
     
     this.resetInput = function() {
         divConsole.innerHTML += "<p class=\"code_echo\"><span class=\"prompt\">&gt;</span><input type=\"text\" id=\"consoleInput\" /></p>";
-
         consoleInput = document.getElementById("consoleInput");
         consoleInput.onkeydown = consoleInputKeyDown;
         consoleInput.focus();
@@ -21,7 +20,8 @@
             if(consoleInput.value.trim().length) {
                 historyLook.push(consoleInput.value);
                 historyLook.lastInput = null;
-                self.evalInput();
+                scheme.evalString(consoleInput.value);
+                self.echoCodeAndResetInput();
             }
             break;
         case 38://up
@@ -61,23 +61,19 @@
             } 
         } 
     }
-
-    this.evalInput = function() {
-        var code = consoleInput.value;
-        scheme.evalString(code);
-     
+    
+    this.echoCodeAndResetInput = function() {
         var p = consoleInput.parentNode;
         p.removeChild(consoleInput);
         p.children[0].className += " dead";
         var codeSpan = document.createElement("span");
-        var pad = code.substring(0, code.search(/[^\s]/g)).replace(/\s/g, "&nbsp;");
-        codeSpan.innerHTML += pad + code;
+        codeSpan.innerHTML += consoleInput.value;
         p.appendChild(codeSpan);
-        this.resetInput();
+        self.resetInput();
     }
     
     /*
-     @param type "write","display","error",""
+     @param type  "write","display","error" or null
     */
     this.log = function(type, info) {
         if(typeof info == "string")
@@ -100,7 +96,6 @@
         var index = 0;
         
         this.lastInput = null;
-        
         this.push = function(input) {
             inputs.push(input);
             index = inputs.length;
@@ -115,10 +110,8 @@
     var historyLook = new HistoryLook();
     
     divConsole = document.getElementById('console');
-    divConsole.style.display = "block";
-    
     this.divConsole = divConsole;
-    
+    divConsole.style.display = "block";
     divConsole.onclick = function(event) {
         if(event.toElement == divConsole)
             consoleInput.focus();
@@ -126,6 +119,5 @@
     
     this.clear();
     this.resetInput();
-    consoleInput.focus();
 }
 
