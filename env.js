@@ -1,7 +1,7 @@
 (function(s){
 "use strict";
 
-s.EnvFrame = function(map, baseEnv) {
+s.Env = function(map, baseEnv) {
     this.map = map;
     this.baseEnv = baseEnv;
 }
@@ -34,7 +34,7 @@ s.initBasicEnv = function(env) {
 }
 
 s.makeInitedBasicEnv = function() {
-    s.globalEnvironment = new s.EnvFrame({}, null);
+    s.globalEnvironment = new s.Env({}, null);
     s.initBasicEnv(s.globalEnvironment);
     return s.globalEnvironment;
 }
@@ -57,7 +57,7 @@ s.lookupVariableValue = function(variable, env) {
 }
 
 s.extendEnv = function(map, baseEnv) {
-    return new s.EnvFrame(map, baseEnv);
+    return new s.Env(map, baseEnv);
 }
 
 s.defineVariable = function(variable, value, env) {
