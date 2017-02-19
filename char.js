@@ -1,10 +1,9 @@
-﻿(function(s){
+(function(s){
 "use strict";
 
 s.initChar = function(env) {
     s.addPrimProc(env, "char?", char_p, 1);
 }
-
 
 s.makeChar = function(val) {
     return new s.Object(3, val);

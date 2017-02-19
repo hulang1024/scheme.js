@@ -1,4 +1,4 @@
-﻿(function(s){
+(function(s){
 "use strict";
 
 s.EnvFrame = function(map, baseEnv) {
@@ -24,7 +24,6 @@ s.initBasicEnv = function(env) {
     s.initString(env);
     s.initList(env);
     s.initVector(env);
-    s.initMyObject(env);
     s.initFun(env);
     s.initRead(env);
     s.initPrint(env);
@@ -68,7 +67,7 @@ s.defineVariable = function(variable, value, env) {
 
 s.setVariableValue = function(variable, value, env) {
     var name = variable.val;
-    while(env && env.map[name] == undefined)
+    while(env && !(env.map[name] instanceof s.Object))
         env = env.baseEnv;
     if(env == null)
         return s.makeError('undefined', name);

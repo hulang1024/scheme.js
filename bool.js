@@ -1,4 +1,4 @@
-﻿(function(s){
+(function(s){
 "use strict";
 
 s.initBool = function(env) {
@@ -16,7 +16,7 @@ s.True = s.makeBoolean(true);
 s.False = s.makeBoolean(false);
 s.isTrue = function(obj) { return obj != s.False; }
 s.isFalse = function(obj) { return obj == s.False; }
-s.getBoolean = function(v) { return v ? s.True : s.False; }
+s.getBoolean = function(val) { return val ? s.True : s.False; }
 
 function boolean_p(argv) {
     return s.getBoolean(argv[0].isBoolean());
@@ -55,6 +55,6 @@ function equal_p(argv) {
 }
 
 function not(argv) {
-    return s.isTrue(argv[0]) ? s.False : s.True;
+    return s.getBoolean(s.isTrue(argv[0]));
 }
 })(scheme);

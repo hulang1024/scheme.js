@@ -1,9 +1,9 @@
 
-这是编程语言Scheme(的解释器)的JavaScript版本的实现[在线地址](http://problue.coding.me/jsscheme/)。目标为完全实现(接近)Scheme语言标准R5RS。目的是为了理解并掌握一些编程技巧。
+这是编程语言Scheme的解释器实现的JavaScript版本的实现[在线IDE地址](http://problue.coding.me/jsscheme/)。目标为完全实现(接近)Scheme语言标准R5RS。目的是为了理解并掌握一些编程技巧。
 
 
 ## 特性
-用SICP的话说，我们有控制复杂度的工程方法:
+我们有控制复杂度的工程方法:
 * 黑盒抽象
 * 约定接口
 * 元语言抽象

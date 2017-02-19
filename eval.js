@@ -1,4 +1,4 @@
-﻿/*
+/*
   包含eval-apply循环
   以及eval过程，evalObjects、evalString等外部接口。
  */
@@ -26,6 +26,7 @@ s.evalStringWithEnv = function(str, env) {
             scheme.outputError();
         console.error(e);
     }
+    env = env || s.makeInitedBasicEnv();
     return s.evalObjects(exps, env);
 }
 
@@ -117,8 +118,8 @@ function apply(procedure, argv) {
         return applyPrimitiveProcedure(procedure, argv);
     }
     else if(procedure.isCompProc()) {
-        var right = checkCompoundProcedureArguments(procedure, argv);
-        if(right) {
+        var ok = checkCompoundProcedureArguments(procedure, argv);
+        if(ok) {
             var map = {};
             var variables = procedure.val.getParamters();
             if(s.isList(variables)) { // 固定数量参数
@@ -126,7 +127,7 @@ function apply(procedure, argv) {
                 for(var index = 0; index < variables.length; index++)
                     map[variables[index].val] = argv[index];
             }
-            else if(variables.isPair()) { //
+            else if(variables.isPair()) { // n或更多个参数
                 variables = s.pairToArray(variables);
                 var index;
                 for(index = 0; index < variables.length - 1; index++)
@@ -134,7 +135,7 @@ function apply(procedure, argv) {
                 var restArgv = s.arrayToList(argv.slice(index));
                 map[variables[index].val] = restArgv;
             }
-            else if(variables.isSymbol()) {
+            else if(variables.isSymbol()) { // n个参数
                 map[variables.val] = s.arrayToList(argv);
             }
             
@@ -147,10 +148,9 @@ function apply(procedure, argv) {
 }
 
 function applyPrimitiveProcedure(proc, argv) {
-    var result = checkPimitiveProcedureArguments(proc, argv);
-    if(!result)
-        return result;
-    return proc.val.getFunc()(argv);
+    var ok = checkPimitiveProcedureArguments(proc, argv);
+    if(ok)
+        return proc.val.getFunc()(argv);
 }
 
 function listOfValues(operands, env) {
