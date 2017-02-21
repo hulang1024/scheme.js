@@ -1,4 +1,4 @@
-"ss";"ss"
+"The word \"recursion\" has many meanings."  ; "The word "recursion" has many meanings."
 (string? "ss");#t
 (make-string 6);"" or "\u0000\u0000\u0000\u0000\u0000\u0000"
 (make-string 6 #\c)
