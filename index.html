@@ -1,34 +1,35 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="utf-8">
-<title>JSScheme - Little IDE</title>
-<link rel="stylesheet" href="ide/lib/codemirror/codemirror.css">
-<link rel="stylesheet" href="ide/lib/codemirror/theme/scheme-classic-color.css">
-<link rel="stylesheet" href="ide/ide.css">
+    <meta charset="utf-8">
+    <title>JSScheme - Little IDE</title>
+    <link rel="stylesheet" href="ide/lib/codemirror/codemirror.css">
+    <link rel="stylesheet" href="ide/lib/codemirror/theme/scheme-classic-color.css">
+    <link rel="stylesheet" href="ide/ide.css">
 </head>
 
 <body>
-<div id="frame">
-    <div id="toolbar">
-        <button id="viewPlain">View Plain</button>
-        <button id="toggleDefinitions">Hide Definitions</button>
-        <button id="toggleInteractions">Hide Interactions</button>
-        <button id="clearConsole">Clear Console</button>
-        <button id="run">Run</button>
-    </div>
-    <div id="content">
-        <div id="definitions">
-            <textarea id="definitions_textarea"></textarea>
+    <div id="frame">
+        <div id="toolbar">
+            <button id="viewPlain">View Plain</button>
+            <button id="toggleDefinitions">Hide Definitions</button>
+            <button id="toggleInteractions">Hide Interactions</button>
+            <button id="clearConsole">Clear Console</button>
+            <button id="run">Run</button>
         </div>
-        <div id="console"></div>
+        <div id="content">
+            <div id="definitions">
+                <textarea id="definitions_textarea"></textarea>
+            </div>
+            <div id="console"></div>
+        </div>
     </div>
-</div>
 
-<script src="ide/lib/codemirror/codemirror.js"></script>
-<script src="ide/lib/codemirror/mode/scheme.js"></script>
-<script src="ide/lib/codemirror/addon/edit/matchbrackets.js"></script>
-<script src="ide/console.js?v=1.1"></script>
-<script src="ide/main.js?v=1.2"></script>
+    <script src="ide/lib/codemirror/codemirror.js"></script>
+    <script src="ide/lib/codemirror/mode/scheme.js"></script>
+    <script src="ide/lib/codemirror/addon/edit/matchbrackets.js"></script>
+    <script src="jsscheme/startup.js"></script>
+    <script src="ide/console.js?v=1.1"></script>
+    <script src="ide/main.js?v=1.2"></script>
 </body>
 </html>
