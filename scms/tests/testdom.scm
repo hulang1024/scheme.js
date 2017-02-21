@@ -1,6 +1,4 @@
-﻿;;使方向键控制按钮
-
-
+﻿;;使方向键控制按钮
 (define (addpx d a n)
   (define (getpx str)
     (string->number str))
@@ -23,7 +21,6 @@
           ((= key KEY_D) (addpx d 'top +10))
           ((= key KEY_L) (addpx d 'left -10))
           ((= key KEY_R) (addpx d 'left +10)))))
-
 
 
 ;;让按钮跟随鼠标，按esc键切换暂停/开始
