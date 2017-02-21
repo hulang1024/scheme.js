@@ -138,9 +138,12 @@ s.listLength = function(list) {
 function list_p(argv) {
     var obj = argv[0];
     var b = false;
-    for(; !b && obj.isPair(); obj = s.cdr(obj))
+    for(; !b && obj.isPair(); obj = s.cdr(obj)) {
         if(s.car(obj).isEmptyList())
             b = true;
+        if(s.cdr(obj) === obj) //check cycle ref
+            return s.False;
+    }
     if(!b && obj.isEmptyList())
         b = true;
     return s.getBoolean(b);
@@ -161,14 +164,14 @@ function cons_prim(argv){
 function car_prim(argv) {
     var obj = argv[0];
     if(!obj.isPair())
-        return s.wrongContract(env, "car", "pair?", 0, argv);
+        return s.wrongContract("car", "pair?", 0, argv);
     return s.car(obj);
 }
 
 function cdr_prim(argv) {
     var obj = argv[0];
     if(!obj.isPair())
-        return s.wrongContract(env, "cdr", "pair?", 0, argv);
+        return s.wrongContract("cdr", "pair?", 0, argv);
     return s.cdr(obj);
 }
 
@@ -176,7 +179,7 @@ function setCar(argv) {
     var pair = argv[0];
     var pcar = argv[1];
     if(!pair.isPair())
-        return s.wrongContract(env, "set-car!", "pair?", 0, argv);
+        return s.wrongContract("set-car!", "pair?", 0, argv);
     s.setCar(pair, pcar);
     return s.voidValue;
 }
@@ -185,7 +188,7 @@ function setCdr(argv) {
     var pair = argv[0];
     var pcdr = argv[1];
     if(!pair.isPair())
-        return s.wrongContract(env, "set-car!", "pair?", 0, argv);
+        return s.wrongContract("set-car!", "pair?", 0, argv);
     s.setCdr(pair, pcdr);
     return s.voidValue;
 }
@@ -198,9 +201,9 @@ function listRef(argv) {
     var pair = argv[0];
     var index = argv[1];
     if(!pair.isPair())
-        return s.wrongContract(env, "list-ref", "pair?", 0, argv);
+        return s.wrongContract("list-ref", "pair?", 0, argv);
     if(!index.isNumber())
-        return s.wrongContract(env, "list-ref", "number?", 0, argv);
+        return s.wrongContract("list-ref", "number?", 0, argv);
     index = s.intVal(index);
     for(var i = 0; i < index; i++)
         pair = s.cdr(pair);
@@ -210,7 +213,7 @@ function listRef(argv) {
 function length(argv) {
     var list = argv[0];
     if(!s.isList(list))
-        return s.wrongContract(env, "length", "list?", 0, argv);
+        return s.wrongContract("length", "list?", 0, argv);
     return s.makeInt(s.listLength(list));
 }
 

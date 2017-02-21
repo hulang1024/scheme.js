@@ -12,10 +12,11 @@ s.symbolVal = function(obj) { return obj.val; }
 
 s.symbolTable = [];
 s.internSymbol = function(str) {
-    var sym = s.symbolTable[str];//no eg toString, prototype..
+    var nameInTable = "__scheme_symbol_" + str;
+    var sym = s.symbolTable[nameInTable];//no eg toString, prototype..
     if(!(sym instanceof s.Object)) {
         sym = s.makeSymbol(str);
-        s.symbolTable[str] = sym;
+        s.symbolTable[nameInTable] = sym;
     }
     return sym;
 }
