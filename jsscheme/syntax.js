@@ -44,14 +44,6 @@ function andExps(exp) { return s.cdr(exp); }
 // or
 function orExps(exp) { return s.cdr(exp); }
 
-// begin
-function beginActions(exp) {
-    return s.cdr(exp);
-}
-function makeBegin(seq) {
-    return s.cons(s.beginSymbol, seq);
-}
-
 // let
 function letBindings(exp) { return s.cadr(exp); }
 function letBody(exp) { return s.cddr(exp); }
@@ -89,6 +81,20 @@ function definitionVal(exp) {
     }
 }
 
+// begin
+function beginActions(exp) {
+    return s.cdr(exp);
+}
+function makeBegin(seq) {
+    return s.cons(s.beginSymbol, seq);
+}
+
+function sequenceExp(seq) {
+    if(seq.isEmptyList()) return seq;
+    else if(s.cdr(seq).isEmptyList()) return s.car(seq);
+    else return s.makeBegin(seq);
+}
+    
 function isSelfEvaluating(exp) {
     return (exp.isNumber() || exp.isChar() || exp.isString() || exp.isBoolean());
 }
@@ -122,5 +128,6 @@ s.makeBindings = makeBindings;
 s.makeLet = makeLet;
 s.definitionVar = definitionVar;
 s.definitionVal = definitionVal;
+s.sequenceExp = sequenceExp;
 s.isSelfEvaluating = isSelfEvaluating;
 })(scheme);

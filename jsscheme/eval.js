@@ -232,23 +232,17 @@ function condToIf(exp) {
         var rest = s.cdr(clauses);
         if(s.isElseClause(first))
             if(rest.isEmptyList())
-                return sequenceExp(s.clauseActions(first));
+                return s.sequenceExp(s.clauseActions(first));
             else
                 s.makeError('badSyntax', "'else' clause must be last");
         else {
             var predicate = s.clauesPredicate(first);
-            var actionSequence= sequenceExp(s.clauseActions(first));
+            var actionSequence= s.sequenceExp(s.clauseActions(first));
             if(actionSequence.isEmptyList())
                 return s.makeIf(s.True, predicate, expandClauses(rest));
             else
                 return s.makeIf(predicate, actionSequence, expandClauses(rest));
         }
-    }
-    
-    function sequenceExp(seq) {
-        if(seq.isEmptyList()) return seq;
-        else if(s.cdr(seq).isEmptyList()) return s.car(seq);
-        return s.makeBegin(seq);
     }
 }
 
