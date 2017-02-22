@@ -5,7 +5,7 @@
 
 (apply + (list 3 4)) ; 7
 (define compose
-(lambda (f g)
-(lambda args
-(f (apply g args)))))
-((compose square  *) 12 75) ; 810000
+  (lambda (f g)
+    (lambda args
+      (f (apply g args)))))
+((compose square *) 12 75) ; 810000
