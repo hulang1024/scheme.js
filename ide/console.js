@@ -1,6 +1,7 @@
 ﻿function Console() {
     var divConsole;
     var consoleInput;
+    var historyLook = new HistoryLook();
     var self = this;
     
     this.clear = function() {
@@ -106,8 +107,6 @@
         this.next = function() { return inputs[++index]; }
         this.bottom = function() { index = inputs.length; }
     }
-    
-    var historyLook = new HistoryLook();
     
     divConsole = document.getElementById('console');
     this.divConsole = divConsole;
