@@ -61,7 +61,7 @@ function evaluate(exp, env) {
     if(exp == s.voidValue)
         return exp;
     
-    if(s.isSelfEvaluating(exp)) {
+    if(isSelfEvaluating(exp)) {
         return exp;
     }
 
@@ -101,6 +101,9 @@ function evaluate(exp, env) {
             }
             else if(first == s.letSymbol) {
                 return evaluate(letToCombination(exp), env);
+            }
+            else if(first == s.doSymbol) {
+                return evaluate(doToCombination(exp), env);
             }
         }
         return apply(evaluate(s.operator(exp), env), listOfValues(s.operands(exp), env));
@@ -144,13 +147,17 @@ function apply(procedure, argv) {
         }
     }
     else
-        s.makeError('application', "expected a procedure that can be applied to arguments");
+        s.applicationError(procedure);
 }
 
 function applyPrimitiveProcedure(proc, argv) {
     var ok = checkPimitiveProcedureArguments(proc, argv);
     if(ok)
         return proc.val.getFunc()(argv);
+}
+
+function isSelfEvaluating(exp) {
+    return (exp.isNumber() || exp.isChar() || exp.isString() || exp.isBoolean());
 }
 
 function listOfValues(operands, env) {
@@ -167,7 +174,7 @@ function evalQuotation(exp) {
 }
 
 function evalAssignment(exp, env) {
-    s.setVariableValue(s.assignmentVar(exp), evaluate(s.assignmentValue(exp), env), env);
+    s.setVariableValue(s.assignmentVar(exp), evaluate(s.assignmentVal(exp), env), env);
     return s.ok;
 }
 
@@ -214,12 +221,10 @@ function evalLambda(exp, env) {
 }
 
 function evalSequence(exps, env) {
-    var values = [];
-    while(!exps.isEmptyList()) {
-        values.push( evaluate(s.car(exps), env) );
-        exps = s.cdr(exps);
-    }
-    return values[values.length - 1];
+    var lastValue = s.voidValue;
+    for(; !exps.isEmptyList(); exps = s.cdr(exps))
+        lastValue = evaluate(s.car(exps), env);
+    return lastValue;
 }
 
 function condToIf(exp) {
@@ -249,9 +254,8 @@ function condToIf(exp) {
 function andToIf(exp, env) {
     var exps = s.andExps(exp);
     return exps.isEmptyList() ? s.True : expandExps(exps);
-    var gensym = s.genSymbol();
+    var tempVar = s.genSymbol();
     function expandExps(exps) {
-        var tempVar = s.makeSymbol(gensym);
         var predicate = s.makeApplication(s.makeSymbol("not"), s.cons(tempVar, s.nil));
         var rest = s.cdr(exps);
         return s.makeLet(
@@ -264,9 +268,8 @@ function andToIf(exp, env) {
 function orToIf(exp, env) {
     var exps = s.orExps(exp);
     return exps.isEmptyList() ? s.False : expandExps(exps);
-    var gensym = s.genSymbol();
+    var tempVar = s.genSymbol();
     function expandExps(exps) {
-        var tempVar = s.makeSymbol(gensym);
         var predicate = tempVar;
         var rest = s.cdr(exps);
         return s.makeLet(
@@ -278,7 +281,36 @@ function orToIf(exp, env) {
 
 function letToCombination(exp) {
     var bindings = s.letBindings(exp);
-    return s.makeApplication(s.makeLambda(s.letBindingVars(bindings), s.letBody(exp)), s.letBindingVals(bindings));
+    return s.makeApplication(s.makeLambda(s.letBindingVars(bindings), s.letBody(exp)), s.letBindingInits(bindings));
+}
+
+function doToCombination(exp) {
+    /*
+    (define-syntax do
+      (syntax-rules ()
+        ((do ((variable1 init1 step1) ...)
+             (test expression ...)
+             command ...)
+         ((lambda ()
+           (define (iter variable1 ...)
+             (if test
+                 (begin expression ...)
+                 (begin command ...
+                        (iter step1 ...))))
+           (iter init1 ...))))))
+    */
+    var bindings = s.doBindings(exp);
+    var iterProcVar = s.genSymbol();
+    var ifAlter = s.sequenceExp(
+        s.append(s.doCommands(exp),
+            s.cons(s.makeApplication(iterProcVar, s.doBindingSteps(bindings)), s.nil)));
+    var iterProcBody = s.cons(
+        s.makeIf(s.doTest(exp),
+            s.sequenceExp(s.doExpressions(exp)), ifAlter), s.nil);
+    var letBody = s.arrayToList([
+        s.makeDefinition(iterProcVar, s.makeLambda(s.doBindingVars(bindings), iterProcBody)),
+        s.makeApplication(iterProcVar, s.doBindingInits(bindings))]);
+    return s.makeApplication(s.makeLambda(s.nil, letBody), s.nil);
 }
 
 function checkPimitiveProcedureArguments(procedure, argv) {

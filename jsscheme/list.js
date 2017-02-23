@@ -13,6 +13,9 @@ s.initList = function(env) {
     s.addPrimProc(env, "list", list, 0, -1);
     s.addPrimProc(env, "list-ref", listRef, 2);
     s.addPrimProc(env, "length", length, 1);
+    s.addPrimProc(env, "append", append, 0, -1);
+    s.addPrimProc(env, "reverse", reverse, 1);
+    s.addPrimProc(env, "list-tail", listTail, 2);
     listFuncNames.forEach(function(funcName){
         s.addPrimProc(env, funcName, window.eval('scheme.' + funcName + "_prim"), 1);
     });
@@ -98,10 +101,17 @@ s.pairsLength = function(pairs) {
 }
 
 s.mapList = function(func, list) {
-    if(list.isEmptyList())
-        return s.nil;
+    var ret = [];
+    for(; !list.isEmptyList(); list = s.cdr(list))
+        ret.push(func(s.car(list)));
+    return s.arrayToList(ret);
+}
+
+s.append = function(list1, list2) {
+    if(list1.isPair())
+        return s.cons(s.car(list1), s.append(s.cdr(list1), list2));
     else
-        return s.cons(func(s.car(list)), s.mapList(func, s.cdr(list)));
+        return list2;
 }
 
 s.cons = function(x, y) { return new s.makePair([x, y]); }
@@ -109,7 +119,6 @@ s.car = function(pair) { return pair.val[0]; }
 s.cdr = function(pair) { return pair.val[1]; }
 s.setCar = function(pair, pcar) { pair.val[0] = pcar; }
 s.setCdr = function(pair, pcdr) { pair.val[1] = pcdr; }
-s.list = list;
 s.car_prim = car_prim;
 s.cdr_prim = cdr_prim;
 
@@ -118,12 +127,6 @@ s.isList = function(obj) {
         if(s.car(obj).isEmptyList())
             return true;
     return obj.isEmptyList();
-}
-
-s.listRef = function(list, index) {
-    for(var i = 0; i < index; i++)
-        list = s.cdr(list);
-    return s.car(list);
 }
 
 s.listLength = function(list) {
@@ -197,19 +200,6 @@ function list(argv) {
     return s.arrayToList(argv);
 }
 
-function listRef(argv) {
-    var pair = argv[0];
-    var index = argv[1];
-    if(!pair.isPair())
-        return s.wrongContract("list-ref", "pair?", 0, argv);
-    if(!index.isNumber())
-        return s.wrongContract("list-ref", "number?", 0, argv);
-    index = s.intVal(index);
-    for(var i = 0; i < index; i++)
-        pair = s.cdr(pair);
-    return s.car(pair);
-}
-
 function length(argv) {
     var list = argv[0];
     if(!s.isList(list))
@@ -217,4 +207,58 @@ function length(argv) {
     return s.makeInt(s.listLength(list));
 }
 
+function append(argv) {
+    var ret = s.nil;
+    if(argv.length > 0) {
+        var i;
+        for(i = 0; i < argv.length - 1; i++) {
+            if(!(argv[i].isPair() || argv[i].isEmptyList()))
+                return s.wrongContract("append", "pair?", i, argv);
+            ret = s.append(ret, argv[i]);
+        }
+        ret = s.append(ret, argv[i]);
+    }
+    return ret;
+}
+
+function reverse(argv) {
+    var ret = s.nil;
+    var lst = argv[0]
+    if(!s.isList(lst))
+        return s.wrongContract("reverse", "list?", 0, argv);
+    for(; !lst.isEmptyList(); lst = s.cdr(lst))
+        ret = s.cons(s.car(lst), ret);
+    return ret;
+}
+
+function listTail(argv) {
+    return doCheckedListRef("list-tail", false, argv);
+}
+
+function listRef(argv) {
+    return doCheckedListRef("list-ref", true, argv);
+}
+
+function doCheckedListRef(name, takecar, argv) {
+    var lst = argv[0];
+    var k = argv[1];
+    if(!lst.isPair())
+        return s.wrongContract(name, "pair?", 0, argv);
+    if(!k.isNumber())
+        return s.wrongContract(name, "exact-nonnegative-integer?", 1, argv);
+    k = s.intVal(k);
+    if(k < 0)
+        return s.wrongContract(name, "exact-nonnegative-integer?", 1, argv);
+    for(var i = 0; i < k; i++) {
+        if(!lst.isPair())
+            return s.wrongContract(name, "pair?", 0, argv);
+        lst = s.cdr(lst);
+    }
+    if(takecar) {
+        if(!lst.isPair())
+            return s.wrongContract(name, "pair?", 0, argv);
+        return s.car(lst);
+    }
+    return lst;
+}
 })(scheme);

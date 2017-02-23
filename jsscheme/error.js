@@ -15,15 +15,19 @@ s.makeError = function() {
 }
 
 s.arityMismatchError = function(procedureName, args, isAtleast, expected, given) {
-    s.makeError('arityMismatch', procedureName, args, isAtleast, expected, given);
+    s.makeError("arityMismatch", procedureName, args, isAtleast, expected, given);
 }
 
 s.wrongContract = function(procedureName, expected, index, argv) {
-    s.makeError('contractViolation', procedureName, expected, index, argv);
+    s.makeError("contractViolation", procedureName, expected, index, argv);
 }
 
 s.indexOutRangeError = function(procedureName, type, startIndex, endIndex, invalid, length, obj) {
-    s.makeError('indexOutRange', procedureName, type, startIndex, endIndex, invalid, length, obj);
+    s.makeError("indexOutRange", procedureName, type, startIndex, endIndex, invalid, length, obj);
+}
+
+s.applicationError = function(given) {
+    s.makeError("application", given);
 }
 
 s.outputError = function() {
@@ -38,26 +42,26 @@ s.outputError = function() {
     var error = s.error.objs;
     var errorType = error[0];
     switch(errorType) {
-    case 'arityMismatch':
+    case "arityMismatch":
         var procedureName = error[1];
         var argv = error[2];
         var isAtleast = error[3];
         var expected = error[4];
         var given = error[5];
-        var info = procedureName + ': ' + 'arity mismatch;';
+        var info = procedureName + ": " + "arity mismatch;";
         info += "\n  the expected number of arguments does not match the given number";
-        info += "\n  expected: " + (isAtleast ? 'at least ' : '') + expected;
+        info += "\n  expected: " + (isAtleast ? "at least " : "") + expected;
         info += "\n  given: " + given;
         if(argv.length > 0)
             info += "\n  arguments...:" + getMutilLineArgStr(argv);
         break;
-    case 'contractViolation':
+    case "contractViolation":
         var procedureName = error[1];
         var expected = error[2];
         var index = error[3];
         var argv = error[4];
         var given = argv[index];
-        var info = procedureName + ': ' + 'contract violation';
+        var info = procedureName + ": " + "contract violation";
         info += "\n  expected: " + expected;
         info += "\n  given: " + s.writeToString(given);
         if(argv.length > 1) {
@@ -102,7 +106,13 @@ s.outputError = function() {
             info += "\n  " + type + ": " + s.writeToString(obj);
         }
         break;
-    case 'undefined':
+    case "application":
+        var given = error[1];
+        var info = "application: not a procedure;";
+        info += "\n  expected a procedure that can be applied to arguments";
+        info += "\n  given: " + s.writeToString(given);
+        break;
+    case "undefined":
         var id = error[1];
         var info = id + ": undefined;";
         info += "\n cannot reference undefined identifier";

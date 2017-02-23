@@ -17,8 +17,8 @@ s.addObject = function(env, name, obj) {
 s.globalEnvironment = null;
 
 s.initBasicEnv = function(env) {
-    s.initBool(env);
     s.initSymbol(env);
+    s.initBool(env);
     s.initNumber(env);
     s.initNumComp(env);
     s.initNumArith(env);
