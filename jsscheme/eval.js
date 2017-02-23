@@ -125,6 +125,7 @@ function apply(procedure, argv) {
         if(ok) {
             var map = {};
             var variables = procedure.val.getParamters();
+            var argvList = s.arrayToList(argv);
             if(s.isList(variables)) { // 固定数量参数
                 variables = s.listToArray(variables);
                 for(var index = 0; index < variables.length; index++)
@@ -139,8 +140,11 @@ function apply(procedure, argv) {
                 map[variables[index].val] = restArgv;
             }
             else if(variables.isSymbol()) { // n个参数
-                map[variables.val] = s.arrayToList(argv);
+                map[variables.val] = argvList;
             }
+            //参考JS的arguments特性
+            map["arguments"] = argvList;
+            map["callee"] = procedure;
             
             var newEnv = s.extendEnv(map, procedure.val.getEnv());
             return evalSequence(procedure.val.getBody(), newEnv);
