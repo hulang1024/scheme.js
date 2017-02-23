@@ -15,3 +15,15 @@
 (map + '(1 2 3) '(4 5 6)) ; (5 7 9)
 
 (for-each display '(1 2 3)) ; (1 2 3)
+
+
+
+(define (f x y . z)
+  arguments)
+(f 1 2)
+(f 1 2 3 4)
+
+((lambda (n)
+   (if (< n 2)
+       n
+       (* n (callee (- n 1))))) 6)
