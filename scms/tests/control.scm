@@ -1,4 +1,4 @@
-(procedure? car) ; #t
+﻿(procedure? car) ; #t
 (procedure? 'car) ; #f
 (procedure? (lambda (x) (* x x))) ; #t
 (procedure? '(lambda (x) (* x x))) ; #f
@@ -8,4 +8,10 @@
   (lambda (f g)
     (lambda args
       (f (apply g args)))))
-((compose square *) 12 75) ; 810000
+((compose square  *) 12 75) ; 810000
+
+
+(map cadr '((a b) (d e) (g h))) ; (b e h)
+(map + '(1 2 3) '(4 5 6)) ; (5 7 9)
+
+(for-each display '(1 2 3)) ; (1 2 3)

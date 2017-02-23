@@ -1,4 +1,4 @@
-(read)
+ï»¿(read)
 (write "1") ; "1"
-(newline) ;ĞĞ½áÊø
+(newline) ;è¡Œç»“æŸ
 (display "1") ; 1

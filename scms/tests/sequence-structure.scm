@@ -1,5 +1,6 @@
+ï»¿(begin)
 (define x 0)
 (begin (set! x 5)
        (+ x 1)) ; 6
 (begin (display "4 plus 1 equals ")
-       (display (+ 4 1))) ; Î´¶¨Òå£¬²¢´òÓ¡Êä³ö4 plus 1 equals 5
+       (display (+ 4 1))) ; æœªå®šä¹‰ï¼Œå¹¶æ‰“å°è¾“å‡º4 plus 1 equals 5

@@ -1,4 +1,4 @@
-'(a b c d e) ; (a b c d e)
+ï»¿'(a b c d e) ; (a b c d e)
 '(a . (b . (c . (d . (e . ()))))) ; (a b c d e)
 
 '(a b c . d) ; (a b c . d)
@@ -29,16 +29,16 @@ y ; (a . 4)
 (car '(a b c)) ; a
 (car '((a) b c d)) ; (a)
 (car '(1 . 2)) ; 1
-(car '()) ; ´íÎó
+(car '()) ; é”™è¯¯
 
 (cdr '((a) b c d)) ; (b c d)
 (cdr '(1 . 2)) ; 2
-(cdr '()) ; ´íÎó
+(cdr '()) ; é”™è¯¯
 
 (define (f) (list 'not-a-constant-list))
 (define (g) '(constant-list))
-(set-car! (f) 3) ; Î´¶¨Òå
-(set-car! (g) 3) ; ´íÎó
+(set-car! (f) 3) ; æœªå®šä¹‰
+(set-car! (g) 3) ; é”™è¯¯
 
 (list? '(a b c)) ; #t
 (list? '()) ; #t
@@ -54,4 +54,17 @@ y ; (a . 4)
 (length '(a (b) (c d e))) ; 3
 (length '()) ; 0
 
+(append '(x) '(y)) ; (x y)
+(append '(a) '(b c d)) ; (a b c d)
+(append '(a (b)) '((c))) ; (a (b) (c))
+(append '(a b) '(c . d)) ; (a b c . d)
+(append '() 'a) ; a
+(append) ; ()
+
+(reverse '(a b c)) ; (c b a)
+(reverse '(a (b c) d (e (f)))) ; ((e (f)) d (b c) a)
+
+(list-tail '(1 2 3 4) 1) ; (2 3 4)
+
 (list-ref '(a b c d) 2) ; c
+
