@@ -18,38 +18,70 @@
     |抽象的手段|`define`|.|
 
 目前的支持:
-* 基本过程  
- 1. 算术运算，关系
- 2. 逻辑
- 3. 基本数据类型的谓词
- 4. 输出  
-  display,newline
- 5. eval, apply, interaction-environment
-* 基本数据类型  
- 1. 数字
- 2. 布尔
- 3. 符号
- 4. 字符串
- 5. 序对和列表  
-    表是Scheme这种Lisp的关键的数据结构，用来表示表达式和过程(Scheme的一个表达式在内部就是一个表，可以通过quote得到)和数据，它是通过cons,car,cdr构造出的序对的链条。它为一个公共的约定接口，在该语言中是"闭包"的，因此很容易基于它构造更复杂的过程。
-* 嵌套组合式  
- 1. 理想上可以构建任意复杂度和嵌套深度的表达式。
- 2. 将过程与数据组合起来，表示将过程应用于数据(其它语言中的函数调用)。
-* 变量  
-  全局变量或局部变量
-* 赋值
-* 函数
-* 内部定义和词法作用域  
-  因为词法作用域的缘故，如果返回一个过程，将自然支持"闭包"(引用了其封闭作用域中变量的函数)
-* 递归函数  
-  1. 支持递归。  
-  2. 但暂不支持这里的关键的尾递归优化，因此递归过程和迭代过程(即使语法上是一个递归定义，但应该可以生成迭代计算过程的)都会生成递归计算过程。
-* 第一级函数
-* 常量引用，目前仅支持quote
-* 注释 
-单行注释
+* 变量引用  
+ `<variable>`
+* 局部变量  
+ `let`
+* 常量引用  
+  `quote`,`'`  
+* 过程调用  
+  `(operator operand ...)`
+* 过程(复合过程)  
+ `lambda`  
+    固定数量参数, 任意数量参数, n个或更多不定数量参数
+* 递归
+* 条件表达式  
+  `if`,`cond`,`and`,`or`
+* 赋值  
+  `set!`
+* 顺序结构  
+  `begin`
+* 迭代结构  
+  `do`
+* 定义  
+  `define`
+* 词法作用域,闭包
+* 标准过程
+    + 相等谓词  
+        `eq?`,`equal?`
+    + 数值运算和数值输入/输出  
+        `number?`,  
+        `=`,`<`,`<`,`>`,`<=`,`>=`,  
+        `+`,`*`,`-`,`/`,`abs`,  
+        `number->string`,`string->number`
+       1. 整数  
+        `integer?`
+       2. 实数  
+        `real?`
+    + 其它数据类型  
+       1. 布尔  
+        `boolean?`,`not`
+       2. 序对和表  
+        `pair?`,`cons`,`car`,`cdr`,`set-car!`,`set-cdr!`,  
+        `caar`,`cadr` `...` `cdddar`,`cddddr` (`car`和`cdr`的组合,定义到第四层),  
+        `null?`,`list?`,`list`,`length`,`append`,`reverse`,`list-tail`,`list-ref`,`memq`
+       3. 符号  
+        `symbol?`,`symbol->string`,`string->symbol`
+       4. 字符  
+        `char?`
+       5. 字符串  
+        `string?`,`make-string`,`string`,`string-length`,`string-ref`,`string-set!`,  
+        `string=?`,`string-ci=?`,`substring`,`string-append`,`string->list`,`list->string`,  
+        `string-copy`,`string-fill!`
+    + 控制特征  
+        `procedure?`,`apply`,`map`,`for-each`
+    + 求值  
+        `eval`,`interaction-environment`
+    + 输入/输出  
+        `read`,`write`,`newline`,`display`
+ 
+* 注释  
+`;line comment`
 
 ## 扩展与库
 * 母体语言JavaScript的功能
-* 部分BOM对象，例如window对象方法
+* 部分BOM对象，例如`window`对象方法
 * 部分HTML DOM对象
+
+## 示例  
+ 参见`/scms/`
