@@ -86,20 +86,6 @@ s.listToArray = function(list) {
     return array;
 }
 
-s.pairToArray = function(pair) {
-    var array = [];
-    while(pair.isPair()) {
-        array.push(s.car(pair));
-        pair = s.cdr(pair);
-    }
-    array.push(pair);
-    return array;
-}
-
-s.pairsLength = function(pairs) {
-    return !pairs.isPair() ? 0 : 1 + s.pairsLength(s.cdr(pairs));
-}
-
 s.mapList = function(func, list) {
     var ret = [];
     for(; !list.isEmptyList(); list = s.cdr(list))
@@ -108,10 +94,8 @@ s.mapList = function(func, list) {
 }
 
 s.append = function(list1, list2) {
-    if(list1.isPair())
-        return s.cons(s.car(list1), s.append(s.cdr(list1), list2));
-    else
-        return list2;
+    return list1.isPair() ?
+        s.cons(s.car(list1), s.append(s.cdr(list1), list2)) : list2;
 }
 
 s.cons = function(x, y) { return new s.makePair([x, y]); }

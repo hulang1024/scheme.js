@@ -5,15 +5,16 @@
 (function(s){
 "use strict";
 
+s.debug = false;
+
 s.initEval = function(env) {
     s.addPrimProc(env, "eval", eval_prim, 2);
 }
 
-s.eval = evaluate;
 s.apply = apply;
 
 s.evalString = function(str) {
-    return s.evalStringWithEnv(str, s.makeInitedBasicEnv());
+    return s.evalStringWithEnv(str, s.debug ? s.globalEnvironment : s.makeInitedBasicEnv());
 }
 
 s.evalStringWithEnv = function(str, env) {
@@ -35,7 +36,7 @@ s.evalObjects = function(exps, env) {
     var valObj;
     try {
         for(var i = 0; i < exps.length; i++) {
-            valObj = scheme.eval(exps[i], env);
+            valObj = evaluate(exps[i], env);
             scheme.outputValue(valObj);
         }
     } catch(e) {
@@ -51,24 +52,22 @@ function eval_prim(argv) {
     var env = argv[1];
     if(!env.isNamespace())
         return s.wrongContract("meval", "namespace?", 0, argv);
-    return s.eval(exp, env.val);
+    return evaluate(exp, env.val);
 }
 
 //-------------
 // evaluations
 //-------------
 function evaluate(exp, env) {
-    if(exp == s.voidValue)
-        return exp;
-    
-    if(isSelfEvaluating(exp)) {
+    if(exp == s.voidValue) {
         return exp;
     }
-
+    else if(isSelfEvaluating(exp)) {
+        return exp;
+    }
     else if(exp.isSymbol()) {
         return s.lookupVariableValue(exp, env);
     }
-
     else if(s.isList(exp) && !exp.isEmptyList()) {
         var first = s.car(exp);
         if(first.isSymbol()) {
@@ -121,33 +120,35 @@ function apply(procedure, argv) {
         return applyPrimitiveProcedure(procedure, argv);
     }
     else if(procedure.isCompProc()) {
-        var ok = checkCompoundProcedureArguments(procedure, argv);
+        var ok = matchArity(procedure, argv);
         if(ok) {
+            //将形式参数约束于对应到实际参数
             var map = {};
-            var variables = procedure.val.getParamters();
+            var paramters = procedure.val.getParamters();
+            var arity = procedure.val.getArity();
             var argvList = s.arrayToList(argv);
-            if(s.isList(variables)) { // 固定数量参数
-                variables = s.listToArray(variables);
-                for(var index = 0; index < variables.length; index++)
-                    map[variables[index].val] = argv[index];
+            if(arity.length == 1) {     // 固定数量参数
+                for(var index = 0; index < paramters.length; index++)
+                    map[paramters[index].val] = argv[index];
             }
-            else if(variables.isPair()) { // n或更多个参数
-                variables = s.pairToArray(variables);
+            else if(arity[0] > 0 && arity[1] == -1) {   // n或更多个参数
                 var index;
-                for(index = 0; index < variables.length - 1; index++)
-                    map[variables[index].val] = argv[index];
-                var restArgv = s.arrayToList(argv.slice(index));
-                map[variables[index].val] = restArgv;
+                for(index = 0; index < paramters.length - 1; index++)
+                    map[paramters[index].val] = argv[index];
+                map[paramters[index].val] = s.arrayToList(argv.slice(index));
             }
-            else if(variables.isSymbol()) { // n个参数
-                map[variables.val] = argvList;
+            else if(arity[0] == 0) {    // n个参数
+                map[paramters[0].val] = argvList;
             }
             //参考JS的arguments特性
             map["arguments"] = argvList;
             map["callee"] = procedure;
             
+            //构造一个新环境,将创建该过程时的环境作为外围环境
             var newEnv = s.extendEnv(map, procedure.val.getEnv());
-            return evalSequence(procedure.val.getBody(), newEnv);
+            //在这个新环境上下文中求值过程体
+            var lastValue = evalSequence(procedure.val.getBody(), newEnv);
+            return lastValue;
         }
     }
     else
@@ -155,7 +156,7 @@ function apply(procedure, argv) {
 }
 
 function applyPrimitiveProcedure(proc, argv) {
-    var ok = checkPimitiveProcedureArguments(proc, argv);
+    var ok = matchArity(proc, argv);
     if(ok)
         return proc.val.getFunc()(argv);
 }
@@ -205,23 +206,41 @@ function evalIf(exp, env) {
 }
 
 function evalLambda(exp, env) {
+    //计算参数数量
     var formals = s.lambdaParamters(exp);
+    var paramters = [];//参数数组
     var minArgs, maxArgs;
-    if(s.isList(formals)) {
-        minArgs = s.listLength(formals);
-    }
-    else if(formals.isPair()) {
-        minArgs = s.pairsLength(formals);
-        maxArgs = -1;
+    if(formals.isPair()) {
+        var isList = false;
+        var listLen = 0;
+        for(var obj = formals; !isList && obj.isPair(); obj = s.cdr(obj)) {
+            listLen++;
+            paramters.push(s.car(obj));
+            if(s.car(obj).isEmptyList())
+                isList = true;
+        }
+        if(!obj.isEmptyList())
+            paramters.push(obj);
+        else
+            isList = obj.isEmptyList();
+        if(isList) {
+            minArgs = listLen;
+            maxArgs = undefined;
+        } else {
+            minArgs = listLen;
+            maxArgs = -1;
+        }
     }
     else if(formals.isSymbol()) {
+        paramters.push(formals);
         minArgs = 0;
         maxArgs = -1;
     }
     else {
         s.makeError('','not an identifier');
     }
-    return s.makeCompoundProcedure("", formals, s.lambdaBody(exp), env, minArgs, maxArgs);
+    //做一个过程(函数)
+    return s.makeCompoundProcedure("", paramters, s.lambdaBody(exp), env, minArgs, maxArgs);
 }
 
 function evalSequence(exps, env) {
@@ -257,8 +276,11 @@ function condToIf(exp) {
 
 function andToIf(exp, env) {
     var exps = s.andExps(exp);
-    return exps.isEmptyList() ? s.True : expandExps(exps);
+    if(exps.isEmptyList())
+        return s.True;
+
     var tempVar = s.genSymbol();
+    return expandExps(exps);
     function expandExps(exps) {
         var predicate = s.makeApplication(s.makeSymbol("not"), s.cons(tempVar, s.nil));
         var rest = s.cdr(exps);
@@ -271,8 +293,11 @@ function andToIf(exp, env) {
 
 function orToIf(exp, env) {
     var exps = s.orExps(exp);
-    return exps.isEmptyList() ? s.False : expandExps(exps);
+    if(exps.isEmptyList())
+        return s.False;
+    
     var tempVar = s.genSymbol();
+    return expandExps(exps);
     function expandExps(exps) {
         var predicate = tempVar;
         var rest = s.cdr(exps);
@@ -285,7 +310,9 @@ function orToIf(exp, env) {
 
 function letToCombination(exp) {
     var bindings = s.letBindings(exp);
-    return s.makeApplication(s.makeLambda(s.letBindingVars(bindings), s.letBody(exp)), s.letBindingInits(bindings));
+    return s.makeApplication(
+        s.makeLambda(s.letBindingVars(bindings), s.letBody(exp)),
+        s.letBindingInits(bindings));
 }
 
 function doToCombination(exp) {
@@ -315,14 +342,6 @@ function doToCombination(exp) {
         s.makeDefinition(iterProcVar, s.makeLambda(s.doBindingVars(bindings), iterProcBody)),
         s.makeApplication(iterProcVar, s.doBindingInits(bindings))]);
     return s.makeApplication(s.makeLambda(s.nil, letBody), s.nil);
-}
-
-function checkPimitiveProcedureArguments(procedure, argv) {
-    return matchArity(procedure, argv);
-}
-
-function checkCompoundProcedureArguments(procedure, argv) {
-    return matchArity(procedure, argv);
 }
 
 function matchArity(procedure, argv) {
