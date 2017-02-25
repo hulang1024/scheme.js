@@ -15,7 +15,7 @@
     | :---: | :---: | :---: |
     |基本元素|`+` `<`|`3` `5.6`| 
     |组合的手段|`()` `if`|`pair`|
-    |抽象的手段|`define`|.|
+    |抽象的手段|`define`|`...`|
 
 目前的支持:
 * 变量引用  
@@ -26,18 +26,19 @@
   `quote`,`'`  
 * 过程调用  
   `(operator operand ...)`
-* 过程(复合过程)  
+* 过程(复合过程/函数)  
  `lambda`  
-    固定数量参数, 任意数量参数, n个或更多不定数量参数
+  + 支持固定数量参数, 任意数量参数, n个或更多不定数量参数  
+  + 支持隐含参数`arguments`和`callee`
 * 递归
 * 条件表达式  
-  `if`,`cond`,`and`,`or`
+  `if`,`cond`,`when`,`unless`,`and`,`or`
 * 赋值  
   `set!`
 * 顺序结构  
   `begin`
 * 迭代结构  
-  `do`
+  命名`let`,`do`,`while`,`for`
 * 定义  
   `define`
 * 词法作用域,闭包
@@ -47,7 +48,8 @@
     + 数值运算和数值输入/输出  
         `number?`,  
         `=`,`<`,`<`,`>`,`<=`,`>=`,  
-        `+`,`*`,`-`,`/`,`abs`,  
+        `+`,`*`,`-`,`/`,
+        `zero?`,`positive?`,`negative?`,`odd?`,`even?`,`abs`,`remainder`,`abs`,  
         `number->string`,`string->number`
        1. 整数  
         `integer?`
@@ -79,7 +81,7 @@
 `;line comment`
 
 ## 扩展与库
-* 母体语言JavaScript的功能
+* 母体语言JavaScript的能力
 * 部分BOM对象，例如`window`对象方法
 * 部分HTML DOM对象
 
