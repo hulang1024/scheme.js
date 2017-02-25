@@ -1,4 +1,4 @@
-
+﻿
 这是编程语言Scheme的解释器实现的JavaScript版本的实现[在线IDE地址](http://problue.coding.me/jsscheme/)。目标为完全实现(接近)Scheme语言标准R5RS。目的是为了理解并掌握一些编程技巧。
 
 
@@ -49,7 +49,7 @@
         `number?`,  
         `=`,`<`,`<`,`>`,`<=`,`>=`,  
         `+`,`*`,`-`,`/`,
-        `zero?`,`positive?`,`negative?`,`odd?`,`even?`,`abs`,`remainder`,`abs`,  
+        `zero?`,`positive?`,`negative?`,`odd?`,`even?`,`abs`,`remainder`,  
         `number->string`,`string->number`
        1. 整数  
         `integer?`
