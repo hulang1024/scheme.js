@@ -10,7 +10,7 @@ s.initList = function(env) {
     s.addPrimProc(env, "cdr", cdr_prim, 1);
     s.addPrimProc(env, "set-car!", setCar, 2);
     s.addPrimProc(env, "set-cdr!", setCdr, 2);
-    s.addPrimProc(env, "list", list, 0, -1);
+    s.addPrimProc(env, "list", list_prim, 0, -1);
     s.addPrimProc(env, "list-ref", listRef, 2);
     s.addPrimProc(env, "length", length, 1);
     s.addPrimProc(env, "append", append, 0, -1);
@@ -71,25 +71,25 @@ s.makeEmptyList = function(val) {
 s.nil = s.makeEmptyList();
 
 s.arrayToList = function(array) {
-    var list = s.nil;
+    var lst = s.nil;
     for(var i = array.length - 1; i >= 0; i--)
-        list = s.cons(array[i], list);
-    return list;
+        lst = s.cons(array[i], lst);
+    return lst;
 }
 
-s.listToArray = function(list) {
+s.listToArray = function(lst) {
     var array = [];
-    while(!list.isEmptyList()) {
-        array.push(s.car(list));
-        list = s.cdr(list);
+    while(!lst.isEmptyList()) {
+        array.push(s.car(lst));
+        lst = s.cdr(lst);
     }
     return array;
 }
 
-s.mapList = function(func, list) {
+s.mapList = function(func, lst) {
     var ret = [];
-    for(; !list.isEmptyList(); list = s.cdr(list))
-        ret.push(func(s.car(list)));
+    for(; !lst.isEmptyList(); lst = s.cdr(lst))
+        ret.push(func(s.car(lst)));
     return s.arrayToList(ret);
 }
 
@@ -105,6 +105,7 @@ s.setCar = function(pair, pcar) { pair.val[0] = pcar; }
 s.setCdr = function(pair, pcdr) { pair.val[1] = pcdr; }
 s.car_prim = car_prim;
 s.cdr_prim = cdr_prim;
+s.list = function() { return s.arrayToList(arguments); }
 
 s.isList = function(obj) {
     for(; obj.isPair(); obj = s.cdr(obj))
@@ -113,10 +114,10 @@ s.isList = function(obj) {
     return obj.isEmptyList();
 }
 
-s.listLength = function(list) {
+s.listLength = function(lst) {
     var len = 0;
-    while(!list.isEmptyList()) {
-        list = s.cdr(list);
+    while(!lst.isEmptyList()) {
+        lst = s.cdr(lst);
         len++;
     }
     return len;
@@ -180,15 +181,15 @@ function setCdr(argv) {
     return s.voidValue;
 }
 
-function list(argv) {
+function list_prim(argv) {
     return s.arrayToList(argv);
 }
 
 function length(argv) {
-    var list = argv[0];
-    if(!s.isList(list))
+    var lst = argv[0];
+    if(!s.isList(lst))
         return s.wrongContract("length", "list?", 0, argv);
-    return s.makeInt(s.listLength(list));
+    return s.makeInt(s.listLength(lst));
 }
 
 function append(argv) {

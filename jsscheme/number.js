@@ -5,6 +5,8 @@ s.initNumber = function(env) {
     s.addPrimProc(env, "integer?", integer_p, 1);
     s.addPrimProc(env, "real?", real_p, 1);
     s.addPrimProc(env, "number?", number_p, 1);
+    s.addPrimProc(env, "remainder", remainder, 2);
+    
 }
 
 s.makeInt = function(val) {
@@ -29,4 +31,12 @@ function number_p(argv) {
     return s.getBoolean(argv[0].isNumber());
 }
 
+function remainder(argv) {
+    if(!argv[0].isNumber())
+        return s.wrongContract("remainder", "number?", 0, argv);
+    if(!argv[1].isNumber())
+        return s.wrongContract("remainder", "number?", 1, argv);
+    
+    return s.makeInt(s.intVal(argv[0]) % s.intVal(argv[1]));
+}
 })(scheme);

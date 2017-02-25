@@ -36,8 +36,12 @@ s.condSymbol = s.internSymbol('cond');
 s.elseSymbol = s.internSymbol('else');
 s.andSymbol = s.internSymbol('and');
 s.orSymbol = s.internSymbol('or');
+s.whenSymbol = s.internSymbol('when');
+s.unlessSymbol = s.internSymbol('unless');
 s.letSymbol = s.internSymbol('let');
 s.doSymbol = s.internSymbol('do');
+s.whileSymbol = s.internSymbol('while');
+s.forSymbol = s.internSymbol('for');
 
 function symbol_p(argv) {
     return s.getBoolean(argv[0].isSymbol());

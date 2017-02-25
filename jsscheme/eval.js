@@ -1,4 +1,4 @@
-/*
+﻿/*
   包含eval-apply循环
   以及eval过程，evalObjects、evalString等外部接口。
  */
@@ -89,21 +89,15 @@ function evaluate(exp, env) {
             else if(first == s.beginSymbol) {
                 return evalSequence(s.beginActions(exp), env);
             }
-            else if(first == s.condSymbol) {
-                return evaluate(condToIf(exp), env);
-            }
-            else if(first == s.andSymbol) {
-                return evaluate(andToIf(exp), env);
-            }
-            else if(first == s.orSymbol) {
-                return evaluate(orToIf(exp), env);
-            }
-            else if(first == s.letSymbol) {
-                return evaluate(letToCombination(exp), env);
-            }
-            else if(first == s.doSymbol) {
-                return evaluate(doToCombination(exp), env);
-            }
+            else if(first == s.letSymbol) return evaluate(s.letToCombination(exp), env);
+            else if(first == s.condSymbol) return evaluate(s.condToIf(exp), env);
+            else if(first == s.andSymbol) return evaluate(s.andToIf(exp), env);
+            else if(first == s.orSymbol) return evaluate(s.orToIf(exp), env);
+            else if(first == s.whenSymbol) return evaluate(s.transformWhen(exp), env);
+            else if(first == s.unlessSymbol) return evaluate(s.transformUnless(exp), env);
+            else if(first == s.doSymbol) return evaluate(s.doToCombination(exp), env);
+            else if(first == s.whileSymbol) return evaluate(s.transformWhile(exp), env);
+            else if(first == s.forSymbol) return evaluate(s.transformFor(exp), env);
         }
         return apply(evaluate(s.operator(exp), env), listOfValues(s.operands(exp), env));
     }
@@ -111,7 +105,7 @@ function evaluate(exp, env) {
         s.makeError('eval', "unknown expression type");
 }
 
-// eval application
+// 过程(函数)调用
 function apply(procedure, argv) {
     if(s.error)
         throw s.error;
@@ -127,7 +121,7 @@ function apply(procedure, argv) {
             var paramters = procedure.val.getParamters();
             var arity = procedure.val.getArity();
             var argvList = s.arrayToList(argv);
-            if(arity.length == 1) {     // 固定数量参数
+            if(arity.length == 1) {     // 0个或固定数量参数
                 for(var index = 0; index < paramters.length; index++)
                     map[paramters[index].val] = argv[index];
             }
@@ -157,8 +151,9 @@ function apply(procedure, argv) {
 
 function applyPrimitiveProcedure(proc, argv) {
     var ok = matchArity(proc, argv);
-    if(ok)
+    if(ok) {
         return proc.val.getFunc()(argv);
+    }
 }
 
 function isSelfEvaluating(exp) {
@@ -197,11 +192,10 @@ function evalIf(exp, env) {
         return evaluate(s.ifConsequent(exp), env);
     else {
         var alt = s.ifAlternative(exp);
-        if(alt.isEmptyList()) {
+        if(alt.isEmptyList())
             return s.voidValue;
-        } else {
+        else
             return evaluate(alt, env);
-        }
     }
 }
 
@@ -236,10 +230,14 @@ function evalLambda(exp, env) {
         minArgs = 0;
         maxArgs = -1;
     }
+    else if(formals.isEmptyList()) {
+        minArgs = 0;
+        maxArgs = undefined;
+    }
     else {
         s.makeError('','not an identifier');
     }
-    //做一个过程(函数)
+    //做一个过程
     return s.makeCompoundProcedure("", paramters, s.lambdaBody(exp), env, minArgs, maxArgs);
 }
 
@@ -248,100 +246,6 @@ function evalSequence(exps, env) {
     for(; !exps.isEmptyList(); exps = s.cdr(exps))
         lastValue = evaluate(s.car(exps), env);
     return lastValue;
-}
-
-function condToIf(exp) {
-    return expandClauses(s.condClauses(exp));
-    
-    function expandClauses(clauses) {
-        if(clauses.isEmptyList())
-            return s.False;
-        var first = s.car(clauses);
-        var rest = s.cdr(clauses);
-        if(s.isElseClause(first))
-            if(rest.isEmptyList())
-                return s.sequenceExp(s.clauseActions(first));
-            else
-                s.makeError('badSyntax', "'else' clause must be last");
-        else {
-            var predicate = s.clauesPredicate(first);
-            var actionSequence= s.sequenceExp(s.clauseActions(first));
-            if(actionSequence.isEmptyList())
-                return s.makeIf(s.True, predicate, expandClauses(rest));
-            else
-                return s.makeIf(predicate, actionSequence, expandClauses(rest));
-        }
-    }
-}
-
-function andToIf(exp, env) {
-    var exps = s.andExps(exp);
-    if(exps.isEmptyList())
-        return s.True;
-
-    var tempVar = s.genSymbol();
-    return expandExps(exps);
-    function expandExps(exps) {
-        var predicate = s.makeApplication(s.makeSymbol("not"), s.cons(tempVar, s.nil));
-        var rest = s.cdr(exps);
-        return s.makeLet(
-            s.makeBindings(s.arrayToList( [s.arrayToList( [tempVar, s.car(exps)] ) ])),
-            s.makeIf(predicate, tempVar,
-                (rest.isEmptyList() ? tempVar : expandExps(rest))));
-    }
-}
-
-function orToIf(exp, env) {
-    var exps = s.orExps(exp);
-    if(exps.isEmptyList())
-        return s.False;
-    
-    var tempVar = s.genSymbol();
-    return expandExps(exps);
-    function expandExps(exps) {
-        var predicate = tempVar;
-        var rest = s.cdr(exps);
-        return s.makeLet(
-            s.makeBindings(s.arrayToList( [s.arrayToList( [tempVar, s.car(exps)] ) ])),
-            s.makeIf(predicate, tempVar,
-                (rest.isEmptyList() ? s.False : expandExps(rest))));
-    }
-}
-
-function letToCombination(exp) {
-    var bindings = s.letBindings(exp);
-    return s.makeApplication(
-        s.makeLambda(s.letBindingVars(bindings), s.letBody(exp)),
-        s.letBindingInits(bindings));
-}
-
-function doToCombination(exp) {
-    /*
-    (define-syntax do
-      (syntax-rules ()
-        ((do ((variable1 init1 step1) ...)
-             (test expression ...)
-             command ...)
-         ((lambda ()
-           (define (iter variable1 ...)
-             (if test
-                 (begin expression ...)
-                 (begin command ...
-                        (iter step1 ...))))
-           (iter init1 ...))))))
-    */
-    var bindings = s.doBindings(exp);
-    var iterProcVar = s.genSymbol();
-    var ifAlter = s.sequenceExp(
-        s.append(s.doCommands(exp),
-            s.cons(s.makeApplication(iterProcVar, s.doBindingSteps(bindings)), s.nil)));
-    var iterProcBody = s.cons(
-        s.makeIf(s.doTest(exp),
-            s.sequenceExp(s.doExpressions(exp)), ifAlter), s.nil);
-    var letBody = s.arrayToList([
-        s.makeDefinition(iterProcVar, s.makeLambda(s.doBindingVars(bindings), iterProcBody)),
-        s.makeApplication(iterProcVar, s.doBindingInits(bindings))]);
-    return s.makeApplication(s.makeLambda(s.nil, letBody), s.nil);
 }
 
 function matchArity(procedure, argv) {
