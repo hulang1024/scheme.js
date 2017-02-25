@@ -1,4 +1,4 @@
-(if (> 3 2) 'yes 'no) ; yes
+﻿(if (> 3 2) 'yes 'no) ; yes
 (if (> 2 3) 'yes 'no) ; no
 (if (> 3 2)
     (- 3 2)
@@ -22,3 +22,8 @@
 (or #f #f #f) ; #f
 (or (memq 'b '(a b c))
     (/ 3 0)) ; (b c)
+
+(unless (> 1 3)
+        (display 4) 5)  ; 45
+(when (< 1 3)
+        (display 4) 6)  ; 46

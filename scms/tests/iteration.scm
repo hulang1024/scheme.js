@@ -1,14 +1,28 @@
 ﻿(let ((x '(1 3 5 7 9)))
+     (let iter ((x x) (sum 0))
+         (if (null? x)
+             (begin sum)
+             (begin (iter (cdr x) (+ sum (car x))))))) ; 25
+             
+(define (fact-let n)
+  (let loop ((n1 n)(p n))           
+    (if(= n1 1)                  
+        p
+        (let ((m (- n1 1)))
+          (loop m (* p m))))))
+(fact-let 6)  ; 720
+       
+(let ((x '(1 3 5 7 9)))
   (do ((x x (cdr x))
        (sum 0 (+ sum (car x))))
-      ((null? x) sum)))
-
-
-(let ((x '(1 3 5 7 9)))
-  ((lambda ()
-     (define __scheme_gensym_1
-       (lambda (x sum)
-         (if (null? x)
-             sum
-             (__scheme_gensym_1 (cdr x) (+ sum (car x))))))
-     (__scheme_gensym_1 x 0))))
+      ((null? x) sum)))  ; 25
+      
+(let ((i 10))
+    (while (>= i 0)
+           (display i)
+           (display " ")
+           (set! i (- i 1))))  ; 10 9 8 7 6 5 4 3 2 1 0 
+           
+(for i in (10 to 20)
+       (when (even? i)
+             (display i) (display " "))) ;10 12 14 16 18
