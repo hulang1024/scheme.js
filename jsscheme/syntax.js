@@ -34,10 +34,6 @@ function assignmentVar(exp) { return s.cadr(exp); }
 function assignmentVal(exp) { return s.caddr(exp); }
 
 // define variable/procedure
-function isProcedureDefinition(exp) {
-    return s.cadr(exp).isPair();
-}
-
 function definitionVar(exp) { 
     if(s.cadr(exp).isSymbol())
         return s.cadr(exp);
@@ -130,13 +126,6 @@ function doBindingSteps(bindings) {
 //------
 // 变换
 //------
-
-function transformProcedureDefinition(exp) {
-    var variable = s.caadr(exp);
-    var formals = s.cdadr(exp);
-    var body = s.cddr(exp);
-    return s.makeDefinition(variable, makeLambda(formals, body));
-}
 
 function letToCombination(exp) {
     var bindings = s.letBindings(exp);
