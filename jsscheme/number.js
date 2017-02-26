@@ -23,7 +23,7 @@ s.makeNumber = function(val) {
     if(parseInt(val) == val)
         return s.makeInt(val);
     else
-        return s.makeFloatVal(val);
+        return s.makeReal(val);
 }
 
 function integer_p(argv) {
