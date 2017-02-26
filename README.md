@@ -1,5 +1,5 @@
 
-这是编程语言Scheme的解释器实现的JavaScript版本的实现[在线IDE地址](http://problue.coding.me/jsscheme/)。目标为完全实现(接近)Scheme语言标准R5RS。目的是为了理解并掌握一些编程技巧。
+这是编程语言[Scheme](https://zh.wikipedia.org/wiki/Scheme_(programming_language))的解释器实现的JavaScript版本的实现[在线IDE地址](http://problue.coding.me/jsscheme/)。目标为完全实现(接近)Scheme语言标准R5RS。目的是为了理解并掌握一些编程技巧。
 
 
 ## 特性
@@ -29,20 +29,20 @@
 * 过程(复合过程)  
  `lambda`  
   + 支持固定数量参数, 任意数量参数和n个或更多不定数量参数  
-  + 支持隐含参数`arguments`和`callee`
+  + 参考JS，支持隐含参数`arguments`和`callee`
+* 静态(词法)作用域
+* 闭包
 * 定义  
   `define`
 * 赋值  
   `set!`
-* 词法作用域
-* 闭包
 * 顺序结构  
   `begin`
 * 条件表达式  
   `if`,`cond`,`when`,`unless`,`and`,`or`
+* 递归
 * 迭代结构  
   命名`let`,`do`,`while`,`for`
-* 递归
 * 标准过程
     + 相等谓词  
         `eq?`,`equal?`
