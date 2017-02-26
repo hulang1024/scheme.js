@@ -9,25 +9,25 @@ s.Error = function(objs) {
     this.objs = objs;
 }
 
-s.makeError = function() {
+s.throwError = function() {
     s.error = new s.Error([].slice.call(arguments, 0));
     throw s.error;
 }
 
 s.arityMismatchError = function(procedureName, args, isAtleast, expected, given) {
-    s.makeError("arityMismatch", procedureName, args, isAtleast, expected, given);
+    s.throwError("arityMismatch", procedureName, args, isAtleast, expected, given);
 }
 
 s.wrongContract = function(procedureName, expected, index, argv) {
-    s.makeError("contractViolation", procedureName, expected, index, argv);
+    s.throwError("contractViolation", procedureName, expected, index, argv);
 }
 
 s.indexOutRangeError = function(procedureName, type, startIndex, endIndex, invalid, length, obj) {
-    s.makeError("indexOutRange", procedureName, type, startIndex, endIndex, invalid, length, obj);
+    s.throwError("indexOutRange", procedureName, type, startIndex, endIndex, invalid, length, obj);
 }
 
 s.applicationError = function(given) {
-    s.makeError("application", given);
+    s.throwError("application", given);
 }
 
 s.outputError = function() {

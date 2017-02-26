@@ -28,7 +28,9 @@ s.displayToString = function(obj) {
 
 s.writeToString = function(obj, display) {
     var str = null;
-    if(obj.isUnspecified())
+    if(!(obj instanceof s.Object))
+        str = obj;
+    else if(obj.isUnspecified())
         str = null;
     else if(obj.isNumber()) {
         str = obj.val;
@@ -67,8 +69,9 @@ s.writeToString = function(obj, display) {
         str = '#[namespace:0]';
     else if(obj.isJSObject())
         str = s.objectVal(obj);
-    else
+    else {
         str = obj.val.toString();
+    }
     return str;
 }
 

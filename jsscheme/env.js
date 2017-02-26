@@ -51,11 +51,12 @@ function isNamespace(args) {
 }
 
 s.lookupVariableValue = function(variable, env) {
+    var name = s.symbolVal(variable);
     var value;
-    while(env && !((value = env.map[variable.val]) instanceof s.Object))
+    while(env && !((value = env.map[name]) instanceof s.Object))
         env = env.baseEnv;
     if(!(value instanceof s.Object))
-        return s.makeError('undefined', variable.val);
+        return s.throwError('undefined', name);
     return value;
 }
 
@@ -64,18 +65,19 @@ s.extendEnv = function(map, baseEnv) {
 }
 
 s.defineVariable = function(variable, value, env) {
-    var name = variable.val;
-    env.map[name] = value;
+    if(!variable.isSymbol())
+        return s.throwError('define', "not an identifier: " + s.writeToString(variable));
+    env.map[s.symbolVal(variable)] = value;
 }
 
 s.setVariableValue = function(variable, value, env) {
     if(!variable.isSymbol())
-        return s.makeError('set!', "not an identifier: " + s.writeToString(variable));
-    var name = variable.val;
+        return s.throwError('set!', "not an identifier: " + s.writeToString(variable));
+    var name = s.symbolVal(variable);
     while(env && !(env.map[name] instanceof s.Object))
         env = env.baseEnv;
     if(env == null)
-        return s.makeError('undefined', name);
+        return s.throwError('undefined', name);
     env.map[name] = value;
 }
 

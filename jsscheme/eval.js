@@ -102,7 +102,7 @@ function evaluate(exp, env) {
         return apply(evaluate(s.operator(exp), env), listOfValues(s.operands(exp), env));
     }
     else
-        s.makeError('eval', "unknown expression type");
+        return s.throwError('eval', "unknown expression type");
 }
 
 // 过程(函数)调用
@@ -180,9 +180,11 @@ function evalAssignment(exp, env) {
 
 function evalDefinition(exp, env) {
     var variable = s.definitionVar(exp);
+    if(!variable.isSymbol())
+        return s.throwError('define', "not an identifier: " + s.writeToString(variable));
     var value = evaluate(s.definitionVal(exp), env);
     if(value.isCompProc())
-        value.val.setName(variable.val);
+        value.val.setName(s.symbolVal(variable));
     s.defineVariable(variable, value, env);
     return s.ok;
 }
@@ -235,7 +237,7 @@ function evalLambda(exp, env) {
         maxArgs = undefined;
     }
     else {
-        s.makeError('','not an identifier');
+        return s.throwError('','not an identifier');
     }
     //做一个过程
     return s.makeCompoundProcedure("", paramters, s.lambdaBody(exp), env, minArgs, maxArgs);

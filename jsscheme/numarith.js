@@ -61,7 +61,7 @@ function div(argv) {
             if(!obj.isNumber())
                 return s.wrongContract("/", "number?", i, argv);
             if(obj.val == 0)
-                return s.makeError("/", "division by zero");
+                return s.throwError("/", "division by zero");
             ret /= obj.val;
         }
     } else {

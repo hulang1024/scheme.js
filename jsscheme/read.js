@@ -75,8 +75,7 @@ scheme.readMutil = function(src) {
         //console.log(arrayExp);
         array = eval(arrayExp);
     } catch(e) {
-        scheme.makeError("read", "unexpected");
-        return;
+        return scheme.throwError("read", "unexpected");
     }
     return inner(array);
     
@@ -100,14 +99,14 @@ scheme.readMutil = function(src) {
                                 if(i == array1.length - 1)
                                     scheme.setCdr(currPair, array1[i]);
                                 else {
-                                    scheme.makeError("read", "unexpected");
+                                    scheme.throwError("read", "unexpected");
                                     break;
                                 }
                             }
                             currPair = nextPair;
                         }
                     } else {
-                        scheme.makeError("read", "unexpected");
+                        scheme.throwError("read", "unexpected");
                     }
                 } else {
                     pair = scheme.nil;
@@ -152,7 +151,7 @@ scheme.readMutil = function(src) {
                     result.push(scheme.getBoolean(token == "#t" || token == "#true"));
                 }
                 else {
-                    scheme.makeError("read", "unexpected");
+                    return scheme.throwError("read", "unexpected");
                 }
             }
         }

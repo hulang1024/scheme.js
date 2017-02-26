@@ -33,12 +33,18 @@ function makeApplication(operator, operands) {
 function assignmentVar(exp) { return s.cadr(exp); }
 function assignmentVal(exp) { return s.caddr(exp); }
 
-// define variable/function
+// define variable/procedure
+function isProcedureDefinition(exp) {
+    return s.cadr(exp).isPair();
+}
+
 function definitionVar(exp) { 
     if(s.cadr(exp).isSymbol())
         return s.cadr(exp);
-    else
+    else if(s.cadr(exp).isPair())
         return s.caadr(exp);
+    else
+        return s.cadr(exp);
 }
 function definitionVal(exp) {
     if(s.cadr(exp).isSymbol())
@@ -124,6 +130,14 @@ function doBindingSteps(bindings) {
 //------
 // 变换
 //------
+
+function transformProcedureDefinition(exp) {
+    var variable = s.caadr(exp);
+    var formals = s.cdadr(exp);
+    var body = s.cddr(exp);
+    return s.makeDefinition(variable, makeLambda(formals, body));
+}
+
 function letToCombination(exp) {
     var bindings = s.letBindings(exp);
     var body = s.letBody(exp);
@@ -153,7 +167,7 @@ function condToIf(exp) {
             if(rest.isEmptyList())
                 return s.sequenceExp(s.clauseActions(first));
             else
-                s.makeError('badSyntax', "'else' clause must be last");
+                s.throwError('badSyntax', "'else' clause must be last");
         else {
             var predicate = s.clauesPredicate(first);
             var actionSequence= s.sequenceExp(s.clauseActions(first));
