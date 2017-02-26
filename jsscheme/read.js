@@ -140,7 +140,10 @@ scheme.readMutil = function(src) {
                 else if(vectorReg.test(token)) {//vector
                 }
                 else if(charReg.test(token)) {
-                    result.push(scheme.makeChar(token.substr(2)));
+                    var val = token.substr(2);
+                    if(val == "space") val = " ";
+                    else if(val == "newline") val = "\n";
+                    result.push(scheme.makeChar(val));
                 }
                 else if(stringReg.test(token)) {
                     result.push(scheme.makeString(token.substr(1, token.length - 2).split("")));

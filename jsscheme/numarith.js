@@ -19,7 +19,7 @@ function plus(argv) {
             return s.wrongContract("+", "number?", i, argv);
         ret += obj.val;
     }
-    return s.makeReal(ret);
+    return s.makeNumber(ret);
 }
 
 function mul(argv) {
@@ -30,7 +30,7 @@ function mul(argv) {
             return s.wrongContract("*", "number?", i, argv);
         ret *= obj.val;
     }
-    return s.makeReal(ret);
+    return s.makeNumber(ret);
 }
 
 function minus(argv) {
@@ -49,7 +49,7 @@ function minus(argv) {
             return s.wrongContract("-", "number?", 0, argv);
         ret = - obj.val;
     }
-    return s.makeReal(ret);
+    return s.makeNumber(ret);
 }
 
 function div(argv) {
@@ -70,7 +70,7 @@ function div(argv) {
             return s.wrongContract("/", "number?", 0, argv);
         ret = 1 / obj.val;
     }
-    return s.makeReal(ret);
+    return s.makeNumber(ret);
 }
 
 })(scheme);

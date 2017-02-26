@@ -19,6 +19,13 @@ s.makeReal = function(val) {
 }
 s.floatVal = function(obj) { return obj.val; }
 
+s.makeNumber = function(val) {
+    if(parseInt(val) == val)
+        return s.makeInt(val);
+    else
+        return s.makeFloatVal(val);
+}
+
 function integer_p(argv) {
     return s.getBoolean(argv[0].isInteger());
 }

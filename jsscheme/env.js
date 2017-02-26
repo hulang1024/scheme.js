@@ -69,6 +69,8 @@ s.defineVariable = function(variable, value, env) {
 }
 
 s.setVariableValue = function(variable, value, env) {
+    if(!variable.isSymbol())
+        return s.makeError('set!', "not an identifier: " + s.writeToString(variable));
     var name = variable.val;
     while(env && !(env.map[name] instanceof s.Object))
         env = env.baseEnv;

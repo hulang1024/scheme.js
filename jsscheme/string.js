@@ -34,13 +34,13 @@ function string_p(argv) {
 function makeString(argv) {
     var k = argv[0];
     if(!isExactNonnegativeInteger(k))
-        return s.wrongContract("make->string", "exact-nonnegative-integer?", 0, argv);
+        return s.wrongContract("make-string", "exact-nonnegative-integer?", 0, argv);
     k = s.intVal(k);
     var c = '\0';
     if(argv.length == 2) {
         c = argv[1];
         if(!c.isChar())
-            return s.wrongContract("make->string", "char?", 1, argv);
+            return s.wrongContract("make-string", "char?", 1, argv);
         c = s.charVal(c);
     }
     var charArray = [];
