@@ -20,7 +20,7 @@ s.makeReal = function(val) {
 s.floatVal = function(obj) { return obj.val; }
 
 s.makeNumber = function(val) {
-    if(parseInt(val) == val)
+    if(Number.isInteger(val))
         return s.makeInt(val);
     else
         return s.makeReal(val);
@@ -44,6 +44,6 @@ function remainder(argv) {
     if(!argv[1].isNumber())
         return s.wrongContract("remainder", "number?", 1, argv);
     
-    return s.makeInt(s.intVal(argv[0]) % s.intVal(argv[1]));
+    return s.makeNumber(s.intVal(argv[0]) % s.intVal(argv[1]));
 }
 })(scheme);
