@@ -68,7 +68,7 @@ function evaluate(exp, env) {
     else if(exp.isSymbol()) {
         return s.lookupVariableValue(exp, env);
     }
-    else if(s.isList(exp) && !exp.isEmptyList()) {
+    else if(exp.isPair()) {
         var first = s.car(exp);
         if(first.isSymbol()) {
             if(first == s.quoteSymbol) {

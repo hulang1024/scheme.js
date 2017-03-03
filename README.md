@@ -24,12 +24,12 @@
  `let`
 * 常量引用  
   `quote`,`'`  
-* 过程调用(函数调用)  
+* 过程调用  
   `(operator operand ...)`
-* 过程(复合过程)  
+* 过程
   `lambda`  
   + 支持固定数量参数, 任意数量参数和n个或更多不定数量参数  
-  + 参考JS,支持隐含参数`arguments`和`callee`
+  + 抄录了JavaScript语言中的隐含参数`arguments`和`callee`
 * 静态(词法)作用域
 * 闭包
 * 定义  
@@ -83,7 +83,7 @@
 `;line comment`
 
 ## 扩展与库
-* 母体语言JavaScript的能力
+* 基础语言JavaScript的能力
 * 部分BOM对象，例如`window`对象方法
 * 部分HTML DOM对象
 

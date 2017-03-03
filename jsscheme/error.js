@@ -5,12 +5,12 @@ s.error = null;
 
 s.restError = function() { s.error = null; }
 
-s.Error = function(objs) {
+scheme.Error = function(objs) {
     this.objs = objs;
 }
 
 s.throwError = function() {
-    s.error = new s.Error([].slice.call(arguments, 0));
+    s.error = new scheme.Error([].slice.call(arguments, 0));
     throw s.error;
 }
 
