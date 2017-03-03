@@ -1,17 +1,17 @@
 (function(s){
 "use strict";
 
-s.Env = function(map, parentEnv) {
-    this.map = map;
+s.Env = function(bindings, parentEnv) {
+    this.bindings = bindings;
     this.parent = parentEnv;
 }
 
 s.addPrimProc = function(env, name, func, minArgs, maxArgs) {
-    env.map[name] = s.makePrimitiveProcedure(name, func, minArgs, maxArgs);
+    env.bindings[name] = s.makePrimitiveProcedure(name, func, minArgs, maxArgs);
 }
 
 s.addObject = function(env, name, obj) {
-    env.map[name] = obj;
+    env.bindings[name] = obj;
 }
 
 s.globalEnvironment = null;
@@ -53,32 +53,32 @@ function isNamespace(args) {
 s.lookupVariableValue = function(variable, env) {
     var name = s.symbolVal(variable);
     var value;
-    while(env && !((value = env.map[name]) instanceof s.Object))
+    while(env && !((value = env.bindings[name]) instanceof s.Object))
         env = env.parent;
     if(!(value instanceof s.Object))
         return s.throwError('undefined', name);
     return value;
 }
 
-s.extendEnv = function(map, parentEnv) {
-    return new s.Env(map, parentEnv);
+s.extendEnv = function(bindings, parentEnv) {
+    return new s.Env(bindings, parentEnv);
 }
 
 s.defineVariable = function(variable, value, env) {
     if(!variable.isSymbol())
         return s.throwError('define', "not an identifier: " + s.writeToString(variable));
-    env.map[s.symbolVal(variable)] = value;
+    env.bindings[s.symbolVal(variable)] = value;
 }
 
 s.setVariableValue = function(variable, value, env) {
     if(!variable.isSymbol())
         return s.throwError('set!', "not an identifier: " + s.writeToString(variable));
     var name = s.symbolVal(variable);
-    while(env && !(env.map[name] instanceof s.Object))
+    while(env && !(env.bindings[name] instanceof s.Object))
         env = env.parent;
     if(env == null)
         return s.throwError('undefined', name);
-    env.map[name] = value;
+    env.bindings[name] = value;
 }
 
 function interactionEnvironment() {

@@ -117,29 +117,29 @@ function apply(procedure, argv) {
         var ok = matchArity(procedure, argv);
         if(ok) {
             //将形式参数约束于对应到实际参数
-            var map = {};
+            var bindings = {};
             var paramters = procedure.val.getParamters();
             var arity = procedure.val.getArity();
             var argvList = s.arrayToList(argv);
             if(arity.length == 1) {     // 0个或固定数量参数
                 for(var index = 0; index < paramters.length; index++)
-                    map[paramters[index].val] = argv[index];
+                    bindings[paramters[index].val] = argv[index];
             }
             else if(arity[0] > 0 && arity[1] == -1) {   // n或更多个参数
                 var index;
                 for(index = 0; index < paramters.length - 1; index++)
-                    map[paramters[index].val] = argv[index];
-                map[paramters[index].val] = s.arrayToList(argv.slice(index));
+                    bindings[paramters[index].val] = argv[index];
+                bindings[paramters[index].val] = s.arrayToList(argv.slice(index));
             }
             else if(arity[0] == 0) {    // n个参数
-                map[paramters[0].val] = argvList;
+                bindings[paramters[0].val] = argvList;
             }
             //参考JS的arguments特性
-            map["arguments"] = argvList;
-            map["callee"] = procedure;
+            bindings["arguments"] = argvList;
+            bindings["callee"] = procedure;
             
             //构造一个新环境,将创建该过程时的环境作为外围环境
-            var newEnv = s.extendEnv(map, procedure.val.getEnv());
+            var newEnv = s.extendEnv(bindings, procedure.val.getEnv());
             //在这个新环境上下文中求值过程体
             var lastValue = evalSequence(procedure.val.getBody(), newEnv);
             return lastValue;
