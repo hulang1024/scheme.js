@@ -19,7 +19,7 @@ function apply(argv) {
     var argv1 = argv[1];
     if(!procedure.isProcedure())
         return s.wrongContract("apply", "procedure?", 0, argv);
-    if(!argv1.isPair())
+    if(!s.isList(argv1))
         return s.wrongContract("apply", "list?", 1, argv);
     return s.apply(procedure, s.listToArray(argv1));
 }
@@ -29,8 +29,8 @@ function forEach(argv) {
     var list = argv[1];
     if(!proc.isProcedure())
         return s.wrongContract("for-each", "procedure?", 0, argv);
-    if(!list.isPair())
-        return s.wrongContract("for-each", "pair?", 1, argv);
+    if(!s.isList(list))
+        return s.wrongContract("for-each", "list?", 1, argv);
     while(!list.isEmptyList()) {
         s.apply(proc, [s.car(list)]);
         list = s.cdr(list);
@@ -44,8 +44,8 @@ function map(argv) {
     if(!proc.isProcedure())
         return s.wrongContract("map", "procedure?", 0, argv);
     for(var i = 0; i < lists.length; i++) {
-        if(!lists[i].isPair())
-            return s.wrongContract("map", "list?", i+1, argv);
+        if(!s.isList(lists[i]))
+            return s.wrongContract("map", "list?", i + 1, argv);
     }
     
     var ret = [];
@@ -54,8 +54,8 @@ function map(argv) {
         var appArgv = [];
         appArgv.push(s.car(first));
         for(var i = 1; i < lists.length; i++) {
-            if(!lists[i].isPair())
-                return s.wrongContract("map", "list?", i+1, argv);
+            if(!s.isList(lists[i]))
+                return s.wrongContract("map", "list?", i + 1, argv);
             appArgv.push(s.car(lists[i]));
             lists[i] = s.cdr(lists[i]);
         }
