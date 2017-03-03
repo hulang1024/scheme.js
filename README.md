@@ -72,7 +72,8 @@
         `string=?`,`string-ci=?`,`substring`,`string-append`,`string->list`,`list->string`,  
         `string-copy`,`string-fill!`
     + 控制特征  
-        `procedure?`,`apply`,`map`,`for-each`
+        `procedure?`,`apply`,`map`,`for-each`  
+        `void`,`void?`
     + 求值  
         `eval`,`interaction-environment`
     + 输入/输出  
