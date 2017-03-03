@@ -19,11 +19,22 @@
 
 
 (define (f x y . z)
-  arguments)
-(f 1 2)
-(f 1 2 3 4)
+  (display x)
+  (display y)
+  (display z)
+  (display arguments)
+  (newline))
+(f 1 2)  ;12()(1 2)
+(f 1 2 3 4)  ;12(3 4)(1 2 3 4)
 
 ((lambda (n)
    (if (< n 2)
        n
-       (* n (callee (- n 1))))) 6)
+       (* n (callee (- n 1))))) 6) ; 720
+
+
+(void? 1) ;#f
+(void? (void)) ;#t
+(void? (begin)) ;#t
+(void? (define a 2)) ;#t
+(void? (set! a 3)) ;#t
