@@ -68,7 +68,6 @@ s.makeUnspecified = function() {
     return new s.Object(40, undefined);
 }
 
-s.ok = s.makeUnspecified();
 s.voidValue = s.makeUnspecified();
 
 })(scheme);

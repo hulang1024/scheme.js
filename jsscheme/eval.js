@@ -175,7 +175,7 @@ function evalQuotation(exp) {
 
 function evalAssignment(exp, env) {
     s.setVariableValue(s.assignmentVar(exp), evaluate(s.assignmentVal(exp), env), env);
-    return s.ok;
+    return s.voidValue;
 }
 
 function evalDefinition(exp, env) {
@@ -186,7 +186,7 @@ function evalDefinition(exp, env) {
     if(value.isCompProc())
         value.val.setName(s.symbolVal(variable));
     s.defineVariable(variable, value, env);
-    return s.ok;
+    return s.voidValue;
 }
 
 function evalIf(exp, env) {

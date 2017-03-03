@@ -6,6 +6,8 @@ s.initFun = function(env) {
     s.addPrimProc(env, "apply", apply, 2, -1);
     s.addPrimProc(env, "for-each", forEach, 2);
     s.addPrimProc(env, "map", map, 2, -1);
+    s.addPrimProc(env, "void", void_prim, 0);
+    s.addPrimProc(env, "void?", void_p, 1);
 }
 
 function procedure_p(argv) {
@@ -33,7 +35,7 @@ function forEach(argv) {
         s.apply(proc, [s.car(list)]);
         list = s.cdr(list);
     }
-    return s.ok;
+    return s.voidValue;
 }
 
 function map(argv) {
@@ -62,4 +64,11 @@ function map(argv) {
     return s.arrayToList(ret);
 }
 
+function void_prim(argv) {
+    return s.voidValue;
+}
+
+function void_p(argv) {
+    return s.getBoolean(argv[0] === s.voidValue);
+}
 })(scheme);
