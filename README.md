@@ -26,7 +26,7 @@
   `quote`,`'`  
 * 过程调用  
   `(operator operand ...)`
-* 过程
+* 过程  
   `lambda`  
   + 支持固定数量参数, 任意数量参数和n个或更多不定数量参数  
   + 抄录了JavaScript语言中的隐含参数`arguments`和`callee`
