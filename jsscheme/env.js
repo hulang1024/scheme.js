@@ -1,9 +1,9 @@
 (function(s){
 "use strict";
 
-s.Env = function(map, baseEnv) {
+s.Env = function(map, parentEnv) {
     this.map = map;
-    this.baseEnv = baseEnv;
+    this.parent = parentEnv;
 }
 
 s.addPrimProc = function(env, name, func, minArgs, maxArgs) {
@@ -54,14 +54,14 @@ s.lookupVariableValue = function(variable, env) {
     var name = s.symbolVal(variable);
     var value;
     while(env && !((value = env.map[name]) instanceof s.Object))
-        env = env.baseEnv;
+        env = env.parent;
     if(!(value instanceof s.Object))
         return s.throwError('undefined', name);
     return value;
 }
 
-s.extendEnv = function(map, baseEnv) {
-    return new s.Env(map, baseEnv);
+s.extendEnv = function(map, parentEnv) {
+    return new s.Env(map, parentEnv);
 }
 
 s.defineVariable = function(variable, value, env) {
@@ -75,7 +75,7 @@ s.setVariableValue = function(variable, value, env) {
         return s.throwError('set!', "not an identifier: " + s.writeToString(variable));
     var name = s.symbolVal(variable);
     while(env && !(env.map[name] instanceof s.Object))
-        env = env.baseEnv;
+        env = env.parent;
     if(env == null)
         return s.throwError('undefined', name);
     env.map[name] = value;
