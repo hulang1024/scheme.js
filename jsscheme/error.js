@@ -41,6 +41,7 @@ s.outputError = function() {
     
     var error = s.error.objs;
     var errorType = error[0];
+    var info;
     switch(errorType) {
     case "arityMismatch":
         var procedureName = error[1];
@@ -48,7 +49,7 @@ s.outputError = function() {
         var isAtleast = error[3];
         var expected = error[4];
         var given = error[5];
-        var info = procedureName + ": " + "arity mismatch;";
+        info = procedureName + ": " + "arity mismatch;";
         info += "\n  the expected number of arguments does not match the given number";
         info += "\n  expected: " + (isAtleast ? "at least " : "") + expected;
         info += "\n  given: " + given;
@@ -61,7 +62,7 @@ s.outputError = function() {
         var index = error[3];
         var argv = error[4];
         var given = argv[index];
-        var info = procedureName + ": " + "contract violation";
+        info = procedureName + ": " + "contract violation";
         info += "\n  expected: " + expected;
         info += "\n  given: " + s.writeToString(given);
         if(argv.length > 1) {
@@ -78,7 +79,7 @@ s.outputError = function() {
         var invalid = error[5];
         var length = error[6];
         var obj = error[7];
-        var info = procedureName + ": ";
+        info = procedureName + ": ";
         if(invalid == "index") {
             info += "index is out of range";
             if(length == 0) {
@@ -108,15 +109,17 @@ s.outputError = function() {
         break;
     case "application":
         var given = error[1];
-        var info = "application: not a procedure;";
+        info = "application: not a procedure;";
         info += "\n  expected a procedure that can be applied to arguments";
         info += "\n  given: " + s.writeToString(given);
         break;
     case "undefined":
         var id = error[1];
-        var info = id + ": undefined;";
+        info = id + ": undefined;";
         info += "\n cannot reference undefined identifier";
         break;
+    case "error:":
+        info = error[0];
     default:
         info = error[0] + ": " + error[1];
     }
