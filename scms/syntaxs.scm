@@ -1,3 +1,15 @@
+(define-syntax case
+  (syntax-rules (else)
+    ((_ key ((datum ...) exp ...) ...)
+     (let ((v key))
+       (cond ((memv v '(datum ...)) exp ...)
+             ...)))
+    ((_ key ((datum ...) exp1 ...) ... (else exp2 ...))
+     (let ((v key))
+       (cond ((memv v '(datum ...)) exp1 ...)
+             ...
+             (else exp2 ...))))))
+
 (define-syntax when
   (syntax-rules ()
     ((_ test body ...)
@@ -21,15 +33,15 @@
            (or e2 ...))))))
 
 (define-syntax do
-  (syntax-rules ()
-    ((do ((variable1 init1 step1) ...)
+  (syntax-rules (variable init)
+    ((do ((variable init step) ...)
          (test expression ...)
          command ...)
-     (let iter ((variable1 init1))
+     (let iter ((variable init))
          (if test
              (begin expression ...)
              (begin command ...
-                    (iter step1 ...)))))))
+                    (iter step ...)))))))
 
 ;C like style's while
 (define-syntax while
