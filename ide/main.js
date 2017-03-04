@@ -21,6 +21,7 @@ loadSchemeKernelJS(function(){
     btnToggleInteractions = document.getElementById('toggleInteractions');
     btnConsoleClear = document.getElementById('clearConsole');
     
+    textareaDefinitions.innerHTML = "";
     definitionEditor = CodeMirror.fromTextArea(textareaDefinitions, {
         lineNumbers: true,
         matchBrackets: true,
