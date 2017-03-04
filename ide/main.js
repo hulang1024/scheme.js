@@ -46,6 +46,7 @@ loadSchemeKernelJS(function(){
         var win = window.open("", document.title + " - Plain Code");
         var pcode = document.createElement('pre');
         pcode.innerText = definitionEditor.getValue();
+        win.document.body.innerHTML = "";
         win.document.body.appendChild(pcode);
     }
     btnToggleDefinitions.onclick = toggleDefinitions;
