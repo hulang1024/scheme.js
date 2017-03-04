@@ -5,6 +5,7 @@ s.initPrint = function(env) {
     s.addPrimProc(env, "write", write, 1);
     s.addPrimProc(env, "display", display, 1);
     s.addPrimProc(env, "newline", newline, 0);
+    s.addPrimProc(env, "error", error, 1, 3);
 }
 
 function write(argv) {
@@ -13,12 +14,20 @@ function write(argv) {
 }
 
 function display(argv) {
-    s.console.log("display", s.displayToString(argv[0], false));
+    s.console.log("display", s.displayToString(argv[0]));
     return s.voidValue;
 }
 
 function newline(argv) {
     s.console.log(null, "</br>");
+    return s.voidValue;
+}
+
+function error(argv) {
+    var str = "";
+    for(var i = argv.length - 2; i >= 0; i--)
+        str += s.displayToString(argv[i]);
+    s.console.log("error", str + "\n");
     return s.voidValue;
 }
 
