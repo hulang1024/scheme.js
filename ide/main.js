@@ -57,6 +57,7 @@ loadSchemeKernelJS(function(){
     
     document.getElementById('loading').style.display = "none";
     document.getElementById('frame').style.display = "block";
+    btnConsoleClear.onclick();
 });
 
 }
