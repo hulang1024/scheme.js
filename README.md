@@ -39,13 +39,13 @@
 * 顺序结构  
   `begin`
 * 条件表达式  
-  `if`,`cond`,`when`,`unless`,`and`,`or`
+  `if`,`cond`,`case`,`when`,`unless`,`and`,`or`
 * 递归
 * 迭代结构  
   命名`let`,`do`,`while`,`for`
 * 标准过程
     + 相等谓词  
-        `eq?`,`equal?`
+        `eqv?`,`eq?`,`equal?`
     + 数值运算和数值输入/输出  
         `number?`,  
         `=`,`<`,`<`,`>`,`<=`,`>=`,  
@@ -62,7 +62,7 @@
        2. 序对和表  
         `pair?`,`cons`,`car`,`cdr`,`set-car!`,`set-cdr!`,  
         `caar`,`cadr` `...` `cdddar`,`cddddr` (`car`和`cdr`的组合,定义到第四层),  
-        `null?`,`list?`,`list`,`length`,`append`,`reverse`,`list-tail`,`list-ref`,`memq`
+        `null?`,`list?`,`list`,`length`,`append`,`reverse`,`list-tail`,`list-ref`,`memq`,`memv`
        3. 符号  
         `symbol?`,`symbol->string`,`string->symbol`
        4. 字符  
@@ -72,12 +72,13 @@
         `string=?`,`string-ci=?`,`substring`,`string-append`,`string->list`,`list->string`,  
         `string-copy`,`string-fill!`
     + 控制特征  
-        `procedure?`,`apply`,`map`,`for-each`  
+        `procedure?`,`apply`,`map`,`for-each`,  
         `void`,`void?`
     + 求值  
         `eval`,`interaction-environment`
     + 输入/输出  
-        `read`,`write`,`newline`,`display`
+        `read`,`write`,`newline`,`display`,  
+        `error`
  
 * 注释  
 `;line comment`
