@@ -33,6 +33,7 @@ s.assignmentSymbol = s.internSymbol('set!');
 s.lambdaSymbol = s.internSymbol('lambda');
 s.beginSymbol = s.internSymbol('begin');
 s.condSymbol = s.internSymbol('cond');
+s.caseSymbol = s.internSymbol('case');
 s.elseSymbol = s.internSymbol('else');
 s.andSymbol = s.internSymbol('and');
 s.orSymbol = s.internSymbol('or');

@@ -90,12 +90,13 @@ function evaluate(exp, env) {
                 return evalSequence(s.beginActions(exp), env);
             }
             else if(first == s.letSymbol) return evaluate(s.letToCombination(exp), env);
-            else if(first == s.condSymbol) return evaluate(s.condToIf(exp), env);
-            else if(first == s.andSymbol) return evaluate(s.andToIf(exp), env);
-            else if(first == s.orSymbol) return evaluate(s.orToIf(exp), env);
+            else if(first == s.condSymbol) return evaluate(s.transformCond(exp), env);
+            else if(first == s.caseSymbol) return evaluate(s.transformCase(exp), env);
+            else if(first == s.andSymbol) return evaluate(s.transformAnd(exp), env);
+            else if(first == s.orSymbol) return evaluate(s.transformOr(exp), env);
             else if(first == s.whenSymbol) return evaluate(s.transformWhen(exp), env);
             else if(first == s.unlessSymbol) return evaluate(s.transformUnless(exp), env);
-            else if(first == s.doSymbol) return evaluate(s.doToCombination(exp), env);
+            else if(first == s.doSymbol) return evaluate(s.transformDo(exp), env);
             else if(first == s.whileSymbol) return evaluate(s.transformWhile(exp), env);
             else if(first == s.forSymbol) return evaluate(s.transformFor(exp), env);
         }
@@ -170,7 +171,7 @@ function listOfValues(operands, env) {
 }
 
 function evalQuotation(exp) {
-    return s.cadr(exp);
+    return s.quoteObject(exp);
 }
 
 function evalAssignment(exp, env) {

@@ -1,9 +1,31 @@
 (function(s){
 "use strict";
 
+// 基本表达式
+//quote
+var quoteObject = s.cadr;
+function makeQuotation(object) {
+    return s.list(s.quoteSymbol, object);
+}
+
+// application/procedure call
+var operator = s.car;
+var operands = s.cdr;
+function makeApplication(operator, operands) {
+    return s.cons(operator, operands || s.nil);
+}
+
+// lambda
+var lambdaParamters = s.cadr;
+var lambdaBody = s.cddr;
+function makeLambda(parameters, body) {
+    return s.cons(s.lambdaSymbol, s.cons(parameters, body));
+}
+
+
 // if
-function ifPredicate(exp) { return s.cadr(exp); }
-function ifConsequent(exp) { return s.caddr(exp); }
+var ifPredicate = s.cadr;
+var ifConsequent = s.caddr;
 function ifAlternative(exp) {
     exp = s.cdddr(exp);
     if(exp.isEmptyList())
@@ -15,23 +37,9 @@ function makeIf(predicate, consequent, alternative) {
     return s.arrayToList([s.ifSymbol, predicate, consequent].concat(alternative || []));
 }
 
-// lambda
-function lambdaParamters(exp) { return s.cadr(exp); }
-function lambdaBody(exp) { return s.cddr(exp); }
-function makeLambda(parameters, body) {
-    return s.cons(s.lambdaSymbol, s.cons(parameters, body));
-}
-
-// application/procedure call
-function operator(exp) { return s.car(exp); }
-function operands(exp) { return s.cdr(exp); }
-function makeApplication(operator, operands) {
-    return s.cons(operator, operands || s.nil);
-}
-
 // assignment
-function assignmentVar(exp) { return s.cadr(exp); }
-function assignmentVal(exp) { return s.caddr(exp); }
+var assignmentVar = s.cadr;
+var assignmentVal = s.caddr;
 
 // define variable/procedure
 function definitionVar(exp) { 
@@ -59,9 +67,7 @@ function makeDefinition(variable, value) {
 //派生表达式
 
 // begin
-function beginActions(exp) {
-    return s.cdr(exp);
-}
+var beginActions = s.cdr;
 function makeBegin(seq) {
     return s.cons(s.beginSymbol, seq);
 }
@@ -69,7 +75,7 @@ function makeBegin(seq) {
 function sequenceExp(seq) {
     if(seq.isEmptyList()) return seq;
     else if(s.cdr(seq).isEmptyList()) return s.car(seq);
-    else return s.makeBegin(seq);
+    else return makeBegin(seq);
 }
 
 // let
@@ -91,18 +97,27 @@ function makeLet(name, bindings, body) {
         [s.letSymbol, name, bindings, body] : [s.letSymbol, bindings, body]);
 }
 // cond
-function condClauses(exp) { return s.cdr(exp); }
+var condClauses = s.cdr;
 function clauesPredicate(clause) { return s.car(clause); }
 function clauseActions(clause) { return s.cdr(clause); }
 function isElseClause(clause) { return clauesPredicate(clause) == s.elseSymbol; }
+function makeCond(clauses) { return s.cons(s.condSymbol, clauses); }
+
+//case
+var caseKey = s.cadr;
+var caseClauses = s.cddr;
 
 // and
-function andExps(exp) { return s.cdr(exp); }
-// or
-function orExps(exp) { return s.cdr(exp); }
+var andExps = s.cdr;
 
+// or
+var orExps = s.cdr;
 
 // when
+var whenTest = s.cadr;
+var whenBody = s.cddr;
+var unlessTest = s.cadr;
+var unlessBody = s.cddr;
 function makeWhen(test, body) {
     return s.cons(s.whenSymbol, s.cons(test, body));
 }
@@ -123,69 +138,81 @@ function doBindingSteps(bindings) {
 }
 
 
-//------
-// 变换
-//------
+//----------
+// 语法变换
+//----------
 
 function letToCombination(exp) {
-    var bindings = s.letBindings(exp);
-    var body = s.letBody(exp);
-    if(s.isNamedLet(exp)) {
-        return s.makeApplication(
-            s.makeLambda(
+    var bindings = letBindings(exp);
+    var body = letBody(exp);
+    if(isNamedLet(exp)) {
+        return makeApplication(
+            makeLambda(
                 s.nil,
                 s.list(
-                    s.makeDefinition(s.letVar(exp), s.makeLambda(s.letBindingVars(bindings), body)),
-                    s.makeApplication(s.letVar(exp), s.letBindingInits(bindings)))));
+                    makeDefinition(letVar(exp), s.makeLambda(letBindingVars(bindings), body)),
+                    makeApplication(letVar(exp), letBindingInits(bindings)))));
     }
     else {
-        return s.makeApplication(
-            s.makeLambda(s.letBindingVars(bindings), body),
-            s.letBindingInits(bindings));
+        return makeApplication(
+            makeLambda(letBindingVars(bindings), body),
+            letBindingInits(bindings));
     }
 }
 
 function condToIf(exp) {
-    return expandClauses(s.condClauses(exp));
+    return expandClauses(condClauses(exp));
     function expandClauses(clauses) {
         if(clauses.isEmptyList())
             return s.False;
         var first = s.car(clauses);
         var rest = s.cdr(clauses);
-        if(s.isElseClause(first))
+        if(isElseClause(first))
             if(rest.isEmptyList())
-                return s.sequenceExp(s.clauseActions(first));
+                return sequenceExp(clauseActions(first));
             else
                 s.throwError('badSyntax', "'else' clause must be last");
         else {
-            var predicate = s.clauesPredicate(first);
-            var actionSequence= s.sequenceExp(s.clauseActions(first));
+            var predicate = clauesPredicate(first);
+            var actionSequence= sequenceExp(clauseActions(first));
             if(actionSequence.isEmptyList())
-                return s.makeIf(s.True, predicate, expandClauses(rest));
+                return makeIf(s.True, predicate, expandClauses(rest));
             else
-                return s.makeIf(predicate, actionSequence, expandClauses(rest));
+                return makeIf(predicate, actionSequence, expandClauses(rest));
         }
     }
 }
 
+function caseToCond(exp) {
+    var key = caseKey(exp);
+    var tempVar = s.genSymbol();
+    var clauses = s.mapList(function(clause) {
+        return isElseClause(clause) ? clause :
+            s.append(s.list(
+                makeApplication(s.makeSymbol("memv"), s.list(tempVar, makeQuotation(clauesPredicate(clause))))),
+                clauseActions(clause));
+        }, caseClauses(exp));
+    return makeLet(null, makeBindings(s.list(s.list(tempVar, key))), makeCond(clauses));
+}
+
 function andToIf(exp) {
-    var exps = s.andExps(exp);
+    var exps = andExps(exp);
     if(exps.isEmptyList())
         return s.True;
     var tempVar = s.genSymbol();
     return expandExps(exps);
     function expandExps(exps) {
-        var predicate = s.makeApplication(s.makeSymbol("not"), s.list(tempVar));
+        var predicate = makeApplication(s.makeSymbol("not"), s.list(tempVar));
         var rest = s.cdr(exps);
-        return s.makeLet(null,
-            s.makeBindings(s.list(s.list(tempVar, s.car(exps)))),
-            s.makeIf(predicate, tempVar,
+        return makeLet(null,
+            makeBindings(s.list(s.list(tempVar, s.car(exps)))),
+            makeIf(predicate, tempVar,
                 (rest.isEmptyList() ? tempVar : expandExps(rest))));
     }
 }
 
 function orToIf(exp) {
-    var exps = s.orExps(exp);
+    var exps = orExps(exp);
     if(exps.isEmptyList())
         return s.False;
     var tempVar = s.genSymbol();
@@ -193,42 +220,42 @@ function orToIf(exp) {
     function expandExps(exps) {
         var predicate = tempVar;
         var rest = s.cdr(exps);
-        return s.makeLet(null,
-            s.makeBindings(s.list(s.list(tempVar, s.car(exps)))),
-            s.makeIf(predicate, tempVar,
+        return makeLet(null,
+            makeBindings(s.list(s.list(tempVar, s.car(exps)))),
+            makeIf(predicate, tempVar,
                 (rest.isEmptyList() ? s.False : expandExps(rest))));
     }
 }
 
-function transformWhen(exp) {
-    return s.makeIf(s.whenTest(exp), s.makeBegin(s.whenBody(exp)));
+function whenToIf(exp) {
+    return makeIf(s.whenTest(exp), makeBegin(s.whenBody(exp)));
 }
 
-function transformUnless(exp) {
-    return s.makeIf(
-        s.makeApplication(s.makeSymbol("not"), s.list(s.unlessTest(exp))),
-        s.makeBegin(s.unlessBody(exp)));
+function unlessToIf(exp) {
+    return makeIf(
+        makeApplication(s.makeSymbol("not"), s.list(s.unlessTest(exp))),
+        makeBegin(s.unlessBody(exp)));
 }
 
 function doToCombination(exp) {
-    var bindings = s.doBindings(exp);
+    var bindings = doBindings(exp);
     var iterProcVar = s.genSymbol();
-    var ifAlter = s.sequenceExp(
-        s.append(s.doCommands(exp),
-            s.list(s.makeApplication(iterProcVar, s.doBindingSteps(bindings)))));
-    return s.makeLet(iterProcVar,
-        s.doBindingVarAndInits(bindings),
-        s.makeIf(s.doTest(exp), s.sequenceExp(s.doExpressions(exp)), ifAlter));
+    var ifAlter = sequenceExp(
+        s.append(doCommands(exp),
+            s.list(makeApplication(iterProcVar, doBindingSteps(bindings)))));
+    return makeLet(iterProcVar,
+        doBindingVarAndInits(bindings),
+        makeIf(doTest(exp), sequenceExp(doExpressions(exp)), ifAlter));
 }
 
 function transformWhile(exp) {
     var whileTest = s.cadr(exp);
     var whileBody = s.cddr(exp);
     var loopProcVar = s.genSymbol();
-    return s.makeLet(
+    return makeLet(
         loopProcVar, s.nil,
-        s.makeWhen(whileTest,
-            s.append(whileBody, s.list(s.makeApplication(loopProcVar)))));
+        makeWhen(whileTest,
+            s.append(whileBody, s.list(makeApplication(loopProcVar)))));
 }
 
 function transformFor(exp) {
@@ -240,66 +267,36 @@ function transformFor(exp) {
         var endNum = s.caddr(forLst);
         var loopProcVar = s.genSymbol();
         var bindings = s.list(s.list(forVar, fromNum));
-        var loopInc = s.makeApplication(s.makeSymbol("+"), s.list(forVar, s.makeInt(1)));
-        var loopCond = s.makeApplication(s.makeSymbol("<"), s.list(forVar, endNum));
-        var whenUse = s.makeWhen(loopCond,
-                        s.append(forBody, s.list(s.makeApplication(loopProcVar, s.list(loopInc)))));
-        return s.makeLet(loopProcVar, bindings, whenUse);
+        var loopInc = makeApplication(s.makeSymbol("+"), s.list(forVar, s.makeInt(1)));
+        var loopCond = makeApplication(s.makeSymbol("<"), s.list(forVar, endNum));
+        var whenUse = makeWhen(loopCond,
+                        s.append(forBody, s.list(makeApplication(loopProcVar, s.list(loopInc)))));
+        return makeLet(loopProcVar, bindings, whenUse);
     }
 }
 
+s.quoteObject = quoteObject;
+s.operator = operator;
+s.operands = operands;
+s.lambdaParamters = lambdaParamters;
+s.lambdaBody = lambdaBody;
 s.ifPredicate = ifPredicate;
 s.ifConsequent = ifConsequent;
 s.ifAlternative = ifAlternative;
-s.makeIf = makeIf;
-s.lambdaParamters = lambdaParamters;
-s.lambdaBody = lambdaBody;
-s.makeLambda = makeLambda;
-s.operator = operator;
-s.operands = operands;
-s.makeApplication = makeApplication;
 s.assignmentVar = assignmentVar;
 s.assignmentVal = assignmentVal;
 s.definitionVar = definitionVar;
 s.definitionVal = definitionVal;
-s.makeDefinition = makeDefinition;
-
-s.sequenceExp = sequenceExp;
 s.beginActions = beginActions;
-s.makeBegin = makeBegin;
-s.letVar = letVar;
-s.letBindings = letBindings;
-s.letBody = letBody;
-s.letBindingVars = letBindingVars;
-s.letBindingInits = letBindingInits;
-s.makeBindings = makeBindings;
-s.makeLet = makeLet;
-s.condClauses = condClauses;
-s.clauesPredicate = clauesPredicate;
-s.clauseActions = clauseActions;
-s.isElseClause = isElseClause;
-s.andExps = andExps;
-s.orExps = orExps;
-s.whenTest = s.cadr;
-s.whenBody = s.cddr;
-s.makeWhen = makeWhen;
-s.unlessTest = s.cadr;
-s.unlessBody = s.cddr;
-s.isNamedLet = isNamedLet;
-s.doBindings = doBindings;
-s.doTest = doTest;
-s.doExpressions = doExpressions;
-s.doCommands = doCommands;
-s.doBindingVarAndInits = doBindingVarAndInits;
-s.doBindingSteps = doBindingSteps;
 
 s.letToCombination = letToCombination;
-s.condToIf = condToIf;
-s.andToIf = andToIf;
-s.orToIf = orToIf;
-s.doToCombination = doToCombination;
-s.transformWhen = transformWhen;
-s.transformUnless = transformUnless;
+s.transformCond = condToIf;
+s.transformCase = caseToCond;
+s.transformAnd = andToIf;
+s.transformOr = orToIf;
+s.transformDo = doToCombination;
+s.transformWhen = whenToIf;
+s.transformUnless = unlessToIf;
 s.transformWhile = transformWhile;
 s.transformFor = transformFor;
 })(scheme);
