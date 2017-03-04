@@ -21,7 +21,6 @@ loadSchemeKernelJS(function(){
     btnToggleInteractions = document.getElementById('toggleInteractions');
     btnConsoleClear = document.getElementById('clearConsole');
     
-    textareaDefinitions.innerHTML = "";
     definitionEditor = CodeMirror.fromTextArea(textareaDefinitions, {
         lineNumbers: true,
         matchBrackets: true,
@@ -55,6 +54,9 @@ loadSchemeKernelJS(function(){
     btnRun.onclick = run;
     
     scheme.console = schemeConsole;
+    
+    document.getElementById('loading').style.display = "none";
+    document.getElementById('frame').style.display = "block";
 });
 
 }

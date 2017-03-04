@@ -9,6 +9,12 @@ body,* {
 #frame {
     width: 100%;
     margin: 0 auto;
+    display: none;
+}
+
+#loading {
+    width: 240px;
+    margin: 0 auto;
 }
 
 #toolbar {
