@@ -3,6 +3,7 @@
 
 s.initBool = function(env) {
     s.addPrimProc(env, "boolean?", boolean_p, 1);
+    s.addPrimProc(env, "eqv?", eqv_p, 2);
     s.addPrimProc(env, "eq?", eq_p, 2);
     s.addPrimProc(env, "equal?", equal_p, 2);
     s.addPrimProc(env, "not", not, 1);
@@ -22,7 +23,7 @@ function boolean_p(argv) {
     return s.getBoolean(argv[0].isBoolean());
 }
 
-function eq_p(argv) {
+function eqv_p(argv) {
     var x = argv[0];
     var y = argv[1];
     if(x.type != y.type)
@@ -33,6 +34,10 @@ function eq_p(argv) {
         return s.getBoolean(x.val == y.val);
     else
         return s.getBoolean(x == y);
+}
+
+function eq_p(argv) {
+    return eqv_p(argv);
 }
 
 function equal_p(argv) {
