@@ -24,41 +24,33 @@ s.Object = function(type, val) {
 }
 
 s.PrimitiveProcedure = function(name, func, minArgs, maxArgs) {
-    this.name = name;
-    this.func = func;
     var arity = [];
     if(minArgs !== undefined)
         arity.push(minArgs);
     if(maxArgs !== undefined)
         arity.push(maxArgs);
-    this.arity = arity;
     
-    this.getName = function(proc) { return this.name; }
-    this.getFunc = function(proc) { return this.func; }
-    this.getArity = function(proc) { return this.arity; }
+    this.getName = function(proc) { return name; }
+    this.getFunc = function(proc) { return func; }
+    this.getArity = function(proc) { return arity; }
 }
 s.makePrimitiveProcedure = function(name, func, minArgs, maxArgs) {
     return new s.Object(8, new s.PrimitiveProcedure(name, func, minArgs, maxArgs));
 }
 
 s.CompoundProcedure = function(name, parameters, body, env, minArgs, maxArgs) {
-    this.name = name;
-    this.parameters = parameters;
-    this.body = body;
-    this.env = env;
     var arity = [];
     if(minArgs !== undefined)
         arity.push(minArgs);
     if(maxArgs !== undefined)
         arity.push(maxArgs);
-    this.arity = arity;
     
-    this.getName = function() { return this.name; }
-    this.setName = function(name) { this.name = name; }
-    this.getParamters = function() { return this.parameters; }
-    this.getBody = function() { return this.body; }
-    this.getArity = function() { return this.arity; }
-    this.getEnv = function() { return this.env; }
+    this.getName = function() { return name; }
+    this.setName = function(_name) { name = _name; }
+    this.getParamters = function() { return parameters; }
+    this.getBody = function() { return body; }
+    this.getArity = function() { return arity; }
+    this.getEnv = function() { return env; }    //this env is pointer!
 }
 s.makeCompoundProcedure = function(name, parameters, body, env, minArgs, maxArgs) {
     return new s.Object(9, new s.CompoundProcedure(name, parameters, body, env, minArgs, maxArgs));
