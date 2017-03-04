@@ -19,7 +19,7 @@
         "jsscheme/syntax",
         "jsscheme/eval",
         "lib/browserjs",
-        "lib/alib.scm"], after);
+        "lib/lib.scm"], after);
 
     function loadJSSeq(jsseq, after) {
         loadNextJS(0);
