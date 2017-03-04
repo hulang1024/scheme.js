@@ -12,6 +12,9 @@ var definitionEditor;
 
 window.onload = function(){
 loadSchemeKernelJS(function(){
+    document.getElementById('loading').style.display = "none";
+    document.getElementById('frame').style.display = "block";
+    
     schemeConsole = new Console();
     divConsole = schemeConsole.divConsole;
     divDefinitions = document.getElementById('definitions');
@@ -54,10 +57,6 @@ loadSchemeKernelJS(function(){
     btnRun.onclick = run;
     
     scheme.console = schemeConsole;
-    
-    document.getElementById('loading').style.display = "none";
-    document.getElementById('frame').style.display = "block";
-    btnConsoleClear.onclick();
 });
 
 }
