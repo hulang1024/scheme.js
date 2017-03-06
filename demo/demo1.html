@@ -16,7 +16,6 @@
 
 <div id="follow"></div>
 
-<script src="../jsscheme/browser-load.js"></script>
 <script id="demo1" type="text/scm">
 (define (topxstr num)
   (string-append (number->string num) "px"))
@@ -41,6 +40,7 @@
     (if (= (dom-get event 'keyCode) 27)
         (set! pause (not pause)))))
 </script>
+<script src="../jsscheme/browser-load.js"></script>
 <script>
 loadScheme("../", function(){
     scheme.evalString(document.querySelector("#demo1").innerText);
