@@ -86,12 +86,13 @@
 * 部分BOM对象，例如`window`对象方法
 * 部分HTML DOM对象
 
+
 ## 嵌入到HTML的方法
  1. 将Scheme代码放在`script`标签中，该标签具有两个属性: `type="text/scm"`和`ignore`。  
   `type`属性是必须的，其值`"text/scm"`是我们自定义的，它表示内容是Scheme而非JavasSript代码；
   `ignore`属性是可选的，如果存在该属性，则其标签中的Scheme代码不会被自动执行。  
   下面是例子：
-```html
+    ```html
     <script type="text/scm">
     (alert "hello scheme")
     </script>
@@ -107,16 +108,18 @@
     <script type="text/scm">
     (alert gn)
     </script>
-```
+    ```
+
  2. 在所有scheme代码之后，引入`broswer-load.js`和`scm.js`：
-```html
+    ```html
     <script src="../jsscheme/browser-load.js"></script>
     <script src="../jsscheme/scm.js"></script>
-```
+    ```
 
     browser-load.js定义了一个函数`loadScheme`，该函数加载JSScheme到浏览器环境。  
     scm.js会扫描出所有的包含属性`type="text/scm"`和`ignore`的脚本，然后在Scheme的同一个**全局环境**里，顺序执行脚本中的scheme程序。
  3. 上面的例子程序运行会弹出 hello scheme 和 4 。
 
 ## 其它
-  本项目还非常不完善，并且想增加HTML5 API(例如Canvas)，这样就可以用JSScheme写些游戏玩。但是目前还不知道怎么去设计等等问题，欢迎熟悉JavaScript和Scheme的人来fork和pull request :)
+  本项目还非常不完善，并且想增加HTML5 API(例如Canvas)，这样就可以用JSScheme写些游戏玩。  
+  但是目前还不知道怎么去设计等等问题，欢迎熟悉JavaScript和Scheme的人来fork和pull request :)
