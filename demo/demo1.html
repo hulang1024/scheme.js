@@ -40,17 +40,11 @@
     (if (= (dom-get event 'keyCode) 27)
         (set! pause (not pause)))))
 </script>
-<script type="text/scm">
-(define global-n 3)
-</script>
-<script type="text/scm">
-(set! global-n (inc global-n))
-</script>
-<script type="text/scm">
-(alert global-n)
-</script>
-
 <script src="../jsscheme/browser-load.js"></script>
-<script src="../jsscheme/scm.js"></script>
+<script>
+loadScheme("../", function(){
+    scheme.evalString(document.querySelector("script[type='text/scm']").innerText);
+});
+</script>
 </body>
 </html>
