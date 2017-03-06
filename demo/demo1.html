@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Demo1</title>
+    <style>
+        #follow {
+            width: 20px;
+            height: 20px;
+            background-color: red;
+        }
+    </style>
+</head>
+
+<body>
+
+<div id="follow"></div>
+
+<script src="../jsscheme/browser-startup.js"></script>
+<script id="demo1" type="text/scm">
+(define (topxstr num)
+  (string-append (number->string num) "px"))
+
+(define e (getElementById document "follow"))
+(define d (dom-get e 'style))
+(dom-set d 'position "absolute")
+(dom-set d 'left "100px")
+(dom-set d 'top "200px")
+
+(define pause #f)
+
+(dom-set-event document 'onmousemove
+  (lambda (event)
+    (if (not pause)
+      (begin
+        (dom-set d 'left (topxstr (dom-get event 'clientX)))
+        (dom-set d 'top (topxstr (dom-get event 'clientY)))))))
+
+(dom-set-event document 'onkeydown
+  (lambda (event)
+    (if (= (dom-get event 'keyCode) 27)
+        (set! pause (not pause)))))
+</script>
+<script>
+loadSchemeKernelJS("../", function(){
+    scheme.evalString(document.querySelector("#demo1").innerText);
+});
+</script>
+</body>
+</html>
