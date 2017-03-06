@@ -1,4 +1,4 @@
-scheme.initALib = function(env) {
+scheme.initLib = function(env) {
 scheme.evalStringWithEnv("\
 (define (zero? z) (= z 0))\
 (define (positive? x) (> x 0))\
