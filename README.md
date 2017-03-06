@@ -1,14 +1,10 @@
 
-这是编程语言[Scheme](https://en.wikipedia.org/wiki/Scheme_(programming_language))的解释器实现的JavaScript版本的实现[在线IDE地址](https://hlpp.github.io/JSScheme/)。目标为完全实现(接近)Scheme语言标准R5RS。目的是为了理解并掌握一些编程技巧。
+编程语言[Scheme](https://en.wikipedia.org/wiki/Scheme_(programming_language))的解释器实现的JavaScript版本的实现 [在线IDE地址](https://hlpp.github.io/JSScheme/)。目标为完全实现(接近)Scheme语言标准R5RS。
 
 
 ## 特性
-我们有控制复杂度的工程方法:
-* 黑盒抽象
-* 约定接口
-* 元语言抽象
-
-为了上面这些，一种强大的编程语言作为框架应具有的三大机制和其中数据和过程的维度，表格如下(举例):
+控制复杂度的工程方法有：黑盒抽象，约定接口和元语言抽象  
+为了这些，一种强大的编程语言作为框架应具有的三大机制和其中数据和过程的维度，表格如下(举例):
 - :
 
     |/|过程|数据|
@@ -88,5 +84,36 @@
 * 部分BOM对象，例如`window`对象方法
 * 部分HTML DOM对象
 
-## 示例  
- 参见`/scms/`
+## 嵌入到HTML的方法
+ 1. 将Scheme代码放在`script`标签中，该标签具有两个属性: `type="text/scm"`和`ignore`。  
+  `type`属性是必须的，其值`"text/scm"`是我们自定义的，它表示内容是Scheme而非JavasSript代码；
+  `ignore`属性是可选的，如果存在该属性，则其标签中的Scheme代码不会被自动执行。  
+  下面是例子：
+```html
+    <script type="text/scm">
+    (alert "hello scheme")
+    </script>
+    <script type="text/scm">
+    (define gn 3)
+    </script>
+    <script type="text/scm" ignore>
+    (set! gn (+ gn 1)
+    </script>
+    <script type="text/scm">
+    (set! gn (+ gn 1)
+    </script>
+    <script type="text/scm">
+    (alert gn)
+    </script>
+```
+ 2. 在所有scheme代码之后，引入`broswer-load.js`和`scm.js`：
+```html
+    <script src="../jsscheme/browser-load.js"></script>
+    <script src="../jsscheme/scm.js"></script>
+```
+    browser-load.js定义了一个函数`loadScheme`，该函数加载JSScheme到浏览器环境。  
+    scm.js会扫描出所有的包含属性`type="text/scm"`和`ignore`的脚本，然后在Scheme的同一个**全局环境**里，顺序执行脚本中的scheme程序。
+   上面的例子程序运行会弹出 hello scheme 和 4 。
+
+## 其它
+  本项目还非常不完善，并且想增加HTML5 API(例如Canvas)，这样就可以用JSScheme写些游戏玩。但是目前还不知道怎么去设计等等问题，欢迎熟悉JavaScript和Scheme的人来fork和pull request :)
