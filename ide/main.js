@@ -11,7 +11,7 @@ var schemeConsole;
 var definitionEditor;
 
 window.onload = function(){
-loadSchemeKernelJS("", function(){
+loadScheme("", function(){
     document.getElementById('loading').style.display = "none";
     document.getElementById('frame').style.display = "block";
     

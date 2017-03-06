@@ -16,7 +16,7 @@
 
 <div id="follow"></div>
 
-<script src="../jsscheme/browser-startup.js"></script>
+<script src="../jsscheme/browser-load.js"></script>
 <script id="demo1" type="text/scm">
 (define (topxstr num)
   (string-append (number->string num) "px"))
@@ -42,7 +42,7 @@
         (set! pause (not pause)))))
 </script>
 <script>
-loadSchemeKernelJS("../", function(){
+loadScheme("../", function(){
     scheme.evalString(document.querySelector("#demo1").innerText);
 });
 </script>
