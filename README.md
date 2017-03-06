@@ -1,5 +1,7 @@
 
-编程语言[Scheme](https://en.wikipedia.org/wiki/Scheme_(programming_language))的解释器实现的JavaScript版本的实现 [在线IDE地址](https://hlpp.github.io/JSScheme/)。目标为完全实现(接近)Scheme语言标准R5RS。
+编程语言[Scheme](https://en.wikipedia.org/wiki/Scheme_(programming_language))的解释器实现的JavaScript版本的实现。目标为完全实现(接近)Scheme语言标准R5RS。
+
+[在线IDE地址](https://hlpp.github.io/JSScheme/)
 
 
 ## 特性
@@ -77,7 +79,7 @@
         `error`
  
 * 注释  
-`;line comment`
+  单行注释：`;line comment`
 
 ## 扩展与库
 * 基础语言JavaScript的能力
@@ -111,9 +113,10 @@
     <script src="../jsscheme/browser-load.js"></script>
     <script src="../jsscheme/scm.js"></script>
 ```
+
     browser-load.js定义了一个函数`loadScheme`，该函数加载JSScheme到浏览器环境。  
     scm.js会扫描出所有的包含属性`type="text/scm"`和`ignore`的脚本，然后在Scheme的同一个**全局环境**里，顺序执行脚本中的scheme程序。
-   上面的例子程序运行会弹出 hello scheme 和 4 。
+ 3. 上面的例子程序运行会弹出 hello scheme 和 4 。
 
 ## 其它
   本项目还非常不完善，并且想增加HTML5 API(例如Canvas)，这样就可以用JSScheme写些游戏玩。但是目前还不知道怎么去设计等等问题，欢迎熟悉JavaScript和Scheme的人来fork和pull request :)
