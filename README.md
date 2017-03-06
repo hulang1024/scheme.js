@@ -107,6 +107,14 @@
     </script>
     <script type="text/scm">
     (alert gn)
+    
+    (define (factorial n)
+      (if (< n 2)
+          n
+          (* n (callee (- n 1)))))
+    (define n (prompt "input n"))
+    (alert (string-append "!" n (string #\=)
+      (number->string (factorial (string->number n)))))
     </script>
     ```
 
