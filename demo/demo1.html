@@ -16,7 +16,7 @@
 
 <div id="follow"></div>
 
-<script id="demo1" type="text/scm">
+<script type="text/scm">
 (define (topxstr num)
   (string-append (number->string num) "px"))
 
@@ -40,11 +40,17 @@
     (if (= (dom-get event 'keyCode) 27)
         (set! pause (not pause)))))
 </script>
-<script src="../jsscheme/browser-load.js"></script>
-<script>
-loadScheme("../", function(){
-    scheme.evalString(document.querySelector("#demo1").innerText);
-});
+<script type="text/scm">
+(define global-n 3)
 </script>
+<script type="text/scm">
+(set! global-n (inc global-n))
+</script>
+<script type="text/scm">
+(alert global-n)
+</script>
+
+<script src="../jsscheme/browser-load.js"></script>
+<script src="../jsscheme/scm.js"></script>
 </body>
 </html>
