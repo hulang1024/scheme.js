@@ -81,7 +81,7 @@
 * 注释  
   单行注释：`;line comment`
 
-## 扩展与库
+### 扩展与库
 * 基础语言JavaScript的能力
 * 部分BOM对象，例如`window`对象方法
 * 部分HTML DOM对象
@@ -117,7 +117,7 @@
     ```
 
     browser-load.js定义了一个函数`loadScheme`，该函数加载JSScheme到浏览器环境。  
-    scm.js会扫描出所有的包含属性`type="text/scm"`和`ignore`的脚本，然后在Scheme的同一个**全局环境**里，顺序执行脚本中的scheme程序。
+    scm.js会扫描出所有的包含属性`type="text/scm"`和`ignore`的脚本，然后在Scheme的同一个全局环境里，顺序执行脚本中的scheme程序。
  3. 上面的例子程序运行会弹出 hello scheme 和 4 。
 
 ## 其它
