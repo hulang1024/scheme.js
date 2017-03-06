@@ -117,7 +117,7 @@
     ```
 
     browser-load.js定义了一个函数`loadScheme`，该函数加载JSScheme到浏览器环境。  
-    scm.js会扫描出所有的包含属性`type="text/scm"`和`ignore`的脚本，然后在Scheme的同一个全局环境里，顺序执行脚本中的scheme程序。
+    scm.js会扫描出所有的包含属性`type="text/scm"`和`ignore`的脚本，然后在同一个Scheme全局环境里，顺序执行脚本中的scheme程序。
  3. 上面的例子程序运行会弹出 hello scheme 和 4 。
 
 ## 其它
