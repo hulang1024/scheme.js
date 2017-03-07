@@ -89,7 +89,7 @@
 
 ## 嵌入到HTML的方法
  1. 将Scheme代码放在`script`标签中，该标签具有两个属性: `type="text/scm"`和`ignore`。  
-  `type`属性是必须的，其值`"text/scm"`是我们自定义的，它表示内容是Scheme而非JavasSript代码；  
+  `type`属性是必须的，其值`"text/scm"`是我们自定义的，它表示内容是Scheme而非JavaScript代码；  
   `ignore`属性是可选的，如果存在该属性，则其标签中的Scheme代码不会被自动执行。  
   下面是例子：
     ```html
@@ -125,7 +125,7 @@
     ```
 
     browser-load.js定义了一个函数`loadScheme`，该函数加载JSScheme到浏览器环境。  
-    scm.js会扫描出所有的包含属性`type="text/scm"`和`ignore`的脚本，然后在同一个Scheme全局环境里，顺序执行脚本中的scheme程序。
+    scm.js会扫描出所有的包含属性`type="text/scm"`和`ignore`的脚本，然后在同一个Scheme全局环境里，顺序执行脚本中的Scheme程序。
  3. 上面的例子程序运行会弹出 hello scheme 和 4 。
 
 ## 其它
