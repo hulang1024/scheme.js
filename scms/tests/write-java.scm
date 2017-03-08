@@ -15,7 +15,7 @@
 (define (prop-name prop) (car prop))
 (define (prop-type prop) (cadr prop))
 
-(define (vo-write-fields props)
+(define (vo-fields-write props)
   (for-each
    (lambda (prop)
      (display "    ")
@@ -26,7 +26,7 @@
      (display ";")
      (newline))
    props))
-(define (vo-write-field-set/getter props)
+(define (vo-selector-write props)
   (for-each
    (lambda (prop)
      (define propName (symbol->string-ci (prop-name prop)))
@@ -81,9 +81,9 @@
   (display (vo-name class))
   (display " {")
   (newline)
-  (vo-write-fields (vo-props class))
+  (vo-fields-write (vo-props class))
   (newline)
-  (vo-write-field-set/getter (vo-props class))
+  (vo-selector-write (vo-props class))
   (display "}"))
 
 
