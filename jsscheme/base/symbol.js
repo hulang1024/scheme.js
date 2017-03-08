@@ -4,6 +4,7 @@
 s.initSymbol = function(env) {
     s.addPrimProc(env, "symbol?", symbol_p, 1);
     s.addPrimProc(env, "symbol->string", symbolToString, 1);
+    s.addPrimProc(env, "symbol->string-ci", symbolToStringCi, 1);
     s.addPrimProc(env, "string->symbol", stringToSymbol, 1);
     
     s.resetGenSymbol();
@@ -52,6 +53,12 @@ function symbolToString(argv) {
     if(!argv[0].isSymbol())
         return s.wrongContract("symbol->string", "symbol?", 0, argv);
     return s.makeString(s.symbolVal(argv[0]).toLowerCase());
+}
+
+function symbolToStringCi(argv) {
+    if(!argv[0].isSymbol())
+        return s.wrongContract("symbol->string", "symbol?", 0, argv);
+    return s.makeString(s.symbolVal(argv[0]));
 }
 
 function stringToSymbol(argv) {

@@ -7,6 +7,7 @@
 
 (symbol->string 'flying-fish) ; "flying-fish"
 (symbol->string 'Martin) ; "martin"
+(symbol->string-ci 'Martin) ;"Martin"
 (symbol->string (string->symbol "Malvina")) ; "Malvina"
 
 (string->symbol "mISSISSIppi") ; 名字为"mISSISSIppi" 的符号

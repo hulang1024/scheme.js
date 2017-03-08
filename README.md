@@ -62,9 +62,10 @@
         `caar`,`cadr` `...` `cdddar`,`cddddr` (`car`和`cdr`的组合,定义到第四层),  
         `null?`,`list?`,`list`,`length`,`append`,`reverse`,`list-tail`,`list-ref`,`memq`,`memv`
        3. 符号  
-        `symbol?`,`symbol->string`,`string->symbol`
+        `symbol?`,`symbol->string`,`string->symbol`,`symbol->string-ci`
        4. 字符  
-        `char?`
+        `char?`,`char=?`,`char-upper-case?`,`char-lower-case?`,  
+        `char-upcase`,`char-downcase`
        5. 字符串  
         `string?`,`make-string`,`string`,`string-length`,`string-ref`,`string-set!`,  
         `string=?`,`string-ci=?`,`substring`,`string-append`,`string->list`,`list->string`,  

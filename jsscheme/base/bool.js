@@ -18,6 +18,7 @@ s.False = s.makeBoolean(false);
 s.isTrue = function(obj) { return obj != s.False; }
 s.isFalse = function(obj) { return obj == s.False; }
 s.getBoolean = function(val) { return val ? s.True : s.False; }
+s.getBool = s.getBoolean;
 
 function boolean_p(argv) {
     return s.getBoolean(argv[0].isBoolean());

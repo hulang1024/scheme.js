@@ -139,7 +139,7 @@ function stringAppend(argv) {
     for(var i = 0; i < argv.length; i++) {
         var obj = argv[i];
         if(!obj.isString())
-            return s.wrongContract("string->append", "string?", i, argv);
+            return s.wrongContract("string-append", "string?", i, argv);
         charArray = charArray.concat(s.charArrayVal(obj));
     }
     return s.makeString(charArray);
