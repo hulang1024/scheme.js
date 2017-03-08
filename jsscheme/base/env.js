@@ -52,7 +52,7 @@ function isNamespace(args) {
     return s.getBoolean(s.car(args).isNamespace());
 }
 
-s.lookupVariableValue = function(variable, env) {
+s.lookup = function(variable, env) {
     var name = s.symbolVal(variable);
     var value;
     while(env && !((value = env.bindings[name]) instanceof s.Object))

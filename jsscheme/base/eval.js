@@ -68,7 +68,7 @@ function evaluate(exp, env) {
         return exp;
     }
     else if(exp.isSymbol()) {
-        return s.lookupVariableValue(exp, env);
+        return lookupVariableValue(exp, env);
     }
     else if(exp.isPair()) {
         var first = s.car(exp);
@@ -161,6 +161,10 @@ function applyPrimitiveProcedure(proc, argv) {
 
 function isSelfEvaluating(exp) {
     return (exp.isNumber() || exp.isChar() || exp.isString() || exp.isBoolean());
+}
+
+function lookupVariableValue(exp, env) {
+    return s.lookup(exp, env);
 }
 
 function listOfValues(operands, env) {
