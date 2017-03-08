@@ -4,7 +4,7 @@
     for (var i = 0; i < scmScripts.length; i++) {
         ss = scmScripts[i];
         if(!ss.hasAttribute("ignore")) {
-            scheme.evalStringWithEnv(ss.innerText, scheme.globalEnvironment);
+            scheme.evalStringWithEnv(ss.innerText, scheme.globalEnv);
         }
     }
     

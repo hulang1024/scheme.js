@@ -103,6 +103,6 @@ function run() {
     if(divConsole.style.display == "none")
         toggleInteractions();
    
-    scheme.evalString(definitionEditor.getValue());
+    scheme.evalStringWithNewEnv(definitionEditor.getValue());
     schemeConsole.resetInput();
 }

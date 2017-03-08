@@ -3,7 +3,6 @@
         "base/object",
         "base/read",
         "base/print",
-        "base/env",
         "base/error",
         "base/bool",
         "base/symbol",
@@ -19,12 +18,17 @@
         "base/syntax",
         "base/eval",
         "lib/browserjs",
+        "base/env",
         "lib/lib.scm"], after);
 
     function loadJSSeq(jsseq, after) {
         loadNextJS(0);
         function loadNextJS(index) {
             if(index > jsseq.length - 1) {
+                //env
+                scheme.initBasicEnv();
+                scheme.makeGlobalEnv();
+                
                 after && after();
                 return;
             }

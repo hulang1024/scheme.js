@@ -21,7 +21,7 @@
             if(consoleInput.value.trim().length) {
                 historyLook.push(consoleInput.value);
                 historyLook.lastInput = null;
-                scheme.evalStringWithEnv(consoleInput.value, scheme.globalEnvironment);
+                scheme.evalStringWithEnv(consoleInput.value, scheme.globalEnv);
                 self.echoCodeAndResetInput();
             }
             break;

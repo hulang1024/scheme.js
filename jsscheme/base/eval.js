@@ -5,16 +5,19 @@
 (function(s){
 "use strict";
 
-s.debug = false;
-
 s.initEval = function(env) {
     s.addPrimProc(env, "eval", eval_prim, 2);
 }
 
 s.apply = apply;
 
+
 s.evalString = function(str) {
-    return s.evalStringWithEnv(str, s.debug ? s.globalEnvironment : s.makeInitedBasicEnv());
+    return s.evalStringWithEnv(str, s.globalEnv);
+}
+
+s.evalStringWithNewEnv = function(str) {
+    return s.evalStringWithEnv(str, s.makeGlobalEnv());
 }
 
 s.evalStringWithEnv = function(str, env) {
@@ -27,7 +30,6 @@ s.evalStringWithEnv = function(str, env) {
             scheme.outputError();
         console.error(e);
     }
-    env = env || s.makeInitedBasicEnv();
     return s.evalObjects(exps, env);
 }
 

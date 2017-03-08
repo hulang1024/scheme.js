@@ -14,9 +14,12 @@ s.addObject = function(env, name, obj) {
     env.bindings[name] = obj;
 }
 
-s.globalEnvironment = null;
+s.globalEnv = null;
+s.basicEnv = null;
 
-s.initBasicEnv = function(env) {
+s.initBasicEnv = function() {
+    s.basicEnv = new s.Env({}, null);
+    var env = s.basicEnv;
     s.initSymbol(env);
     s.initBool(env);
     s.initNumber(env);
@@ -36,10 +39,9 @@ s.initBasicEnv = function(env) {
     s.addPrimProc(env, "interaction-environment", interactionEnvironment, 0);
 }
 
-s.makeInitedBasicEnv = function() {
-    s.globalEnvironment = new s.Env({}, null);
-    s.initBasicEnv(s.globalEnvironment);
-    return s.globalEnvironment;
+s.makeGlobalEnv = function() {
+    s.globalEnv = s.extendEnv({}, s.basicEnv);
+    return s.globalEnv;
 }
 
 s.makeNamespace = function(env) {
