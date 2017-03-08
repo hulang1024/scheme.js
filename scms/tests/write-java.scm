@@ -33,7 +33,7 @@
      
      (display "    ")
      (display "public ")
-     (display (prop-type prop))
+     (display "void")
      (display " ")
      (display (string-append "set" (string-first-char-upcase propName)))
      (display "(")
