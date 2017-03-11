@@ -150,7 +150,7 @@ function letToCombination(exp) {
             makeLambda(
                 s.nil,
                 s.list(
-                    makeDefinition(letVar(exp), s.makeLambda(letBindingVars(bindings), body)),
+                    makeDefinition(letVar(exp), makeLambda(letBindingVars(bindings), body)),
                     makeApplication(letVar(exp), letBindingInits(bindings)))));
     }
     else {
