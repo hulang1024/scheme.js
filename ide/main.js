@@ -1,7 +1,6 @@
 ﻿var divDefinitions, divConsole, textareaDefinitions;
 //toolbar
-var btnViewPlain,
-    btnToggleDefinitions,
+var btnToggleDefinitions,
     btnToggleInteractions,
     btnClearConsole,
     btnRun;
@@ -12,95 +11,94 @@ var definitionEditor;
 
 window.onload = function(){
 loadScheme("", function(){
-    document.getElementById('loading').style.display = "none";
-    document.getElementById('frame').style.display = "block";
+    $("#loading").hide();
+    $("#frame").show();
     
     schemeConsole = new Console();
     divConsole = schemeConsole.divConsole;
-    divDefinitions = document.getElementById('definitions');
-    textareaDefinitions = document.getElementById('definitions_textarea');
-    btnViewPlain = document.getElementById("viewPlain");
-    btnToggleDefinitions = document.getElementById('toggleDefinitions');
-    btnToggleInteractions = document.getElementById('toggleInteractions');
-    btnConsoleClear = document.getElementById('clearConsole');
+    divDefinitions = $("#definitions");
+    textareaDefinitions = $("#definitions_textarea");
+    btnToggleDefinitions = $("#toggleDefinitions");
+    btnToggleInteractions = $("#toggleInteractions");
+    btnConsoleClear = $("#clearConsole");
     
-    definitionEditor = CodeMirror.fromTextArea(textareaDefinitions, {
+    definitionEditor = CodeMirror.fromTextArea(textareaDefinitions.get(0), {
         lineNumbers: true,
         matchBrackets: true,
     });
     definitionEditor.setSize('height', "100%");
     definitionEditor.setOption('theme', "scheme-classic-color");
     
-    btnRun = document.getElementById('run');
+    btnRun = $("#run");
     contentHeight = window.innerHeight ||
         document.documentElement.clientHeight || document.body.clientHeight;
-    var content = document.getElementById("content");
-    content.style.height = contentHeight + "px";
-    divDefinitions.style.display = "block";
+    var content = $("#content");
+    content.height(contentHeight + "px");
+    divDefinitions.show();
     definitionsHeight = contentHeight * 0.5;
     consoleHeight = contentHeight - definitionsHeight;
-    divDefinitions.style.height = definitionsHeight + "px";
-    divConsole.style.height = (contentHeight - definitionsHeight) + "px";
+    divDefinitions.height(definitionsHeight + "px");
+    divConsole.height(contentHeight - definitionsHeight + "px");
     
-    btnViewPlain.onclick = function() {
-        var win = window.open("", document.title + " - Plain Code");
-        var pcode = document.createElement('pre');
-        pcode.innerText = definitionEditor.getValue();
-        win.document.body.innerHTML = "";
-        win.document.body.appendChild(pcode);
-    }
-    btnToggleDefinitions.onclick = toggleDefinitions;
-    btnToggleInteractions.onclick = toggleInteractions;
-    btnConsoleClear.onclick = function() {
+    $("#viewPlain").click(viewPlain);
+    btnToggleDefinitions.click(toggleDefinitions);
+    btnToggleInteractions.click(toggleInteractions);
+    btnConsoleClear.click(function() {
         schemeConsole.clear();
         schemeConsole.resetInput();
-    }
-    btnRun.onclick = run;
+    });
+    btnRun.click(run);
     
     scheme.console = schemeConsole;
 });
 
 }
 
+function viewPlain() {
+    var win = window.open("", document.title + " - Plain Code");
+    var pcode = $(document.createElement('pre'));
+    pcode.text(definitionEditor.getValue());
+    win.document.body.innerHTML = "";
+    $(win.document.body).append(pcode);
+}
+
 function toggleDefinitions() {
-    var nowDisplay = divDefinitions.style.display == "block" ? "none" : "block";
-    divDefinitions.style.display = nowDisplay;
-    btnToggleDefinitions.innerHTML = (nowDisplay == "block" ? "Hide" : "Show") + " Definitions";
+    divDefinitions.toggle();
+    btnToggleDefinitions.text((divDefinitions.is(':visible') ? "Hide" : "Show") + " Definitions");
     
-    if(nowDisplay == "none") {
-        if(divConsole.style.display == "none")
+    if(divDefinitions.is(':hidden')) {
+        if(divConsole.is(':hidden'))
             toggleInteractions();
-        divDefinitions.style.height = "0%";
-        divConsole.style.height = "100%";
+        divDefinitions.height("0%");
+        divConsole.height("100%");
         consoleInput.focus();
     } else {
-        divDefinitions.style.height = definitionsHeight + "px";
-        divConsole.style.height = (contentHeight - definitionsHeight) + "px";
+        divDefinitions.height(definitionsHeight + "px");
+        divConsole.height(contentHeight - definitionsHeight + "px");
         definitionEditor.focus();
     }
 }
 
 function toggleInteractions() {
-    var nowDisplay = divConsole.style.display == "block" ? "none" : "block";
-    divConsole.style.display = nowDisplay;
-    btnToggleInteractions.innerHTML = (nowDisplay == "block" ? "Hide" : "Show") + " Interactions";
+    divConsole.toggle();
+    btnToggleInteractions.text((divConsole.is(':visible') ? "Hide" : "Show") + " Interactions");
 
-    if(nowDisplay == "none") {
-        if(divDefinitions.style.display == "none")
+    if(divConsole.is(':hidden')) {
+        if(divDefinitions.is(':hidden'))
             toggleDefinitions();
-        divDefinitions.style.height = "100%";
-        divConsole.style.height = "0%";
+        divDefinitions.height("100%");
+        divConsole.height("0%");
         definitionEditor.focus();
     } else {
-        divDefinitions.style.height = (contentHeight - consoleHeight) + "px";
-        divConsole.style.height = consoleHeight + "px";
+        divDefinitions.height(contentHeight - consoleHeight + "px");
+        divConsole.height(consoleHeight + "px");
         consoleInput.focus();
     }
 }
 
 function run() {
     schemeConsole.clear();
-    if(divConsole.style.display == "none")
+    if(divConsole.is(':hidden'))
         toggleInteractions();
    
     scheme.evalStringWithNewEnv(definitionEditor.getValue());

@@ -3,53 +3,62 @@
     var consoleInput;
     var historyLook = new HistoryLook();
     var self = this;
-    
+
+    this.divConsole = divConsole = $("#console");
+    divConsole.show();
+    divConsole.click(function(event) {
+        var toElement = event.toElement || event.relatedTarget || event.fromElement;
+        if(! /response|echo/.test(toElement.className))
+            consoleInput.focus();
+    });
+
     this.clear = function() {
-        divConsole.innerHTML = "<p>Welcome to <a target=\"_blank\" href=\"http://github.com/hlpp/JSScheme\" style=\"color:blue\">JSScheme</a>.</p>";
+        divConsole.html("<p>Welcome to <a target=\"_blank\" href=\"http://github.com/hlpp/JSScheme\" style=\"color:blue\">JSScheme</a>.</p>");
     }
     
     this.resetInput = function() {
-        divConsole.innerHTML += "<p class=\"code_echo\"><span class=\"prompt\">&gt;</span><input type=\"text\" id=\"consoleInput\" /></p>";
-        consoleInput = document.getElementById("consoleInput");
-        consoleInput.onkeydown = consoleInputKeyDown;
+        divConsole.append("<p class=\"code_echo\"><span class=\"prompt\">&gt;</span><input type=\"text\" id=\"consoleInput\" /></p>");
+        consoleInput = $("#consoleInput");
+        consoleInput.keydown(consoleInputKeyDown);
         consoleInput.focus();
     }
 
     function consoleInputKeyDown(event) {
         switch(event.keyCode) {
         case 13://enter
-            if(consoleInput.value.trim().length) {
-                historyLook.push(consoleInput.value);
+            if(consoleInput.val().trim().length) {
+                historyLook.push(consoleInput.val());
                 historyLook.lastInput = null;
-                scheme.evalStringWithEnv(consoleInput.value, scheme.globalEnv);
+                scheme.evalStringWithEnv(consoleInput.val(), scheme.globalEnv);
                 self.echoCodeAndResetInput();
             }
             break;
         case 38://up
             if(historyLook.lastInput == null)
-                historyLook.lastInput = consoleInput.value.trim();
+                historyLook.lastInput = consoleInput.val().trim();
             if(historyLook.hasPrev()) {
-                consoleInput.value = historyLook.prev();
+                consoleInput.val(historyLook.prev());
                 moveToEnd(consoleInput);
             }
             break;
         case 40://down
             if(historyLook.lastInput == null)
-                historyLook.lastInput = consoleInput.value.trim();
+                historyLook.lastInput = consoleInput.val().trim();
             if(historyLook.hasNext())
-                consoleInput.value = historyLook.next();
+                consoleInput.val(historyLook.next());
             else {
                 historyLook.bottom();
-                consoleInput.value = historyLook.lastInput;
+                consoleInput.val(historyLook.lastInput);
             }
             moveToEnd(consoleInput);
             break;
         default:
             if(!historyLook.hasNext())
-                historyLook.lastInput = (consoleInput.value + String.fromCharCode(event.keyCode)).trim();
+                historyLook.lastInput = consoleInput.val().trim() + String.fromCharCode(event.keyCode);
         }
         
         function moveToEnd(obj) {
+            obj = obj.get(0);
             obj.focus(); 
             var len = obj.value.length; 
             if (document.selection) { 
@@ -64,12 +73,12 @@
     }
     
     this.echoCodeAndResetInput = function() {
-        var p = consoleInput.parentNode;
-        p.removeChild(consoleInput);
-        p.children[0].className += " dead";
-        var codeSpan = document.createElement("span");
-        codeSpan.innerHTML += consoleInput.value;
-        p.appendChild(codeSpan);
+        var p = consoleInput.parent();
+        consoleInput.remove();
+        p.children().first().addClass("dead");
+        var codeSpan = $(document.createElement("span"));
+        codeSpan.append(consoleInput.val());
+        p.append(codeSpan);
         self.resetInput();
     }
     
@@ -79,17 +88,16 @@
     this.log = function(type, info) {
         if(typeof info == "string")
             info = info.replace(/\n/g, "</br>").replace(/\s/g, "&nbsp;");
-        var response = document.createElement('span');
-        
-        response.className = "scheme_response";
+        var response = $(document.createElement('span'));
+        response.addClass("scheme_response");
         if(type == "write")
-            response.className += " scheme_write_object";
+            response.addClass("scheme_write_object");
         else if(type == "display")
-            response.className += " scheme_write_object";
+            response.addClass("scheme_write_object");
         else if(type == "error")
-            response.className += " scheme_error_info";
-        response.innerHTML = info;
-        divConsole.appendChild(response);
+            response.addClass("scheme_error_info");
+        response.html(info);
+        divConsole.append(response);
     }
     
     function HistoryLook() {
@@ -106,15 +114,6 @@
         this.prev = function() { return inputs[--index]; }
         this.next = function() { return inputs[++index]; }
         this.bottom = function() { index = inputs.length; }
-    }
-    
-    divConsole = document.getElementById('console');
-    this.divConsole = divConsole;
-    divConsole.style.display = "block";
-    divConsole.onclick = function(event) {
-        var toElement = event.toElement || event.relatedTarget || event.fromElement;
-        if(! /response|echo/.test(toElement.className))
-            consoleInput.focus();
     }
     
     this.clear();
