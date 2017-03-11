@@ -112,7 +112,7 @@
     this.divConsole = divConsole;
     divConsole.style.display = "block";
     divConsole.onclick = function(event) {
-        var toElement = event.toElement
+        var toElement = event.toElement || event.relatedTarget || event.fromElement;
         if(! /response|echo/.test(toElement.className))
             consoleInput.focus();
     }
