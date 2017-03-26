@@ -228,13 +228,13 @@ function orToIf(exp) {
 }
 
 function whenToIf(exp) {
-    return makeIf(s.whenTest(exp), makeBegin(s.whenBody(exp)));
+    return makeIf(whenTest(exp), makeBegin(whenBody(exp)));
 }
 
 function unlessToIf(exp) {
     return makeIf(
-        makeApplication(s.makeSymbol("not"), s.list(s.unlessTest(exp))),
-        makeBegin(s.unlessBody(exp)));
+        makeApplication(s.makeSymbol("not"), s.list(unlessTest(exp))),
+        makeBegin(unlessBody(exp)));
 }
 
 function doToCombination(exp) {
