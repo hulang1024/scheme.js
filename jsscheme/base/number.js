@@ -20,7 +20,7 @@ s.makeReal = function(val) {
 s.floatVal = function(obj) { return obj.val; }
 
 s.makeNumber = function(val) {
-    if(Number.isInteger(val))
+    if(parseInt(val) == val)//isInteger
         return s.makeInt(val);
     else
         return s.makeReal(val);
