@@ -102,19 +102,22 @@ function evaluate(exp, env) {
             else if(first == s.whileSymbol) return evaluate(s.transformWhile(exp), env);
             else if(first == s.forSymbol) return evaluate(s.transformFor(exp), env);
         }
-        return apply(evaluate(s.operator(exp), env), listOfValues(s.operands(exp), env));
+        return apply(evaluate(s.operator(exp), env), listOfValues(s.operands(exp), env), env);
     }
     else
         return s.throwError('eval', "unknown expression type");
 }
 
 // 过程(函数)调用
-function apply(procedure, argv) {
+function apply(procedure, argv, env) {
     if(s.error)
         throw s.error;
 
     if(procedure.isPrimProc()) {
-        return applyPrimitiveProcedure(procedure, argv);
+        var ok = matchArity(procedure, argv);
+        if(ok) {
+            return procedure.val.getFunc()(argv);
+        }
     }
     else if(procedure.isCompProc()) {
         var ok = matchArity(procedure, argv);
@@ -150,13 +153,6 @@ function apply(procedure, argv) {
     }
     else
         s.applicationError(procedure);
-}
-
-function applyPrimitiveProcedure(proc, argv) {
-    var ok = matchArity(proc, argv);
-    if(ok) {
-        return proc.val.getFunc()(argv);
-    }
 }
 
 function isSelfEvaluating(exp) {
