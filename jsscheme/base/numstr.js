@@ -9,14 +9,14 @@ s.initNumStr = function(env) {
 function stringToNumber(argv) {
     var obj = argv[0];
     if(!obj.isString())
-        return s.wrongContract(env, "string->number", "string?", 0, argv);
+        return s.wrongContract(argv, "string->number", "string?", 0, argv);
     return s.makeReal(parseFloat(s.stringVal(obj)));
 }
 
 function numberToString(argv) {
     var obj = argv[0];
     if(!obj.isNumber())
-        return s.wrongContract(env, "number->string", "number?", 0, argv);
+        return s.wrongContract(argv, "number->string", "number?", 0, argv);
     return s.makeString(obj.val.toString());
 }
 
