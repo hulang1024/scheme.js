@@ -33,7 +33,7 @@
                 return;
             }
             var s = document.createElement("script");
-            s.src = (rootdir || "") + "./jsscheme/" + jsseq[index] + ".js?v=" + new Date().getTime();
+            s.src = (rootdir || "") + "./jsscheme/" + jsseq[index] + ".js?v=" + new Date().getMonth();
             s.onload = function() { loadNextJS(index + 1); }
             document.body.appendChild(s);
         }
