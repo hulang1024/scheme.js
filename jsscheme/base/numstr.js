@@ -10,7 +10,7 @@ function stringToNumber(argv) {
     var obj = argv[0];
     if(!obj.isString())
         return s.wrongContract(env, "string->number", "string?", 0, argv);
-    return s.makeReal(parseFloat(obj.val));
+    return s.makeReal(parseFloat(s.stringVal(obj)));
 }
 
 function numberToString(argv) {
