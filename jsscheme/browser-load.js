@@ -23,12 +23,12 @@
 			return (rootdir || "") + "./jsscheme/" + s + ".js?v=" + new Date().getMonth();
 		});
 	$LAB.setOptions({AlwaysPreserveOrder:true})
-		.script(jsArr).wait(function(){
+	    .script(jsArr).wait(function(){
         	$LAB.setOptions({AlwaysPreserveOrder:false});
-            //env
-            scheme.initBasicEnv();
-            scheme.makeGlobalEnv();
+                //env
+                scheme.initBasicEnv();
+                scheme.makeGlobalEnv();
             
-            after && after();
-        });
+                after && after();
+            });
 }
