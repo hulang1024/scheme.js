@@ -1,5 +1,5 @@
 ﻿var loadScheme = function(rootdir, after) {
-    loadJSSeq([
+	var jsArr = [
         "base/object",
         "base/read",
         "base/print",
@@ -19,23 +19,16 @@
         "base/eval",
         "lib/browserjs",
         "base/env",
-        "lib/lib.scm"], after);
-
-    function loadJSSeq(jsseq, after) {
-        loadNextJS(0);
-        function loadNextJS(index) {
-            if(index > jsseq.length - 1) {
-                //env
-                scheme.initBasicEnv();
-                scheme.makeGlobalEnv();
-                
-                after && after();
-                return;
-            }
-            var s = document.createElement("script");
-            s.src = (rootdir || "") + "./jsscheme/" + jsseq[index] + ".js?v=" + new Date().getMonth();
-            s.onload = function() { loadNextJS(index + 1); }
-            document.body.appendChild(s);
-        }
-    }
+        "lib/lib.scm"].map(function(s){
+			return (rootdir || "") + "./jsscheme/" + s + ".js?v=" + new Date().getMonth();
+		});
+	$LAB.setOptions({AlwaysPreserveOrder:true})
+		.script(jsArr).wait(function(){
+        	$LAB.setOptions({AlwaysPreserveOrder:false});
+            //env
+            scheme.initBasicEnv();
+            scheme.makeGlobalEnv();
+            
+            after && after();
+        });
 }
