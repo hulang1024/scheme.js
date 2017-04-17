@@ -3,14 +3,14 @@
     
     if(window['$LAB']) {
         load();
-	} else {
+    } else {
         var s = document.createElement("script");
         s.src = rootdir + "./lib/LAB.min.js";
         s.onload = load;
         document.body.appendChild(s);
     }
-	
-	function load() {
+    
+    function load() {
         var jsArr = [
             "base/object",
             "base/read",
