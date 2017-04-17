@@ -42,5 +42,5 @@
                 $LAB.setOptions({AlwaysPreserveOrder:false});
                 after && after();
             });
-	}
+    }
 }
