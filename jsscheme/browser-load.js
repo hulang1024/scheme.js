@@ -1,14 +1,14 @@
 ﻿﻿var loadScheme = function(rootdir, after) {
-	rootdir = (rootdir || "");
-	
-	if(window['$LAB']) {
-	    load();
+    rootdir = (rootdir || "");
+    
+    if(window['$LAB']) {
+        load();
 	} else {
         var s = document.createElement("script");
         s.src = rootdir + "./lib/LAB.min.js";
         s.onload = load;
         document.body.appendChild(s);
-	}
+    }
 	
 	function load() {
         var jsArr = [
