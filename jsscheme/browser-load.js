@@ -39,7 +39,7 @@
                 scheme.initBasicEnv();
                 scheme.makeGlobalEnv();
                 
-        	    $LAB.setOptions({AlwaysPreserveOrder:false});
+                $LAB.setOptions({AlwaysPreserveOrder:false});
                 after && after();
             });
 	}
