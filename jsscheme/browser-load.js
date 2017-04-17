@@ -34,8 +34,8 @@
             "lib/lib.scm"].map(function(s){
                 return rootdir + "./jsscheme/" + s + ".js?v=" + new Date().getMonth();
             });
-	    $LAB.setOptions({AlwaysPreserveOrder:true})
-	        .script(jsArr).wait(function(){
+        $LAB.setOptions({AlwaysPreserveOrder:true})
+            .script(jsArr).wait(function(){
                 scheme.initBasicEnv();
                 scheme.makeGlobalEnv();
                 
