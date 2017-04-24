@@ -29,8 +29,10 @@
             "base/fun",
             "base/syntax",
             "base/eval",
+            "compiler/compiler",
             "lib/browserjs",
             "base/env",
+            "lib/lib",
             "lib/lib.scm"].map(function(s){
                 return rootdir + "./jsscheme/" + s + ".js?v=" + new Date().getMonth();
             });

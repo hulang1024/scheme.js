@@ -7,17 +7,19 @@ function IDE() {
 	var btnToggleDefinitions,
 	    btnToggleInteractions,
 	    btnClearConsole,
+        btnCompileToJS,
+        btnCompileToJSAndRun,
 	    btnRun;
 	var contentHeight, definitionsHeight, consoleHeight;
-	var schemeConsole;
+	var replConsole;
 	var definitionEditor;
 	
 	this.init = function(){
 	    $("#loading").hide();
 	    $("#frame").show();
 	    
-	    schemeConsole = new Console();
-	    divConsole = schemeConsole.divConsole;
+	    replConsole = new REPLConsole();
+	    divConsole = replConsole.divConsole;
 	    divDefinitions = $("#definitions");
 	    textareaDefinitions = $("#definitions_textarea");
 	    btnToggleDefinitions = $("#toggleDefinitions");
@@ -31,7 +33,15 @@ function IDE() {
 	    definitionEditor.setSize('height', "100%");
 	    definitionEditor.setOption('theme', "scheme-classic-color");
 	    
+        btnCompileToJS = $("#compileToJS");
+        btnCompileToJS.click(compileToJS);
+        
+        btnCompileToJSAndRun = $("#compileToJSAndRun");
+        btnCompileToJSAndRun.click(compileToJSAndRun);
+        
 	    btnRun = $("#run");
+	    btnRun.click(run);
+
 	    contentHeight = window.innerHeight ||
 	        document.documentElement.clientHeight || document.body.clientHeight;
 	    var content = $("#content");
@@ -46,12 +56,11 @@ function IDE() {
 	    btnToggleDefinitions.click(toggleDefinitions);
 	    btnToggleInteractions.click(toggleInteractions);
 	    btnConsoleClear.click(function() {
-	        schemeConsole.clear();
-	        schemeConsole.resetInput();
+	        replConsole.clear();
+	        replConsole.resetInput();
 	    });
-	    btnRun.click(run);
 	    
-	    scheme.console = schemeConsole;
+	    scheme.console = replConsole;
 	}
 	
 	function viewPlain() {
@@ -96,12 +105,24 @@ function IDE() {
 	    }
 	}
 	
+    function compileToJS() {
+        replConsole.clear();
+        replConsole.log(null, scheme.compileSrcString(definitionEditor.getValue()));
+        replConsole.resetInput();
+    }
+    
+    function compileToJSAndRun() {
+        var jsSrc = scheme.compileSrcString(definitionEditor.getValue());
+        replConsole.log(null, jsSrc + "\n");
+        replConsole.log("display", window.eval(jsSrc));
+    }
+    
 	function run() {
-	    schemeConsole.clear();
+	    replConsole.clear();
 	    if(divConsole.is(':hidden'))
 	        toggleInteractions();
 	   
 	    scheme.evalStringWithNewEnv(definitionEditor.getValue());
-	    schemeConsole.resetInput();
+	    replConsole.resetInput();
 	}
 }

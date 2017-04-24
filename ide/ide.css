@@ -26,13 +26,6 @@ body,* {
 #toolbar button {
     height: 25px;
 }
-#toolbar #run {
-    width: 50px;
-}
-#toolbar #clearConsole {
-}
-#toolbar #toggleDefinitions, #toggleInteractions {
-}
 
 #content {
     width: 100%;

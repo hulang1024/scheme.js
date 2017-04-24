@@ -1,4 +1,4 @@
-﻿function Console() {
+﻿function REPLConsole() {
     var divConsole;
     var consoleInput;
     var historyLook = new HistoryLook();
@@ -7,9 +7,9 @@
     this.divConsole = divConsole = $("#console");
     divConsole.show();
     divConsole.click(function(event) {
-        var toElement = $(event.toElement || event.relatedTarget || event.fromElement);
-        if(!(toElement.is(".response") || toElement.is(".echo")))
-            consoleInput.focus();
+        //var toElement = $(event.toElement || event.relatedTarget || event.fromElement);
+        //if(!(toElement.is(".response") || toElement.is(".echo")))
+        //    consoleInput.focus();
     });
 
     this.clear = function() {

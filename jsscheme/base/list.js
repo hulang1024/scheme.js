@@ -86,11 +86,11 @@ s.listToArray = function(lst) {
     return array;
 }
 
-s.mapList = function(func, lst) {
+s.mapList = function(func, lst, takeArray) {
     var ret = [];
     for(; !lst.isEmptyList(); lst = s.cdr(lst))
         ret.push(func(s.car(lst)));
-    return s.arrayToList(ret);
+    return !takeArray ? s.arrayToList(ret) : ret;
 }
 
 s.append = function(list1, list2) {
