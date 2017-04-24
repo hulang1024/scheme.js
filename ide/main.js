@@ -113,6 +113,7 @@ function IDE() {
     
     function compileToJSAndRun() {
         var jsSrc = scheme.compileSrcString(definitionEditor.getValue());
+        replConsole.clear();
         replConsole.log(null, jsSrc + "\n");
         replConsole.log("display", window.eval(jsSrc));
     }

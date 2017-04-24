@@ -119,12 +119,12 @@ function genDefinition(exp) {
     var id = compileAST(s.definitionVar(exp));
     if(s.cadr(exp).isSymbol()) {
         var val = compileAST(s.definitionVal(exp));
-        return "var " + id + " = " + val + ";\n";
+        return "var " + id + " = " + val + ";";
     }
     else {
         var params = listOfValues(s.cdadr(exp)).join(",");
         var str = "function " + id + "(" + params + ")" + "{"
-        str += "  return" + genSequence(s.lambdaBody(exp));
+        str += " return" + genSequence(s.lambdaBody(exp));
         str += "\n}\n";
         return str;
     }
