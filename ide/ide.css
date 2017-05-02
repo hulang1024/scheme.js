@@ -1,5 +1,5 @@
 body {
-    background: #f6f6f6;
+    background: #090909;
 }
 body,* {
     margin:0;
@@ -48,12 +48,12 @@ body,* {
     width: 100%;
     overflow: auto;
     margin-top: 2px;
-    border: 1px solid #ccc;
-    background-color:white;
+	border: 1px #5A5A5A solid;
+    background-color:#112435;
     padding: 4px;
 }
 #console .prompt {
-    color: black;
+    color: white;
     font-weight: bold;
     margin-right: 6px;
 }
@@ -66,8 +66,10 @@ body,* {
     width: 96%;
     border: 0;
     outline:none;
+	color:white;
+	background-color:#112435;
 }
-#console .code_echo {color: black;}
-#console .scheme_response {color: #0000AF;}
+#console .code_echo {color: white;}
+#console .scheme_response {color: #0066FF;}
 #console .scheme_write_object {color: #960096;}
 #console .scheme_error_info {color: red;}

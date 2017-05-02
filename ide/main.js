@@ -31,7 +31,7 @@ function IDE() {
 	        matchBrackets: true,
 	    });
 	    definitionEditor.setSize('height', "100%");
-	    definitionEditor.setOption('theme', "scheme-classic-color");
+	    definitionEditor.setOption('theme', "scheme-dark");
 	    
         btnCompileToJS = $("#compileToJS");
         btnCompileToJS.click(compileToJS);
@@ -107,7 +107,7 @@ function IDE() {
 	
     function compileToJS() {
         replConsole.clear();
-        replConsole.log(null, scheme.compileSrcString(definitionEditor.getValue()));
+		replConsole.log(null, scheme.compileSrcString(definitionEditor.getValue()));
         replConsole.resetInput();
     }
     
@@ -115,7 +115,10 @@ function IDE() {
         var jsSrc = scheme.compileSrcString(definitionEditor.getValue());
         replConsole.clear();
         replConsole.log(null, jsSrc + "\n");
-        replConsole.log("display", window.eval(jsSrc));
+        try {
+            replConsole.log("display", window.eval(jsSrc));
+        } catch(e) {}
+        replConsole.resetInput();
     }
     
 	function run() {
