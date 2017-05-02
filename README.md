@@ -1,50 +1,34 @@
 # JSScheme
 
-编程语言[Scheme](https://en.wikipedia.org/wiki/Scheme_(programming_language))的JavaScript实现。
-
-[在线IDE地址](https://hlpp.github.io/JSScheme/)
+编程语言[Scheme](https://en.wikipedia.org/wiki/Scheme_(programming_language))的JavaScript实现。在线IDE地址:[https://hlpp.github.io/JSScheme/](https://hlpp.github.io/JSScheme/)
 
 
 ## 特性
 目前的支持:
-* 变量引用  
- `<variable>`
-* 局部变量  
- `let`
-* 常量引用  
-  `quote`,`'`  
-* 过程调用  
-  `(operator operand ...)`
-* 过程  
-  `lambda`  
+* 变量引用: `<variable>`
+* 局部变量: `let`
+* 常量引用: `quote`,`'`  
+* 过程调用: `(operator operand ...)`
+* 过程: `lambda`  
   + 支持固定数量参数, 任意数量参数和n个或更多不定数量参数  
   + 抄录了JavaScript语言中的隐含参数`arguments`和`callee`
 * 静态(词法)作用域
 * 闭包
-* 定义  
-  `define`
-* 赋值  
-  `set!`
-* 顺序结构  
-  `begin`
-* 条件表达式  
-  `if`,`cond`,`case`,`when`,`unless`,`and`,`or`
+* 定义: `define`
+* 赋值: `set!`
+* 顺序结构: `begin`
+* 条件表达式: `if`,`cond`,`case`,`when`,`unless`,`and`,`or`
 * 递归
-* 迭代结构  
-  命名`let`,`do`,`while`,`for`
+* 迭代结构: 命名`let`,`do`,`while`,`for`
 * 标准过程
     + 相等谓词  
         `eqv?`,`eq?`,`equal?`
     + 数值运算和数值输入/输出  
-        `number?`,  
-        `=`,`<`,`<`,`>`,`<=`,`>=`,  
-        `+`,`*`,`-`,`/`,
+        `number?`,`=`,`<`,`<`,`>`,`<=`,`>=`,`+`,`*`,`-`,`/`,
         `zero?`,`positive?`,`negative?`,`odd?`,`even?`,`abs`,`remainder`,  
         `number->string`,`string->number`
-       1. 整数  
-        `integer?`
-       2. 实数  
-        `real?`
+       1. 整数: `integer?`
+       2. 实数: `real?`
     + 其它数据类型  
        1. 布尔  
         `boolean?`,`not`
@@ -55,20 +39,17 @@
        3. 符号  
         `symbol?`,`symbol->string`,`string->symbol`,`symbol->string-ci`
        4. 字符  
-        `char?`,`char=?`,`char-upper-case?`,`char-lower-case?`,  
-        `char-upcase`,`char-downcase`
+        `char?`,`char=?`,`char-upper-case?`,`char-lower-case?`,`char-upcase`,`char-downcase`
        5. 字符串  
         `string?`,`make-string`,`string`,`string-length`,`string-ref`,`string-set!`,  
         `string=?`,`string-ci=?`,`substring`,`string-append`,`string->list`,`list->string`,  
         `string-copy`,`string-fill!`
     + 控制特征  
-        `procedure?`,`apply`,`map`,`for-each`,  
-        `void`,`void?`
+        `procedure?`,`apply`,`map`,`for-each`,`void`,`void?`
     + 求值  
         `eval`,`interaction-environment`
     + 输入/输出  
-        `read`,`write`,`newline`,`display`,  
-        `error`
+        `read`,`write`,`newline`,`display`,`error`
  
 * 注释  
   单行注释：`;line comment`
