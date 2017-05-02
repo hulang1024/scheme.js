@@ -4,8 +4,11 @@
 function compileSrcString(str) {
     var scmAsts = scheme.readMutil(str);
     var str = "";
-    for(var i = 0; i < scmAsts.length; i++)
-        str += compileAST(scmAsts[i]/*, s.globalEnv*/) + ";";
+    try {
+        for(var i = 0; i < scmAsts.length; i++)
+            str += compileAST(scmAsts[i]) + ";";
+    } catch(e) {
+    }
     return str;
 }
 
