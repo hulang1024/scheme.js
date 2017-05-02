@@ -11,7 +11,7 @@ Author: problue
 }
 
 .cm-s-scheme-dark div.CodeMirror-selected { background: #38566F !important; }
-.cm-s-scheme-dark .CodeMirror-gutter { background: #1F4661; border-right: 4px solid #3E7087; min-width:2em; }
+.cm-s-scheme-dark .CodeMirror-gutter { background: #1F4661; border-right: 1px solid #3E7087; min-width:2em; }
 .cm-s-scheme-dark .CodeMirror-gutter-text { color: white; }
 .cm-s-scheme-dark .CodeMirror-cursor { border-left: 1px solid white !important; }
 
