@@ -31,9 +31,8 @@
             "base/eval",
             "compiler/compiler",
             "lib/browserjs",
-            "base/env",
             "lib/lib",
-            "lib/lib.scm"].map(function(s){
+            "base/env"].map(function(s){
                 return rootdir + "./jsscheme/" + s + ".js?v=" + new Date().getMonth();
             });
         $LAB.setOptions({AlwaysPreserveOrder:true})
