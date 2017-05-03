@@ -49,9 +49,10 @@ body,* {
     width: 100%;
     overflow: auto;
     margin-top: 2px;
-	border: 1px #5A5A5A solid;
+    border: 1px #5A5A5A solid;
     background-color:#112435;
     padding: 4px;
+    color: white;
 }
 #console .prompt {
     color: white;
