@@ -35,7 +35,10 @@ s.initBasicEnv = function() {
     s.initPrint(env);
     s.initEval(env);
     s.initJSObject(env);
-    s.initLib(env);
+    
+    // init lib
+    s.evalStringWithEnv(SCHEME_LIB_SRC, env);
+    
     s.addPrimProc(env, "interaction-environment", interactionEnvironment, 0);
 }
 
