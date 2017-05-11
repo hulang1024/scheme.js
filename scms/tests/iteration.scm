@@ -11,7 +11,7 @@
         (let ((m (- n1 1)))
           (loop m (* p m))))))
 (fact-let 6)  ; 720
-       
+
 (let ((x '(1 3 5 7 9)))
   (do ((x x (cdr x))
        (sum 0 (+ sum (car x))))
@@ -26,3 +26,23 @@
 (for i in (10 to 20)
        (when (even? i)
              (display i) (display " "))) ;10 12 14 16 18
+
+
+;; memoization version
+(define fibonacci
+  (let ((memo '()))
+    (define (fib n)
+      (let ((ret (assoc n memo)))
+        (if (null? ret)
+            (begin
+             (if (>= n 2)
+                 (begin
+                  (set! ret (+ (fib (- n 1)) (fib (- n 2))))
+                  (set! memo (append memo (list (list n ret))))
+                  ret)
+                 n))
+            (cadr ret))))
+    fib))
+           
+(for i in (10 to 100)
+     (println (fibonacci i)))
