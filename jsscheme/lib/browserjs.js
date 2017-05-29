@@ -21,6 +21,8 @@ s.initJSObject = function(env) {
     s.addPrimProc(env, "dom-set", setDomProperty, 3);
     s.addPrimProc(env, "dom-get", getDomProperty, 2);
     s.addPrimProc(env, "dom-set-event", setDomEventProperty, 3);
+    
+    s.addPrimProc(env, "draw-box-pointer", drawBoxAndPointer, 1);
 
     s.addObject(env, "window", s.makeJSObject(window));
     s.addObject(env, "document", s.makeJSObject(window.document));
@@ -178,6 +180,20 @@ function clientjsPrompt(argv) {
 function clientjsConfirm(argv) {
     var msg = argv.length > 0 ? s.displayToString(argv[0]) : "";
     return s.getBoolean(window.confirm(msg));
+}
+
+function drawBoxAndPointer(argv) {
+    var win = window.open("", "box-pointer",
+        "width=530, height=520, location=no, status=no, toolbar=no, left=400");
+    win.document.body.innerHTML = '<canvas id="canvas" style="border: 1px solid black;"></canvas>';
+
+    var obj = argv[0];
+    var canvas = win.document.getElementById("canvas");
+    canvas.width = 500;
+    canvas.height = 500;
+    var ctx = canvas.getContext("2d");
+    BoxAndPointer.from(obj).draw(ctx);
+    return s.voidValue;
 }
 
 function randomInt(argv) {
