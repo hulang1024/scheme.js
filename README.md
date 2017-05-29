@@ -55,6 +55,7 @@
   单行注释：`;line comment`
 
 ### 扩展与库
+* 盒子-指针表示:`draw-box-pointer`
 * 基础语言JavaScript的能力
 
 
