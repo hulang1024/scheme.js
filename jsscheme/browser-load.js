@@ -31,6 +31,7 @@
             "base/eval",
             "compiler/compiler",
             "lib/browserjs",
+            "lib/box-pointer",
             "lib/lib",
             "base/env"].map(function(s){
                 return rootdir + "./jsscheme/" + s + ".js?v=" + new Date().getMonth();
