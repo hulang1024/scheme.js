@@ -183,16 +183,15 @@ function clientjsConfirm(argv) {
 }
 
 function drawBoxAndPointer(argv) {
-    var win = window.open("", "box-pointer",
-        "width=530, height=520, location=no, status=no, toolbar=no, left=400");
-    win.document.body.innerHTML = '<canvas id="canvas" style="border: 1px solid black;"></canvas>';
-
-    var obj = argv[0];
-    var canvas = win.document.getElementById("canvas");
-    canvas.width = 500;
-    canvas.height = 500;
+    var win = window.open("", new Date().getTime(),
+        "width=1000, height=700, location=no, status=no, toolbar=no, left=400");
+    var canvas = document.createElement("canvas");   
+    canvas.width = 900;
+    canvas.height = 600;
+    win.document.body.append(canvas);
+    
     var ctx = canvas.getContext("2d");
-    BoxAndPointer.from(obj).draw(ctx);
+    BoxAndPointer.calc(BoxAndPointer.from(argv[0])).draw(ctx);
     return s.voidValue;
 }
 

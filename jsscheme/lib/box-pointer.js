@@ -1,7 +1,7 @@
 ﻿var BoxAndPointer = (function(){
     const BOX_SIZE = 30;
-    var GAP_X = BOX_SIZE * 2 + 20;
-    var GAP_Y = BOX_SIZE + 20;
+    const GAP_X = BOX_SIZE * 2 + 20;
+    const GAP_Y = BOX_SIZE + 20;
     
     /**
     @class 盒子
@@ -12,27 +12,18 @@
         Vector2.call(this, x, y);
     }
     Box.prototype.draw = function(ctx) {
-        var drawBox = function(ctx) {
-            ctx.strokeStyle = 'black';
-            ctx.lineWidth = 1;
-            ctx.strokeRect(this.x, this.y, BOX_SIZE, BOX_SIZE);
-        }.bind(this);
-        
         var content = this.content;
-        
         if(content instanceof Pointer) {
-            drawBox(ctx);
-
+            drawBox(ctx, this.x, this.y);
             // 画连接点
             ctx.beginPath();
             ctx.arc(this.x + BOX_SIZE / 2, this.y + BOX_SIZE / 2,
                 Math.floor(BOX_SIZE / 2 * 0.2), 0, (Math.PI * 360) / 180, false);
             ctx.stroke();
             ctx.fill();
-            
             content.draw(ctx);
         } else if(content instanceof scheme.Object) {
-            drawBox(ctx);
+            drawBox(ctx, this.x, this.y);
             // 如果是空表，画空表表示
             if(content.isEmptyList()) {
                 ctx.beginPath();
@@ -40,34 +31,70 @@
                 ctx.lineTo(this.x + BOX_SIZE, this.y);
                 ctx.stroke();
             }
-            // 画基本对象
+            // 画基本对象内容
             else {
                 var text = scheme.writeToString(content).toString();
-                var fontSize = Math.floor(BOX_SIZE / 2 * 0.25);
-                var textWidth = fontSize * text.length + fontSize * 2;
-                ctx.font = "normal " + fontSize + "px Verdana";
-                ctx.fillText(text,
-                    this.x + (BOX_SIZE - textWidth) / 2,
-                    this.y + BOX_SIZE / 2 + fontSize);
+                var fontSize = Math.floor(BOX_SIZE / 2);
+                var textWidth = fontSize * text.length - 10;
+                ctx.font = "normal " + fontSize + "px 'Courier New'";
+                ctx.fillText(text, this.x + (BOX_SIZE - textWidth) / 2, this.y + fontSize * 1.3);
             }
         }
     }
+    
+    function drawBox(ctx, x, y) {
+        ctx.strokeStyle = 'black';
+        ctx.lineWidth = 1;
+        ctx.strokeRect(x, y, BOX_SIZE, BOX_SIZE);
+    }
+    
+    /**
+    @class 指向盒子的指针
+    */
+    function Pointer(pointTo, startVector, endVector) {
+        this.pointTo = pointTo;
+        this.startVector = startVector;
+        this.endVector = endVector;
+    }
+    Pointer.prototype.draw = function(ctx) {
+        //画箭头 
+        drawArrow(ctx,
+            this.startVector.x, this.startVector.y,
+            this.endVector.x, this.endVector.y,
+            1, 1, 18, 6, "black", 1);
+        
+        this.pointTo.draw(ctx);
+    }
 
+    /**
+    @class 序对表示为一对盒子的图形
+    @param carBox 包含指向car的指针的盒子
+    @param cdrBox 包含指向cdr的指针的盒子
+    */
+    function DrawablePair(carBox, cdrBox) {
+        this.carBox = carBox;
+        this.cdrBox = cdrBox;
+    }
+    DrawablePair.cons = function(carBox, cdrBox) {
+        return new DrawablePair(carBox, cdrBox);
+    }
+    DrawablePair.prototype.draw = function(ctx) {
+        this.carBox.draw(ctx);
+        this.cdrBox.draw(ctx);
+    }
+
+    function Vector2(x, y) {
+        this.x = x;
+        this.y = y;
+    }
+    
     /**
     将scheme对象（基本对象/序对）转化为盒子-指针数据结构
     @param obj scheme对象
     */
     function toBoxAndPointer(obj) {
         var drawable = toBoxAndPointer(obj);
-        calc(drawable, 50, 10, 0);
         var ptr = new Pointer(drawable);
-        if(drawable instanceof DrawablePair) {
-            ptr.startVector = new Vector2(0, drawable.carBox.y + BOX_SIZE / 2);
-            ptr.endVector = new Vector2(drawable.carBox.x, drawable.carBox.y + BOX_SIZE / 2);
-        } else {
-            ptr.startVector = new Vector2(0, drawable.y + BOX_SIZE / 2);
-            ptr.endVector = new Vector2(drawable.x, drawable.y + BOX_SIZE / 2);
-        }
         return ptr;
         
         function toBoxAndPointer(obj) {
@@ -81,6 +108,24 @@
                 return box;
             }
         }
+    }
+    
+    function calc(drawable) {
+        var ptr = drawable;
+        
+        calc(ptr.pointTo, 50, 10, 0);
+        
+        if(ptr.pointTo instanceof DrawablePair) {
+            var dpair = ptr.pointTo;
+            ptr.startVector = new Vector2(0, dpair.carBox.y + BOX_SIZE / 2);
+            ptr.endVector = new Vector2(dpair.carBox.x, dpair.carBox.y + BOX_SIZE / 2);
+        } else {
+            var box = ptr.pointTo;
+            ptr.startVector = new Vector2(0, box.y + BOX_SIZE / 2);
+            ptr.endVector = new Vector2(box.x, box.y + BOX_SIZE / 2);
+        }
+        
+        return ptr;
         
         function calc(drawable, x, y, level) {
             var gapX = GAP_X;
@@ -118,47 +163,14 @@
             }
         }
     }
-
-    /**
-    @class 指向盒子的指针
-    */
-    function Pointer(pointTo, startVector, endVector) {
-        this.pointTo = pointTo;
-        this.startVector = startVector;
-        this.endVector = endVector;
-    }
-    Pointer.prototype.draw = function(ctx) {
-        //画箭头 
-        drawArrow(ctx,
-            this.startVector.x, this.startVector.y,
-            this.endVector.x, this.endVector.y,
-            1, 1, 18, 6, "black", 1);
-        
-        this.pointTo.draw(ctx);
-        
-    }
-
-    /**
-    @class 序对表示为一对盒子的图形
-    @param carBox 包含指向car的指针的盒子
-    @param cdrBox 包含指向cdr的指针的盒子
-    */
-    function DrawablePair(carBox, cdrBox) {
-        this.carBox = carBox;
-        this.cdrBox = cdrBox;
-    }
-    DrawablePair.cons = function(carBox, cdrBox) {
-        return new DrawablePair(carBox, cdrBox);
-    }
-    DrawablePair.prototype.draw = function(ctx) {
-        this.carBox.draw(ctx);
-        this.cdrBox.draw(ctx);
-    }
-
-    function Vector2(x, y) {
-        this.x = x;
-        this.y = y;
-    }
+    
+    return {
+        from: toBoxAndPointer,
+        calc: calc,
+        Box: Box,
+        Pointer: Pointer,
+        DrawablePair: DrawablePair
+    };
 
     function drawArrow(ctx, x1, y1, x2, y2, style, which, angle, d, color, width) {
         if (typeof(x1) == 'string') {
@@ -313,13 +325,5 @@
         }
         ctx.restore();
     }
-
-    return {
-        from: toBoxAndPointer,
-        Box: Box,
-        Pointer: Pointer,
-        DrawablePair: DrawablePair
-    };
-
 })();
 
