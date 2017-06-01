@@ -1,82 +1,82 @@
-(function(s) {
+(function(scheme) {
 "use strict";
 
-s.initJSObject = function(env) {
-    s.addPrimProc(env, "jso?", jsObject_p, 1);
-    s.addPrimProc(env, "jsfn?", jsFunction_p, 1);
+scheme.initJSObject = function(env) {
+    scheme.addPrimProc(env, "jso?", jsObject_p, 1);
+    scheme.addPrimProc(env, "jsfn?", jsFunction_p, 1);
     
-    s.addPrimProc(env, "jso-set", setJSOProperty, 2);
-    s.addPrimProc(env, "jso-get", getJSOProperty, 2);
-    s.addPrimProc(env, "call-jsfn", callJSFunc, 2, -1);
+    scheme.addPrimProc(env, "jso-set", setJSOProperty, 2);
+    scheme.addPrimProc(env, "jso-get", getJSOProperty, 2);
+    scheme.addPrimProc(env, "call-jsfn", callJSFunc, 2, -1);
     
-    s.addPrimProc(env, "random-int", randomInt, 2);
-    s.addPrimProc(env, "alert", clientjsAlert, 0, 1);
-    s.addPrimProc(env, "prompt", clientjsPrompt, 0, 2);
-    s.addPrimProc(env, "confirm", clientjsConfirm, 0, 1);
+    scheme.addPrimProc(env, "random-int", randomInt, 2);
+    scheme.addPrimProc(env, "alert", clientjsAlert, 0, 1);
+    scheme.addPrimProc(env, "prompt", clientjsPrompt, 0, 2);
+    scheme.addPrimProc(env, "confirm", clientjsConfirm, 0, 1);
     
-    s.addPrimProc(env, "getElementById", getElementById, 2);
-    s.addPrimProc(env, "getElementsByClassName", getElementsByClassName, 2);
-    s.addPrimProc(env, "getElementsByName", getElementsByName, 2);
-    s.addPrimProc(env, "getElementsByTagName", getElementsByTagName, 2);
-    s.addPrimProc(env, "dom-set", setDomProperty, 3);
-    s.addPrimProc(env, "dom-get", getDomProperty, 2);
-    s.addPrimProc(env, "dom-set-event", setDomEventProperty, 3);
+    scheme.addPrimProc(env, "getElementById", getElementById, 2);
+    scheme.addPrimProc(env, "getElementsByClassName", getElementsByClassName, 2);
+    scheme.addPrimProc(env, "getElementsByName", getElementsByName, 2);
+    scheme.addPrimProc(env, "getElementsByTagName", getElementsByTagName, 2);
+    scheme.addPrimProc(env, "dom-set", setDomProperty, 3);
+    scheme.addPrimProc(env, "dom-get", getDomProperty, 2);
+    scheme.addPrimProc(env, "dom-set-event", setDomEventProperty, 3);
     
-    s.addPrimProc(env, "draw-box-pointer", drawBoxAndPointer, 1);
+    scheme.addPrimProc(env, "draw-box-pointer", drawBoxAndPointer, 1);
 
-    s.addObject(env, "window", s.makeJSObject(window));
-    s.addObject(env, "document", s.makeJSObject(window.document));
+    scheme.addObject(env, "window", scheme.makeJSObject(window));
+    scheme.addObject(env, "document", scheme.makeJSObject(window.document));
 }
 
-s.makeJSObject = function(val) {
-    return new s.Object(30, val);
+scheme.makeJSObject = function(val) {
+    return new scheme.Object(scheme_jsobject_type, val);
 }
-s.objectVal = function(obj) { return obj.val; }
+scheme.objectVal = function(obj) { return obj.val; }
 
 function isJSFunction(argv) {
     var o = argv[0];
-    return o.isJSObject() && typeof o == "function";
+    return scheme.isJSObject(o) && typeof o == "function";
 }
 
 function jsObject_p(argv) {
-    return s.getBoolean(argv[0].isJSObject());
+    return scheme.getBoolean(scheme.isJSObject(argv[0]));
 }
 
 function jsFunction_p(argv) {
-    return s.getBoolean(isJSFunction(argv[0]));
+    return scheme.getBoolean(isJSFunction(argv[0]));
 }
 
 function setJSOProperty(argv) {
     var jso = argv[0];
     var propName = argv[1];
     var value = argv[2];
-    if(!jso.isJSObject())
-        return s.wrongContract("jso-set", "jsobject?", 0, argv);
-    if(!propName.isSymbol())
-        return s.wrongContract("jso-set", "symbol?", 1, argv);
-    s.objectVal(jso)[s.symbolVal(propName)] = value.isString() ? s.stringVal(value) : value.val;
+    if(!scheme.isJSObject(jso))
+        return scheme.wrongContract("jso-set", "jsobject?", 0, argv);
+    if(!scheme.isSymbol(propName))
+        return scheme.wrongContract("jso-set", "symbol?", 1, argv);
+    scheme.objectVal(jso)[scheme.symbolVal(propName)] = scheme.isString(value) ? scheme.stringVal(value) : value.val;
     return value;
 }
 
 function getJSOProperty(argv) {
     var jso = argv[0];
     var propName = argv[1];
-    if(!jso.isJSObject())
-        return s.wrongContract("jso-get", "jsobject?", 0, argv);
-    if(!propName.isSymbol())
-        return s.wrongContract("jso-get", "symbol?", 1, argv);
-    return s.objectVal(jso)[s.symbolVal(propName)];
+    if(!scheme.isJSObject(jso))
+        return scheme.wrongContract("jso-get", "jsobject?", 0, argv);
+    if(!scheme.isSymbol(propName))
+        return scheme.wrongContract("jso-get", "symbol?", 1, argv);
+    return scheme.objectVal(jso)[scheme.symbolVal(propName)];
 }
 
 function callJSFunc(argv) {
     var func = argv[0];
     var thisArg = argv[1];
     if(!isJSFunction(func))
-        return s.wrongContract("call-jsfn", "jsfn?", 0, argv);
-    if(!thisArg.isJSObject())
-        return s.wrongContract("call-jsfn", "jso?", 0, argv);
+        return scheme.wrongContract("call-jsfn", "jsfn?", 0, argv);
+    if(!scheme.isJSObject(thisArg))
+        return scheme.wrongContract("call-jsfn", "jso?", 0, argv);
     var jsos = argv.slice(1).map(function(fn){ return fn.val; });
-    return s.objectVal(fn).apply(s.objectVal(thisArg), jsos);
+    return scheme.objectVal(fn).apply(scheme.objectVal(thisArg), jsos);
 }
 
 //-------------------
@@ -85,41 +85,41 @@ function callJSFunc(argv) {
 function getElementById(argv) {
     var dom = argv[0];
     var id = argv[1];
-    if(!dom.isJSObject())
-        return s.wrongContract("getElementById", "jsobject?", 0, argv);
-    if(!id.isString())
-        return s.wrongContract("getElementById", "string?", 1, argv);
-    return s.makeJSObject(s.objectVal(dom).getElementById(s.stringVal(id)));
+    if(!scheme.isJSObject(dom))
+        return scheme.wrongContract("getElementById", "jsobject?", 0, argv);
+    if(!scheme.isString(id))
+        return scheme.wrongContract("getElementById", "string?", 1, argv);
+    return scheme.makeJSObject(scheme.objectVal(dom).getElementById(scheme.stringVal(id)));
 }
 
 function getElementsByClassName(argv) {
     var dom = argv[0];
     var className = argv[1];
-    if(!dom.isJSObject())
-        return s.wrongContract("getElementsByClassName", "jsobject?", 0, argv);
-    if(!className.isString())
-        return s.wrongContract("getElementsByClassName", "string?", 1, argv);
-    return s.makeJSObject(s.objectVal(dom).getElementById(s.stringVal(className)));
+    if(!scheme.isJSObject(dom))
+        return scheme.wrongContract("getElementsByClassName", "jsobject?", 0, argv);
+    if(!scheme.isString(className))
+        return scheme.wrongContract("getElementsByClassName", "string?", 1, argv);
+    return scheme.makeJSObject(scheme.objectVal(dom).getElementById(scheme.stringVal(className)));
 }
 
 function getElementsByName(argv) {
     var dom = argv[0];
     var name = argv[1];
-    if(!dom.isJSObject())
-        return s.wrongContract("getElementsByName", "jsobject?", 0, argv);
-    if(!name.isString())
-        return s.wrongContract("getElementsByName", "string?", 1, argv);
-    return s.makeJSObject(s.objectVal(dom).getElementById(s.stringVal(name)));
+    if(!scheme.isJSObject(dom))
+        return scheme.wrongContract("getElementsByName", "jsobject?", 0, argv);
+    if(!scheme.isString(name))
+        return scheme.wrongContract("getElementsByName", "string?", 1, argv);
+    return scheme.makeJSObject(scheme.objectVal(dom).getElementById(scheme.stringVal(name)));
 }
 
 function getElementsByTagName(argv) {
     var dom = argv[0];
     var tagName = argv[1];
-    if(!dom.isJSObject())
-        return s.wrongContract("getElementsByTagName", "jsobject?", 0, argv);
-    if(!tagName.isString())
-        return s.wrongContract("getElementsByTagName", "string?", 1, argv);
-    return s.makeJSObject(s.objectVal(dom).getElementById(s.stringVal(tagName)));
+    if(!scheme.isJSObject(dom))
+        return scheme.wrongContract("getElementsByTagName", "jsobject?", 0, argv);
+    if(!scheme.isString(tagName))
+        return scheme.wrongContract("getElementsByTagName", "string?", 1, argv);
+    return scheme.makeJSObject(scheme.objectVal(dom).getElementById(scheme.stringVal(tagName)));
 }
 
 //----------------------------------
@@ -129,11 +129,11 @@ function setDomProperty(argv) {
     var dom = argv[0];
     var propName = argv[1];
     var value = argv[2];
-    if(!dom.isJSObject())
-        return s.wrongContract("dom-set", "jsobject?", 0, argv);
-    if(!propName.isSymbol())
-        return s.wrongContract("dom-set", "symbol?", 1, argv);
-    s.objectVal(dom)[s.symbolVal(propName)] = value.isString() ? s.stringVal(value) : value.val;
+    if(!scheme.isJSObject(dom))
+        return scheme.wrongContract("dom-set", "jsobject?", 0, argv);
+    if(!scheme.isSymbol(propName))
+        return scheme.wrongContract("dom-set", "symbol?", 1, argv);
+    scheme.objectVal(dom)[scheme.symbolVal(propName)] = scheme.isString(value) ? scheme.stringVal(value) : value.val;
     return value;
 }
 
@@ -141,15 +141,15 @@ function setDomEventProperty(argv) {
     var dom = argv[0];
     var eventName = argv[1];
     var proc = argv[2];
-    if(!dom.isJSObject())
-        return s.wrongContract("dom-set-event", "jsobject?", 0, argv);
-    if(!eventName.isSymbol())
-        return s.wrongContract("dom-set-event", "symbol?", 1, argv);
-    if(!proc.isProcedure())
-        return s.wrongContract("dom-set-event", "procedure?", 2, argv);
-    s.objectVal(dom)[s.symbolVal(eventName)] = function(event) {
-        var argv = [s.makeJSObject(event)];
-        s.apply(proc, argv);
+    if(!scheme.isJSObject(dom))
+        return scheme.wrongContract("dom-set-event", "jsobject?", 0, argv);
+    if(!scheme.isSymbol(eventName))
+        return scheme.wrongContract("dom-set-event", "symbol?", 1, argv);
+    if(!scheme.isProcedure(proc))
+        return scheme.wrongContract("dom-set-event", "procedure?", 2, argv);
+    scheme.objectVal(dom)[scheme.symbolVal(eventName)] = function(event) {
+        var argv = [scheme.makeJSObject(event)];
+        scheme.apply(proc, argv);
     }
     return proc;
 }
@@ -157,29 +157,29 @@ function setDomEventProperty(argv) {
 function getDomProperty(argv) {
     var dom = argv[0];
     var propName = argv[1];
-    if(!dom.isJSObject())
-        return s.wrongContract("dom-get", "jsobject?", 0, argv);
-    if(!propName.isSymbol())
-        return s.wrongContract("dom-get", "symbol?", 1, argv);
-    return jsObjectToScmObject(s.objectVal(dom)[s.symbolVal(propName)]);
+    if(!scheme.isJSObject(dom))
+        return scheme.wrongContract("dom-get", "jsobject?", 0, argv);
+    if(!scheme.isSymbol(propName))
+        return scheme.wrongContract("dom-get", "symbol?", 1, argv);
+    return jsObjectToScmObject(scheme.objectVal(dom)[scheme.symbolVal(propName)]);
 }
 
 
 function clientjsAlert(argv) {
-    var msg = argv.length > 0 ? s.displayToString(argv[0]) : "";
+    var msg = argv.length > 0 ? scheme.displayToString(argv[0]) : "";
     window.alert(msg);
-    return s.voidValue;
+    return scheme.voidValue;
 }
 
 function clientjsPrompt(argv) {
-    var msg = argv.length > 0 ? s.displayToString(argv[0]) : "";
-    var val = argv.length > 1 ? s.displayToString(argv[1]) : "";
-    return s.makeString(window.prompt(msg, val));
+    var msg = argv.length > 0 ? scheme.displayToString(argv[0]) : "";
+    var val = argv.length > 1 ? scheme.displayToString(argv[1]) : "";
+    return scheme.makeString(window.prompt(msg, val));
 }
 
 function clientjsConfirm(argv) {
-    var msg = argv.length > 0 ? s.displayToString(argv[0]) : "";
-    return s.getBoolean(window.confirm(msg));
+    var msg = argv.length > 0 ? scheme.displayToString(argv[0]) : "";
+    return scheme.getBoolean(window.confirm(msg));
 }
 
 function drawBoxAndPointer(argv) {
@@ -192,29 +192,29 @@ function drawBoxAndPointer(argv) {
     
     var ctx = canvas.getContext("2d");
     BoxAndPointer.calc(BoxAndPointer.from(argv[0])).draw(ctx);
-    return s.voidValue;
+    return scheme.voidValue;
 }
 
 function randomInt(argv) {
     var n = argv[0];
     var m = argv[1];
-    if(!n.isInteger())
-        return s.wrongContract("random-int", "integer?", 0, argv);
-    if(!n.isInteger())
-        return s.wrongContract("random-int", "integer?", 1, argv);
-    n = s.intVal(n);
-    m = s.intVal(m);
-    return s.makeInt(Math.floor(Math.random() * (m - n)) + n);
+    if(!scheme.isInteger(n))
+        return scheme.wrongContract("random-int", "integer?", 0, argv);
+    if(!scheme.isInteger(m))
+        return scheme.wrongContract("random-int", "integer?", 1, argv);
+    n = scheme.intVal(n);
+    m = scheme.intVal(m);
+    return scheme.makeInt(Math.floor(Math.random() * (m - n)) + n);
 }
 
 function jsObjectToScmObject(jsObj) {
     if(typeof jsObj == "undefined")
-        return s.makeJSObject(jsObj);
+        return scheme.makeJSObject(jsObj);
     switch(jsObj.constructor) {
-        case Number: return s.makeReal(jsObj);
-        case String: return s.makeString(jsObj);
-        case Boolean: return s.makeBoolean(jsObj);
-        default: return s.makeJSObject(jsObj);
+        case Number: return scheme.makeDouble(jsObj);
+        case String: return scheme.makeString(jsObj);
+        case Boolean: return scheme.makeBoolean(jsObj);
+        default: return scheme.makeJSObject(jsObj);
     }
 }
 

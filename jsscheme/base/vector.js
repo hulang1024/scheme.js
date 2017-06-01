@@ -1,11 +1,11 @@
-﻿(function(s){
+﻿(function(scheme){
 "use strict";
 
-s.initVector = function(env) {
+scheme.initVector = function(env) {
 }
 
-s.makeVector = function(val) {
-    return new s.Object(11, val);
+scheme.makeVector = function(val) {
+    return new scheme.Object(scheme_vector_type, val);
 }
 
 })(scheme);

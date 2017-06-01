@@ -1,45 +1,45 @@
-﻿(function(s){
+﻿(function(scheme){
 "use strict";
 
-s.error = null;
+scheme.error = null;
 
-s.restError = function() { s.error = null; }
+scheme.restError = function() { scheme.error = null; }
 
 scheme.Error = function(objs) {
     this.objs = objs;
 }
 
-s.throwError = function() {
-    s.error = new scheme.Error([].slice.call(arguments, 0));
-    throw s.error;
+scheme.throwError = function() {
+    scheme.error = new scheme.Error([].slice.call(arguments, 0));
+    throw scheme.error;
 }
 
-s.arityMismatchError = function(procedureName, args, isAtleast, expected, given) {
-    s.throwError("arityMismatch", procedureName, args, isAtleast, expected, given);
+scheme.arityMismatchError = function(procedureName, args, isAtleast, expected, given) {
+    scheme.throwError("arityMismatch", procedureName, args, isAtleast, expected, given);
 }
 
-s.wrongContract = function(procedureName, expected, index, argv) {
-    s.throwError("contractViolation", procedureName, expected, index, argv);
+scheme.wrongContract = function(procedureName, expected, index, argv) {
+    scheme.throwError("contractViolation", procedureName, expected, index, argv);
 }
 
-s.indexOutRangeError = function(procedureName, type, startIndex, endIndex, invalid, length, obj) {
-    s.throwError("indexOutRange", procedureName, type, startIndex, endIndex, invalid, length, obj);
+scheme.indexOutRangeError = function(procedureName, type, startIndex, endIndex, invalid, length, obj) {
+    scheme.throwError("indexOutRange", procedureName, type, startIndex, endIndex, invalid, length, obj);
 }
 
-s.applicationError = function(given) {
-    s.throwError("application", given);
+scheme.applicationError = function(given) {
+    scheme.throwError("application", given);
 }
 
-s.outputError = function() {
+scheme.outputError = function() {
     function getMutilLineArgStr(objs) {
         var str = "";
         objs.forEach(function(obj){
-            str += "\n   " + s.displayToString(obj);
+            str += "\n   " + scheme.displayToString(obj);
         });
         return str;
     }
     
-    var error = s.error.objs;
+    var error = scheme.error.objs;
     var errorType = error[0];
     var info;
     switch(errorType) {
@@ -64,7 +64,7 @@ s.outputError = function() {
         var given = argv[index];
         info = procedureName + ": " + "contract violation";
         info += "\n  expected: " + expected;
-        info += "\n  given: " + s.writeToString(given);
+        info += "\n  given: " + scheme.writeToString(given);
         if(argv.length > 1) {
             info += "\n  argument position: " + (index + 1);
             var otherArgs = argv.filter(function(a,i){ return i != index; });
@@ -89,7 +89,7 @@ s.outputError = function() {
             else {
                 info += "\n  index: " + startIndex;
                 info += "\n  valid range: [0, " + (length - 1) + "]";
-                info += "\n  " + type + ": " + s.writeToString(obj);
+                info += "\n  " + type + ": " + scheme.writeToString(obj);
             }
         }
         else {
@@ -104,14 +104,14 @@ s.outputError = function() {
                 info += "\n  starting index: " + startIndex;
                 info += "\n  valid range: [0, " + length + "]";
             }
-            info += "\n  " + type + ": " + s.writeToString(obj);
+            info += "\n  " + type + ": " + scheme.writeToString(obj);
         }
         break;
     case "application":
         var given = error[1];
         info = "application: not a procedure;";
         info += "\n  expected a procedure that can be applied to arguments";
-        info += "\n  given: " + s.writeToString(given);
+        info += "\n  given: " + scheme.writeToString(given);
         break;
     case "undefined":
         var id = error[1];
@@ -124,7 +124,7 @@ s.outputError = function() {
         info = error[0] + ": " + error[1];
     }
     
-    s.console && s.console.log("error", info);
+    scheme.console && scheme.console.log("error", info);
     console.log(info)
 }
 })(scheme);

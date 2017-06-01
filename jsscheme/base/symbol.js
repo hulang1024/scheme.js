@@ -1,80 +1,80 @@
-﻿(function(s){
+﻿(function(scheme){
 "use strict";
 
-s.initSymbol = function(env) {
-    s.addPrimProc(env, "symbol?", symbol_p, 1);
-    s.addPrimProc(env, "symbol->string", symbolToString, 1);
-    s.addPrimProc(env, "symbol->string-ci", symbolToStringCi, 1);
-    s.addPrimProc(env, "string->symbol", stringToSymbol, 1);
+scheme.initSymbol = function(env) {
+    scheme.addPrimProc(env, "symbol?", symbol_p, 1);
+    scheme.addPrimProc(env, "symbol->string", symbolToString, 1);
+    scheme.addPrimProc(env, "symbol->string-ci", symbolToStringCi, 1);
+    scheme.addPrimProc(env, "string->symbol", stringToSymbol, 1);
     
-    s.resetGenSymbol();
+    scheme.resetGenSymbol();
 }
 
-s.makeSymbol = function(val) {
-    return new s.Object(6, val);
+scheme.makeSymbol = function(val) {
+    return new scheme.Object(scheme_symbol_type, val);
 }
-s.symbolVal = function(obj) { return obj.val; }
+scheme.symbolVal = function(obj) { return obj.val; }
 
-s.symbolTable = [];
-s.internSymbol = function(str) {
+scheme.symbolTable = [];
+scheme.internSymbol = function(str) {
     var nameInTable = "__scheme_symbol_" + str;
-    var sym = s.symbolTable[nameInTable];
-    if(!(sym instanceof s.Object)) {
-        sym = s.makeSymbol(str);
-        s.symbolTable[nameInTable] = sym;
+    var sym = scheme.symbolTable[nameInTable];
+    if(!(sym instanceof scheme.Object)) {
+        sym = scheme.makeSymbol(str);
+        scheme.symbolTable[nameInTable] = sym;
     }
     return sym;
 }
 
-s.dotSymbol = s.internSymbol('.');
-s.quoteSymbol = s.internSymbol('quote');
-s.ifSymbol = s.internSymbol('if');
-s.defineSymbol = s.internSymbol('define');
-s.assignmentSymbol = s.internSymbol('set!');
-s.lambdaSymbol = s.internSymbol('lambda');
-s.beginSymbol = s.internSymbol('begin');
-s.condSymbol = s.internSymbol('cond');
-s.caseSymbol = s.internSymbol('case');
-s.elseSymbol = s.internSymbol('else');
-s.andSymbol = s.internSymbol('and');
-s.orSymbol = s.internSymbol('or');
-s.whenSymbol = s.internSymbol('when');
-s.unlessSymbol = s.internSymbol('unless');
-s.letSymbol = s.internSymbol('let');
-s.doSymbol = s.internSymbol('do');
-s.whileSymbol = s.internSymbol('while');
-s.forSymbol = s.internSymbol('for');
+scheme.dotSymbol = scheme.internSymbol('.');
+scheme.quoteSymbol = scheme.internSymbol('quote');
+scheme.ifSymbol = scheme.internSymbol('if');
+scheme.defineSymbol = scheme.internSymbol('define');
+scheme.assignmentSymbol = scheme.internSymbol('set!');
+scheme.lambdaSymbol = scheme.internSymbol('lambda');
+scheme.beginSymbol = scheme.internSymbol('begin');
+scheme.condSymbol = scheme.internSymbol('cond');
+scheme.caseSymbol = scheme.internSymbol('case');
+scheme.elseSymbol = scheme.internSymbol('else');
+scheme.andSymbol = scheme.internSymbol('and');
+scheme.orSymbol = scheme.internSymbol('or');
+scheme.whenSymbol = scheme.internSymbol('when');
+scheme.unlessSymbol = scheme.internSymbol('unless');
+scheme.letSymbol = scheme.internSymbol('let');
+scheme.doSymbol = scheme.internSymbol('do');
+scheme.whileSymbol = scheme.internSymbol('while');
+scheme.forSymbol = scheme.internSymbol('for');
 
 function symbol_p(argv) {
-    return s.getBoolean(argv[0].isSymbol());
+    return scheme.getBoolean(scheme.isSymbol(argv[0]));
 }
 
 function symbolToString(argv) {
-    if(!argv[0].isSymbol())
-        return s.wrongContract("symbol->string", "symbol?", 0, argv);
-    return s.makeString(s.symbolVal(argv[0]).toLowerCase());
+    if(!scheme.isSymbol(argv[0]))
+        return scheme.wrongContract("symbol->string", "symbol?", 0, argv);
+    return scheme.makeString(scheme.symbolVal(argv[0]).toLowerCase());
 }
 
 function symbolToStringCi(argv) {
-    if(!argv[0].isSymbol())
-        return s.wrongContract("symbol->string", "symbol?", 0, argv);
-    return s.makeString(s.symbolVal(argv[0]));
+    if(!scheme.isSymbol(argv[0]))
+        return scheme.wrongContract("symbol->string", "symbol?", 0, argv);
+    return scheme.makeString(scheme.symbolVal(argv[0]));
 }
 
 function stringToSymbol(argv) {
-    if(!argv[0].isString())
-        return s.wrongContract("string->symbol", "string?", 0, argv);
-    return s.makeSymbol(s.stringVal(argv[0]));
+    if(!scheme.isString(argv[0]))
+        return scheme.wrongContract("string->symbol", "string?", 0, argv);
+    return scheme.makeSymbol(scheme.stringVal(argv[0]));
 }
 
 
 var gensymNum = 0;
-s.resetGenSymbol = function() {
+scheme.resetGenSymbol = function() {
     gensymNum = 0;
 }
-s.genSymbol = function() {
+scheme.genSymbol = function() {
     gensymNum++;
-    return s.makeSymbol("__scheme_gensym_" + gensymNum);
+    return scheme.makeSymbol("__scheme_gensym_" + gensymNum);
 }
 
 })(scheme);

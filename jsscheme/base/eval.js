@@ -2,25 +2,25 @@
   包含eval-apply循环
   以及eval过程，evalObjects、evalString等外部接口。
  */
-(function(s){
+(function(scheme){
 "use strict";
 
-s.initEval = function(env) {
-    s.addPrimProc(env, "eval", eval_prim, 2);
+scheme.initEval = function(env) {
+    scheme.addPrimProc(env, "eval", eval_prim, 2);
 }
 
-s.apply = apply;
+scheme.apply = apply;
 
 
-s.evalString = function(str) {
-    return s.evalStringWithEnv(str, s.globalEnv);
+scheme.evalString = function(str) {
+    return scheme.evalStringWithEnv(str, scheme.globalEnv);
 }
 
-s.evalStringWithNewEnv = function(str) {
-    return s.evalStringWithEnv(str, s.makeGlobalEnv());
+scheme.evalStringWithNewEnv = function(str) {
+    return scheme.evalStringWithEnv(str, scheme.makeGlobalEnv());
 }
 
-s.evalStringWithEnv = function(str, env) {
+scheme.evalStringWithEnv = function(str, env) {
     scheme.restError();
     var exps;
     try {
@@ -30,15 +30,15 @@ s.evalStringWithEnv = function(str, env) {
             scheme.outputError();
         console.error(e);
     }
-    return s.evalObjects(exps, env);
+    return scheme.evalObjects(exps, env);
 }
 
-s.evalObjects = function(exps, env) {
+scheme.evalObjects = function(exps, env) {
     scheme.restError();
     var valObj;
     try {
-        for(var i = 0; i < exps.length; i++) {
-            valObj = evaluate(exps[i], env);
+        for(var idx = 0; idx < exps.length; idx++) {
+            valObj = evaluate(exps[idx], env);
             scheme.outputValue(valObj);
         }
     } catch(e) {
@@ -52,8 +52,8 @@ s.evalObjects = function(exps, env) {
 function eval_prim(argv) {
     var exp = argv[0];
     var env = argv[1];
-    if(!env.isNamespace())
-        return s.wrongContract("meval", "namespace?", 0, argv);
+    if(!scheme.isNamespace(env))
+        return scheme.wrongContract("meval", "namespace?", 0, argv);
     return evaluate(exp, env.val);
 }
 
@@ -61,72 +61,77 @@ function eval_prim(argv) {
 // evaluations
 //-------------
 function evaluate(exp, env) {
-    if(exp == s.voidValue) {
+    if(exp == scheme.voidValue) {
         return exp;
-    }
-    else if(isSelfEvaluating(exp)) {
+    } else if(isSelfEvaluating(exp)) {
         return exp;
-    }
-    else if(exp.isSymbol()) {
-        return s.lookup(exp, env);
-    }
-    else if(exp.isPair()) {
-        var first = s.car(exp);
-        if(first.isSymbol()) {
-            if(first == s.quoteSymbol) {
-                return evalQuotation(exp);
+    } else if(scheme.isSymbol(exp)) {
+        return scheme.lookup(exp, env);
+    } else if(scheme.isPair(exp)) {
+        var first = scheme.car(exp);
+        if(scheme.isSymbol(first)) {
+            switch(first) {
+                case scheme.quoteSymbol:
+                    return evalQuotation(exp);
+                case scheme.assignmentSymbol:
+                    return evalAssignment(exp, env);
+                case scheme.defineSymbol:
+                    return evalDefinition(exp, env);
+                case scheme.ifSymbol:
+                    return evalIf(exp, env);
+                case scheme.lambdaSymbol:
+                    return evalLambda(exp, env);
+                case scheme.beginSymbol:
+                    return evalSequence(scheme.beginActions(exp), env);
+                case scheme.letSymbol:
+                    return evaluate(scheme.letToCombination(exp), env);
+                case scheme.condSymbol:
+                    return evaluate(scheme.transformCond(exp), env);
+                case scheme.caseSymbol:
+                    return evaluate(scheme.transformCase(exp), env);
+                case scheme.andSymbol:
+                    return evaluate(scheme.transformAnd(exp), env);
+                case scheme.orSymbol:
+                    return evaluate(scheme.transformOr(exp), env);
+                case scheme.whenSymbol:
+                    return evaluate(scheme.transformWhen(exp), env);
+                case scheme.unlessSymbol:
+                    return evaluate(scheme.transformUnless(exp), env);
+                case scheme.doSymbol:
+                    return evaluate(scheme.transformDo(exp), env);
+                case scheme.whileSymbol:
+                    return evaluate(scheme.transformWhile(exp), env);
+                case scheme.forSymbol:
+                    return evaluate(scheme.transformFor(exp), env);
+                default:
+                    ;//apply
             }
-            else if(first == s.assignmentSymbol) {
-                return evalAssignment(exp, env);
-            }
-            else if(first == s.defineSymbol) {
-                return evalDefinition(exp, env);
-            }
-            else if(first == s.ifSymbol) {
-                return evalIf(exp, env);
-            }
-            else if(first == s.lambdaSymbol) {
-                return evalLambda(exp, env);
-            }
-            else if(first == s.beginSymbol) {
-                return evalSequence(s.beginActions(exp), env);
-            }
-            else if(first == s.letSymbol) return evaluate(s.letToCombination(exp), env);
-            else if(first == s.condSymbol) return evaluate(s.transformCond(exp), env);
-            else if(first == s.caseSymbol) return evaluate(s.transformCase(exp), env);
-            else if(first == s.andSymbol) return evaluate(s.transformAnd(exp), env);
-            else if(first == s.orSymbol) return evaluate(s.transformOr(exp), env);
-            else if(first == s.whenSymbol) return evaluate(s.transformWhen(exp), env);
-            else if(first == s.unlessSymbol) return evaluate(s.transformUnless(exp), env);
-            else if(first == s.doSymbol) return evaluate(s.transformDo(exp), env);
-            else if(first == s.whileSymbol) return evaluate(s.transformWhile(exp), env);
-            else if(first == s.forSymbol) return evaluate(s.transformFor(exp), env);
         }
-        return apply(evaluate(s.operator(exp), env), listOfValues(s.operands(exp), env), env);
+        return apply(evaluate(scheme.operator(exp), env), listOfValues(scheme.operands(exp), env), env);
+    } else {
+        return scheme.throwError('eval', "unknown expression type");
     }
-    else
-        return s.throwError('eval', "unknown expression type");
 }
 
 // 过程(函数)调用
 function apply(procedure, argv, env) {
-    if(s.error)
-        throw s.error;
+    if(scheme.error)
+        throw scheme.error;
 
-    if(procedure.isPrimProc()) {
+    if(scheme.isPrim(procedure)) {
         var ok = matchArity(procedure, argv);
         if(ok) {
             return procedure.val.getFunc()(argv);
         }
     }
-    else if(procedure.isCompProc()) {
+    else if(scheme.isComp(procedure)) {
         var ok = matchArity(procedure, argv);
         if(ok) {
             //将形式参数约束于对应到实际参数
             var bindings = {};
             var paramters = procedure.val.getParamters();
             var arity = procedure.val.getArity();
-            var argvList = s.arrayToList(argv);
+            var argvList = scheme.arrayToList(argv);
             if(arity.length == 1) {     // 0个或固定数量参数
                 for(var index = 0; index < paramters.length; index++)
                     bindings[paramters[index].val] = argv[index];
@@ -135,7 +140,7 @@ function apply(procedure, argv, env) {
                 var index;
                 for(index = 0; index < paramters.length - 1; index++)
                     bindings[paramters[index].val] = argv[index];
-                bindings[paramters[index].val] = s.arrayToList(argv.slice(index));
+                bindings[paramters[index].val] = scheme.arrayToList(argv.slice(index));
             }
             else if(arity[0] == 0) {    // n个参数
                 bindings[paramters[0].val] = argvList;
@@ -145,57 +150,57 @@ function apply(procedure, argv, env) {
             bindings["callee"] = procedure;
             
             //构造一个新环境,将创建该过程时的环境作为外围环境
-            var newEnv = s.extendEnv(bindings, procedure.val.getEnv());
+            var newEnv = scheme.extendEnv(bindings, procedure.val.getEnv());
             //在这个新环境上下文中求值过程体
             var lastValue = evalSequence(procedure.val.getBody(), newEnv);
             return lastValue;
         }
     }
     else
-        s.applicationError(procedure);
+        scheme.applicationError(procedure);
 }
 
 function isSelfEvaluating(exp) {
-    return (exp.isNumber() || exp.isChar() || exp.isString() || exp.isBoolean());
+    return (scheme.isNumber(exp) || scheme.isChar(exp) || scheme.isString(exp) || scheme.isBoolean(exp));
 }
 
 
 function listOfValues(operands, env) {
     var values = [];
-    while(!operands.isEmptyList()) {
-        values.push(evaluate(s.car(operands), env));
-        operands = s.cdr(operands);
+    while(!scheme.isEmptyList(operands)) {
+        values.push(evaluate(scheme.car(operands), env));
+        operands = scheme.cdr(operands);
     }
     return values;
 }
 
 function evalQuotation(exp) {
-    return s.quoteObject(exp);
+    return scheme.quoteObject(exp);
 }
 
 function evalAssignment(exp, env) {
-    s.setVariableValue(s.assignmentVar(exp), evaluate(s.assignmentVal(exp), env), env);
-    return s.voidValue;
+    scheme.setVariableValue(scheme.assignmentVar(exp), evaluate(scheme.assignmentVal(exp), env), env);
+    return scheme.voidValue;
 }
 
 function evalDefinition(exp, env) {
-    var variable = s.definitionVar(exp);
-    if(!variable.isSymbol())
-        return s.throwError('define', "not an identifier: " + s.writeToString(variable));
-    var value = evaluate(s.definitionVal(exp), env);
-    if(value.isCompProc())
-        value.val.setName(s.symbolVal(variable));
-    s.defineVariable(variable, value, env);
-    return s.voidValue;
+    var variable = scheme.definitionVar(exp);
+    if(!scheme.isSymbol(variable))
+        return scheme.throwError('define', "not an identifier: " + scheme.writeToString(variable));
+    var value = evaluate(scheme.definitionVal(exp), env);
+    if(scheme.isComp(value))
+        value.val.setName(scheme.symbolVal(variable));
+    scheme.defineVariable(variable, value, env);
+    return scheme.voidValue;
 }
 
 function evalIf(exp, env) {
-    if(s.isTrue(evaluate(s.ifPredicate(exp), env)))
-        return evaluate(s.ifConsequent(exp), env);
+    if(scheme.isTrue(evaluate(scheme.ifPredicate(exp), env)))
+        return evaluate(scheme.ifConsequent(exp), env);
     else {
-        var alt = s.ifAlternative(exp);
-        if(alt.isEmptyList())
-            return s.voidValue;
+        var alt = scheme.ifAlternative(exp);
+        if(scheme.isEmptyList(alt))
+            return scheme.voidValue;
         else
             return evaluate(alt, env);
     }
@@ -203,22 +208,22 @@ function evalIf(exp, env) {
 
 function evalLambda(exp, env) {
     //计算参数数量
-    var formals = s.lambdaParamters(exp);
+    var formals = scheme.lambdaParamters(exp);
     var paramters = [];//参数数组
     var minArgs, maxArgs;
-    if(formals.isPair()) {
+    if(scheme.isPair(formals)) {
         var isList = false;
         var listLen = 0;
-        for(var obj = formals; !isList && obj.isPair(); obj = s.cdr(obj)) {
+        for(var obj = formals; !isList && scheme.isPair(obj); obj = scheme.cdr(obj)) {
             listLen++;
-            paramters.push(s.car(obj));
-            if(s.car(obj).isEmptyList())
+            paramters.push(scheme.car(obj));
+            if(scheme.isEmptyList(scheme.car(obj)))
                 isList = true;
         }
-        if(!obj.isEmptyList())
+        if(!scheme.isEmptyList(obj))
             paramters.push(obj);
         else
-            isList = obj.isEmptyList();
+            isList = scheme.isEmptyList(obj);
         if(isList) {
             minArgs = listLen;
             maxArgs = undefined;
@@ -227,26 +232,26 @@ function evalLambda(exp, env) {
             maxArgs = -1;
         }
     }
-    else if(formals.isSymbol()) {
+    else if(scheme.isSymbol(formals)) {
         paramters.push(formals);
         minArgs = 0;
         maxArgs = -1;
     }
-    else if(formals.isEmptyList()) {
+    else if(scheme.isEmptyList(formals)) {
         minArgs = 0;
         maxArgs = undefined;
     }
     else {
-        return s.throwError('','not an identifier');
+        return scheme.throwError('','not an identifier');
     }
     //做一个过程
-    return s.makeCompoundProcedure("", paramters, s.lambdaBody(exp), env, minArgs, maxArgs);
+    return scheme.makeCompoundProcedure("", paramters, scheme.lambdaBody(exp), env, minArgs, maxArgs);
 }
 
 function evalSequence(exps, env) {
-    var lastValue = s.voidValue;
-    for(; !exps.isEmptyList(); exps = s.cdr(exps))
-        lastValue = evaluate(s.car(exps), env);
+    var lastValue = scheme.voidValue;
+    for(; !scheme.isEmptyList(exps); exps = scheme.cdr(exps))
+        lastValue = evaluate(scheme.car(exps), env);
     return lastValue;
 }
 
@@ -275,7 +280,7 @@ function matchArity(procedure, argv) {
             mismatch = true;
     }
     if(mismatch) 
-        s.arityMismatchError(procedure.val.getName(), argv, isAtleast, expected, argv.length);
+        scheme.arityMismatchError(procedure.val.getName(), argv, isAtleast, expected, argv.length);
     return !mismatch;
 }
 

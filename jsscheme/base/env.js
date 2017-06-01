@@ -1,93 +1,93 @@
-(function(s){
+(function(scheme){
 "use strict";
 
-s.Env = function(bindings, parentEnv) {
+scheme.Env = function(bindings, parentEnv) {
     this.bindings = bindings;
     this.parent = parentEnv;
 }
 
-s.addPrimProc = function(env, name, func, minArgs, maxArgs) {
-    env.bindings[name] = s.makePrimitiveProcedure(name, func, minArgs, maxArgs);
+scheme.addPrimProc = function(env, name, func, minArgs, maxArgs) {
+    env.bindings[name] = scheme.makePrimitiveProcedure(name, func, minArgs, maxArgs);
 }
 
-s.addObject = function(env, name, obj) {
+scheme.addObject = function(env, name, obj) {
     env.bindings[name] = obj;
 }
 
-s.globalEnv = null;
-s.basicEnv = null;
+scheme.globalEnv = null;
+scheme.basicEnv = null;
 
-s.initBasicEnv = function() {
-    s.basicEnv = new s.Env({}, null);
-    var env = s.basicEnv;
-    s.initSymbol(env);
-    s.initBool(env);
-    s.initNumber(env);
-    s.initNumComp(env);
-    s.initNumArith(env);
-    s.initNumStr(env);
-    s.initChar(env);
-    s.initString(env);
-    s.initList(env);
-    s.initVector(env);
-    s.initFun(env);
-    s.initRead(env);
-    s.initPrint(env);
-    s.initEval(env);
-    s.initJSObject(env);
+scheme.initBasicEnv = function() {
+    scheme.basicEnv = new scheme.Env({}, null);
+    var env = scheme.basicEnv;
+    scheme.initSymbol(env);
+    scheme.initBool(env);
+    scheme.initNumber(env);
+    scheme.initNumComp(env);
+    scheme.initNumArith(env);
+    scheme.initNumStr(env);
+    scheme.initChar(env);
+    scheme.initString(env);
+    scheme.initList(env);
+    scheme.initVector(env);
+    scheme.initFun(env);
+    scheme.initRead(env);
+    scheme.initPrint(env);
+    scheme.initEval(env);
+    scheme.initJSObject(env);
     
     // init lib
-    s.evalStringWithEnv(SCHEME_LIB_SRC, env);
+    scheme.evalStringWithEnv(SCHEME_LIB_SRC, env);
     
-    s.addPrimProc(env, "interaction-environment", interactionEnvironment, 0);
+    scheme.addPrimProc(env, "interaction-environment", interactionEnvironment, 0);
 }
 
-s.makeGlobalEnv = function() {
-    s.globalEnv = s.extendEnv({}, s.basicEnv);
-    return s.globalEnv;
+scheme.makeGlobalEnv = function() {
+    scheme.globalEnv = scheme.extendEnv({}, scheme.basicEnv);
+    return scheme.globalEnv;
 }
 
-s.makeNamespace = function(env) {
-    return new s.Object(10, env);
+scheme.makeNamespace = function(env) {
+    return new scheme.Object(scheme_namespace_type, env);
 }
 
 function isNamespace(args) {
-    return s.getBoolean(s.car(args).isNamespace());
+    return scheme.getBoolean(scheme.isNamespace(scheme.car(args)));
 }
 
-s.lookup = function(variable, env) {
-    var name = s.symbolVal(variable);
+scheme.lookup = function(variable, env) {
+    var name = scheme.symbolVal(variable);
     var value;
-    while(env && !((value = env.bindings[name]) instanceof s.Object))
+    while(env && !((value = env.bindings[name]) instanceof scheme.Object))
         env = env.parent;
-    if(!(value instanceof s.Object))
-        return s.throwError('undefined', name);
+    if(!(value instanceof scheme.Object))
+        return scheme.throwError('undefined', name);
     return value;
 }
 
-s.extendEnv = function(bindings, parentEnv) {
-    return new s.Env(bindings, parentEnv);
+scheme.extendEnv = function(bindings, parentEnv) {
+    return new scheme.Env(bindings, parentEnv);
 }
 
-s.defineVariable = function(variable, value, env) {
-    if(!variable.isSymbol())
-        return s.throwError('define', "not an identifier: " + s.writeToString(variable));
-    env.bindings[s.symbolVal(variable)] = value;
+scheme.defineVariable = function(variable, value, env) {
+    if(!scheme.isSymbol(variable))
+        return scheme.throwError('define', "not an identifier: " + scheme.writeToString(variable));
+    env.bindings[scheme.symbolVal(variable)] = value;
 }
 
-s.setVariableValue = function(variable, value, env) {
-    if(!variable.isSymbol())
-        return s.throwError('set!', "not an identifier: " + s.writeToString(variable));
-    var name = s.symbolVal(variable);
-    while(env && !(env.bindings[name] instanceof s.Object))
+scheme.setVariableValue = function(variable, value, env) {
+    if(!scheme.isSymbol(variable))
+        return scheme.throwError('set!', "not an identifier: " + scheme.writeToString(variable));
+    var name = scheme.symbolVal(variable);
+    while(env && !(env.bindings[name] instanceof scheme.Object))
         env = env.parent;
     if(env == null)
-        return s.throwError('undefined', name);
+        return scheme.throwError('undefined', name);
     env.bindings[name] = value;
 }
 
 function interactionEnvironment() {
-    return s.makeNamespace(s.globalEnvironment);
+    return scheme.makeNamespace(scheme.globalEnvironment);
 }
 
 })(scheme);

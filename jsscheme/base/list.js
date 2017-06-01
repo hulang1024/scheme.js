@@ -1,23 +1,23 @@
-﻿(function(s){
+﻿(function(scheme){
 "use strict";
 
-s.initList = function(env) {
-    s.addPrimProc(env, "pair?", pair_p, 1);
-    s.addPrimProc(env, "list?", list_p, 1);
-    s.addPrimProc(env, "null?", null_p, 1);
-    s.addPrimProc(env, "cons", cons_prim, 2);
-    s.addPrimProc(env, "car", car_prim, 1);
-    s.addPrimProc(env, "cdr", cdr_prim, 1);
-    s.addPrimProc(env, "set-car!", setCar, 2);
-    s.addPrimProc(env, "set-cdr!", setCdr, 2);
-    s.addPrimProc(env, "list", list_prim, 0, -1);
-    s.addPrimProc(env, "list-ref", listRef, 2);
-    s.addPrimProc(env, "length", length, 1);
-    s.addPrimProc(env, "append", append, 0, -1);
-    s.addPrimProc(env, "reverse", reverse, 1);
-    s.addPrimProc(env, "list-tail", listTail, 2);
+scheme.initList = function(env) {
+    scheme.addPrimProc(env, "pair?", pair_p, 1);
+    scheme.addPrimProc(env, "list?", list_p, 1);
+    scheme.addPrimProc(env, "null?", null_p, 1);
+    scheme.addPrimProc(env, "cons", cons_prim, 2);
+    scheme.addPrimProc(env, "car", car_prim, 1);
+    scheme.addPrimProc(env, "cdr", cdr_prim, 1);
+    scheme.addPrimProc(env, "set-car!", setCar, 2);
+    scheme.addPrimProc(env, "set-cdr!", setCdr, 2);
+    scheme.addPrimProc(env, "list", list_prim, 0, -1);
+    scheme.addPrimProc(env, "list-ref", listRef, 2);
+    scheme.addPrimProc(env, "length", length, 1);
+    scheme.addPrimProc(env, "append", append, 0, -1);
+    scheme.addPrimProc(env, "reverse", reverse, 1);
+    scheme.addPrimProc(env, "list-tail", listTail, 2);
     listFuncNames.forEach(function(funcName){
-        s.addPrimProc(env, funcName, window.eval('scheme.' + funcName + "_prim"), 1);
+        scheme.addPrimProc(env, funcName, window.eval('scheme.' + funcName + "_prim"), 1);
     });
 }
 
@@ -30,8 +30,8 @@ var listFuncNames = [
 function genListFuncs() {
     listFuncNames.forEach(function(funcName){
         var argName = "argv";
-        s[funcName] = new Function(argName, genFuncBody(funcName, argName));
-        s[funcName + "_prim"] = new Function(argName, genPrimBody(funcName, argName));;
+        scheme[funcName] = new Function(argName, genFuncBody(funcName, argName));
+        scheme[funcName + "_prim"] = new Function(argName, genPrimBody(funcName, argName));;
     });
     
     function genFuncBody(funcName, argName) {
@@ -47,7 +47,7 @@ function genListFuncs() {
             var pexp = "argv[0]";
             for(var i = funcName.length - 2; i > j; i--)
                 pexp = (funcName[i] == 'a' ? "scheme.car" : "scheme.cdr") + "(" +  pexp + ")";
-            pexp += ".isPair()";
+            pexp = "scheme.isPair(" + pexp + ")";
             body += pexp;
             if(j > 1)
                 body += "&&";
@@ -60,64 +60,64 @@ function genListFuncs() {
 
 genListFuncs();
     
-s.makePair = function(val) {
-    return new s.Object(7, val);
+scheme.makePair = function(val) {
+    return new scheme.Object(scheme_pair_type, val);
 }
 
-s.makeEmptyList = function(val) {
-    return new s.Object(0, null);
+scheme.makeEmptyList = function(val) {
+    return new scheme.Object(scheme_null_type, null);
 }
 
-s.nil = s.makeEmptyList();
+scheme.nil = scheme.makeEmptyList();
 
-s.arrayToList = function(array) {
-    var lst = s.nil;
+scheme.arrayToList = function(array) {
+    var lst = scheme.nil;
     for(var i = array.length - 1; i >= 0; i--)
-        lst = s.cons(array[i], lst);
+        lst = scheme.cons(array[i], lst);
     return lst;
 }
 
-s.listToArray = function(lst) {
+scheme.listToArray = function(lst) {
     var array = [];
-    while(!lst.isEmptyList()) {
-        array.push(s.car(lst));
-        lst = s.cdr(lst);
+    while(!scheme.isEmptyList(lst)) {
+        array.push(scheme.car(lst));
+        lst = scheme.cdr(lst);
     }
     return array;
 }
 
-s.mapList = function(func, lst, takeArray) {
+scheme.mapList = function(func, lst, takeArray) {
     var ret = [];
-    for(; !lst.isEmptyList(); lst = s.cdr(lst))
-        ret.push(func(s.car(lst)));
-    return !takeArray ? s.arrayToList(ret) : ret;
+    for(; !scheme.isEmptyList(lst); lst = scheme.cdr(lst))
+        ret.push(func(scheme.car(lst)));
+    return !takeArray ? scheme.arrayToList(ret) : ret;
 }
 
-s.append = function(list1, list2) {
-    return list1.isPair() ?
-        s.cons(s.car(list1), s.append(s.cdr(list1), list2)) : list2;
+scheme.append = function(list1, list2) {
+    return scheme.isPair(list1) ?
+        scheme.cons(scheme.car(list1), scheme.append(scheme.cdr(list1), list2)) : list2;
 }
 
-s.cons = function(x, y) { return new s.makePair([x, y]); }
-s.car = function(pair) { return pair.val[0]; }
-s.cdr = function(pair) { return pair.val[1]; }
-s.setCar = function(pair, pcar) { pair.val[0] = pcar; }
-s.setCdr = function(pair, pcdr) { pair.val[1] = pcdr; }
-s.car_prim = car_prim;
-s.cdr_prim = cdr_prim;
-s.list = function() { return s.arrayToList(arguments); }
+scheme.cons = function(x, y) { return new scheme.makePair([x, y]); }
+scheme.car = function(pair) { return pair.val[0]; }
+scheme.cdr = function(pair) { return pair.val[1]; }
+scheme.setCar = function(pair, pcar) { pair.val[0] = pcar; }
+scheme.setCdr = function(pair, pcdr) { pair.val[1] = pcdr; }
+scheme.car_prim = car_prim;
+scheme.cdr_prim = cdr_prim;
+scheme.list = function() { return scheme.arrayToList(arguments); }
 
-s.isList = function(obj) {
-    for(; obj.isPair(); obj = s.cdr(obj))
-        if(s.car(obj).isEmptyList())
+scheme.isList = function(obj) {
+    for(; scheme.isPair(obj); obj = scheme.cdr(obj))
+        if(scheme.isEmptyList(scheme.car(obj)))
             return true;
-    return obj.isEmptyList();
+    return scheme.isEmptyList(obj);
 }
 
-s.listLength = function(lst) {
+scheme.listLength = function(lst) {
     var len = 0;
-    while(!lst.isEmptyList()) {
-        lst = s.cdr(lst);
+    while(!scheme.isEmptyList(lst)) {
+        lst = scheme.cdr(lst);
         len++;
     }
     return len;
@@ -126,93 +126,93 @@ s.listLength = function(lst) {
 function list_p(argv) {
     var obj = argv[0];
     var b = false;
-    for(; !b && obj.isPair(); obj = s.cdr(obj)) {
-        if(s.car(obj).isEmptyList())
+    for(; !b && scheme.isPair(obj); obj = scheme.cdr(obj)) {
+        if(scheme.isEmptyList(scheme.car(obj)))
             b = true;
-        if(s.cdr(obj) === obj) //check cycle ref
-            return s.False;
+        if(scheme.cdr(obj) === obj) //check cycle ref
+            return scheme.False;
     }
-    if(!b && obj.isEmptyList())
+    if(!b && scheme.isEmptyList(obj))
         b = true;
-    return s.getBoolean(b);
+    return scheme.getBoolean(b);
 }
 
 function pair_p(argv) {
-    return s.getBoolean(argv[0].isPair());
+    return scheme.getBoolean(scheme.isPair(argv[0]));
 }
 
 function null_p(argv) {
-    return s.getBoolean(argv[0].isEmptyList());
+    return scheme.getBoolean(scheme.isEmptyList(argv[0]));
 }
 
 function cons_prim(argv){
-    return s.cons(argv[0], argv[1]);
+    return scheme.cons(argv[0], argv[1]);
 }
 
 function car_prim(argv) {
     var obj = argv[0];
-    if(!obj.isPair())
-        return s.wrongContract("car", "pair?", 0, argv);
-    return s.car(obj);
+    if(!scheme.isPair(obj))
+        return scheme.wrongContract("car", "pair?", 0, argv);
+    return scheme.car(obj);
 }
 
 function cdr_prim(argv) {
     var obj = argv[0];
-    if(!obj.isPair())
-        return s.wrongContract("cdr", "pair?", 0, argv);
-    return s.cdr(obj);
+    if(!scheme.isPair(obj))
+        return scheme.wrongContract("cdr", "pair?", 0, argv);
+    return scheme.cdr(obj);
 }
 
 function setCar(argv) {
     var pair = argv[0];
     var pcar = argv[1];
-    if(!pair.isPair())
-        return s.wrongContract("set-car!", "pair?", 0, argv);
-    s.setCar(pair, pcar);
-    return s.voidValue;
+    if(!scheme.isPair(pair))
+        return scheme.wrongContract("set-car!", "pair?", 0, argv);
+    scheme.setCar(pair, pcar);
+    return scheme.voidValue;
 }
 
 function setCdr(argv) {
     var pair = argv[0];
     var pcdr = argv[1];
-    if(!pair.isPair())
-        return s.wrongContract("set-car!", "pair?", 0, argv);
-    s.setCdr(pair, pcdr);
-    return s.voidValue;
+    if(!scheme.isPair(pair))
+        return scheme.wrongContract("set-car!", "pair?", 0, argv);
+    scheme.setCdr(pair, pcdr);
+    return scheme.voidValue;
 }
 
 function list_prim(argv) {
-    return s.arrayToList(argv);
+    return scheme.arrayToList(argv);
 }
 
 function length(argv) {
     var lst = argv[0];
-    if(!s.isList(lst))
-        return s.wrongContract("length", "list?", 0, argv);
-    return s.makeInt(s.listLength(lst));
+    if(!scheme.isList(lst))
+        return scheme.wrongContract("length", "list?", 0, argv);
+    return scheme.makeInt(scheme.listLength(lst));
 }
 
 function append(argv) {
-    var ret = s.nil;
+    var ret = scheme.nil;
     if(argv.length > 0) {
         var i;
         for(i = 0; i < argv.length - 1; i++) {
-            if(!(argv[i].isPair() || argv[i].isEmptyList()))
-                return s.wrongContract("append", "pair?", i, argv);
-            ret = s.append(ret, argv[i]);
+            if(!(scheme.isPair(argv[i]) || scheme.isEmptyList(argv[i])))
+                return scheme.wrongContract("append", "pair?", i, argv);
+            ret = scheme.append(ret, argv[i]);
         }
-        ret = s.append(ret, argv[i]);
+        ret = scheme.append(ret, argv[i]);
     }
     return ret;
 }
 
 function reverse(argv) {
-    var ret = s.nil;
+    var ret = scheme.nil;
     var lst = argv[0]
-    if(!s.isList(lst))
-        return s.wrongContract("reverse", "list?", 0, argv);
-    for(; !lst.isEmptyList(); lst = s.cdr(lst))
-        ret = s.cons(s.car(lst), ret);
+    if(!scheme.isList(lst))
+        return scheme.wrongContract("reverse", "list?", 0, argv);
+    for(; !scheme.isEmptyList(lst); lst = scheme.cdr(lst))
+        ret = scheme.cons(scheme.car(lst), ret);
     return ret;
 }
 
@@ -227,22 +227,22 @@ function listRef(argv) {
 function doCheckedListRef(name, takecar, argv) {
     var lst = argv[0];
     var k = argv[1];
-    if(!lst.isPair())
-        return s.wrongContract(name, "pair?", 0, argv);
-    if(!k.isNumber())
-        return s.wrongContract(name, "exact-nonnegative-integer?", 1, argv);
-    k = s.intVal(k);
+    if(!scheme.isPair(lst))
+        return scheme.wrongContract(name, "pair?", 0, argv);
+    if(!scheme.isNumber(k))
+        return scheme.wrongContract(name, "exact-nonnegative-integer?", 1, argv);
+    k = scheme.intVal(k);
     if(k < 0)
-        return s.wrongContract(name, "exact-nonnegative-integer?", 1, argv);
+        return scheme.wrongContract(name, "exact-nonnegative-integer?", 1, argv);
     for(var i = 0; i < k; i++) {
-        if(!lst.isPair())
-            return s.wrongContract(name, "pair?", 0, argv);
-        lst = s.cdr(lst);
+        if(!scheme.isPair(lst))
+            return scheme.wrongContract(name, "pair?", 0, argv);
+        lst = scheme.cdr(lst);
     }
     if(takecar) {
-        if(!lst.isPair())
-            return s.wrongContract(name, "pair?", 0, argv);
-        return s.car(lst);
+        if(!scheme.isPair(lst))
+            return scheme.wrongContract(name, "pair?", 0, argv);
+        return scheme.car(lst);
     }
     return lst;
 }

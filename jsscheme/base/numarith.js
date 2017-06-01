@@ -1,36 +1,36 @@
 ﻿/*
     数值运算
 */
-(function(s){
+(function(scheme){
 "use strict";
 
-s.initNumArith = function(env) {
-    s.addPrimProc(env, "+", plus, 0, -1);
-    s.addPrimProc(env, "-", minus, 1, -1);
-    s.addPrimProc(env, "*", mul, 0, -1);
-    s.addPrimProc(env, "/", div, 1, -1);
+scheme.initNumArith = function(env) {
+    scheme.addPrimProc(env, "+", plus, 0, -1);
+    scheme.addPrimProc(env, "-", minus, 1, -1);
+    scheme.addPrimProc(env, "*", mul, 0, -1);
+    scheme.addPrimProc(env, "/", div, 1, -1);
 }
 
 function plus(argv) {
     var ret = 0, obj;
     for(var i = 0; i < argv.length; i++) {
         obj = argv[i];
-        if(!obj.isNumber())
-            return s.wrongContract("+", "number?", i, argv);
+        if(!scheme.isNumber(obj))
+            return scheme.wrongContract("+", "number?", i, argv);
         ret += obj.val;
     }
-    return s.makeNumber(ret);
+    return scheme.makeNumber(ret);
 }
 
 function mul(argv) {
     var ret = 1, obj;
     for(var i = 0; i < argv.length; i++) {
         obj = argv[i];
-        if(!obj.isNumber())
-            return s.wrongContract("*", "number?", i, argv);
+        if(!scheme.isNumber(obj))
+            return scheme.wrongContract("*", "number?", i, argv);
         ret *= obj.val;
     }
-    return s.makeNumber(ret);
+    return scheme.makeNumber(ret);
 }
 
 function minus(argv) {
@@ -39,17 +39,17 @@ function minus(argv) {
         ret = argv[0].val;
         for(var i = 1; i < argv.length; i++) {
             obj = argv[i];
-            if(!obj.isNumber())
-                return s.wrongContract("-", "number?", i, argv);
+            if(!scheme.isNumber(obj))
+                return scheme.wrongContract("-", "number?", i, argv);
             ret -= obj.val;
         }
     } else {
         obj = argv[0];
-        if(!obj.isNumber())
-            return s.wrongContract("-", "number?", 0, argv);
+        if(!scheme.isNumber(obj))
+            return scheme.wrongContract("-", "number?", 0, argv);
         ret = - obj.val;
     }
-    return s.makeNumber(ret);
+    return scheme.makeNumber(ret);
 }
 
 function div(argv) {
@@ -58,19 +58,19 @@ function div(argv) {
         ret = argv[0].val;
         for(var i = 1; i < argv.length; i++) {
             obj = argv[i];
-            if(!obj.isNumber())
-                return s.wrongContract("/", "number?", i, argv);
+            if(!scheme.isNumber(obj))
+                return scheme.wrongContract("/", "number?", i, argv);
             if(obj.val == 0)
-                return s.throwError("/", "division by zero");
+                return scheme.throwError("/", "division by zero");
             ret /= obj.val;
         }
     } else {
         obj = argv[0];
-        if(!obj.isNumber())
-            return s.wrongContract("/", "number?", 0, argv);
+        if(!scheme.isNumber(obj))
+            return scheme.wrongContract("/", "number?", 0, argv);
         ret = 1 / obj.val;
     }
-    return s.makeNumber(ret);
+    return scheme.makeNumber(ret);
 }
 
 })(scheme);

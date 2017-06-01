@@ -5,8 +5,8 @@
         load();
     } else {
         var s = document.createElement("script");
-        s.src = rootdir + "./lib/LAB.min.js";
-        s.onload = load;
+        scheme.src = rootdir + "./lib/LAB.min.js";
+        scheme.onload = load;
         document.body.appendChild(s);
     }
     
@@ -33,8 +33,8 @@
             "lib/browserjs",
             "lib/box-pointer",
             "lib/lib",
-            "base/env"].map(function(s){
-                return rootdir + "./jsscheme/" + s + ".js?v=" + new Date().getMonth();
+            "base/env"].map(function(js){
+                return rootdir + "./jsscheme/" + js + ".js?v=" + new Date().getMonth();
             });
         $LAB.setOptions({AlwaysPreserveOrder:true})
             .script(jsArr).wait(function(){

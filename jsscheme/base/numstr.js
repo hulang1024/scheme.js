@@ -1,23 +1,23 @@
-﻿(function(s){
+﻿(function(scheme){
 "use strict";
 
-s.initNumStr = function(env) {
-    s.addPrimProc(env, "string->number", stringToNumber, 1);
-    s.addPrimProc(env, "number->string", numberToString, 1);
+scheme.initNumStr = function(env) {
+    scheme.addPrimProc(env, "string->number", stringToNumber, 1);
+    scheme.addPrimProc(env, "number->string", numberToString, 1);
 }
 
 function stringToNumber(argv) {
     var obj = argv[0];
-    if(!obj.isString())
-        return s.wrongContract("string->number", "string?", 0, argv);
-    return s.makeReal(parseFloat(s.stringVal(obj)));
+    if(!scheme.isString(obj))
+        return scheme.wrongContract("string->number", "string?", 0, argv);
+    return scheme.makeDouble(parseFloat(scheme.stringVal(obj)));
 }
 
 function numberToString(argv) {
     var obj = argv[0];
-    if(!obj.isNumber())
-        return s.wrongContract("number->string", "number?", 0, argv);
-    return s.makeString(obj.val.toString());
+    if(!scheme.isNumber(obj))
+        return scheme.wrongContract("number->string", "number?", 0, argv);
+    return scheme.makeString(obj.val.toString());
 }
 
 })(scheme);

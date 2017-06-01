@@ -1,119 +1,119 @@
-﻿(function(s){
+﻿(function(scheme){
 "use strict";
 
-s.initPrint = function(env) {
-    s.addPrimProc(env, "write", write, 1);
-    s.addPrimProc(env, "display", display, 1);
-    s.addPrimProc(env, "newline", newline, 0);
-    s.addPrimProc(env, "error", error, 1, 3);
+scheme.initPrint = function(env) {
+    scheme.addPrimProc(env, "write", write, 1);
+    scheme.addPrimProc(env, "display", display, 1);
+    scheme.addPrimProc(env, "newline", newline, 0);
+    scheme.addPrimProc(env, "error", error, 1, 3);
 }
 
 function write(argv) {
-    s.console.log("write", s.writeToString(argv[0], false));
-    return s.voidValue;
+    scheme.console.log("write", scheme.writeToString(argv[0], false));
+    return scheme.voidValue;
 }
 
 function display(argv) {
-    s.console.log("display", s.displayToString(argv[0]));
-    return s.voidValue;
+    scheme.console.log("display", scheme.displayToString(argv[0]));
+    return scheme.voidValue;
 }
 
 function newline(argv) {
-    s.console.log(null, "</br>");
-    return s.voidValue;
+    scheme.console.log(null, "</br>");
+    return scheme.voidValue;
 }
 
 function error(argv) {
     var str = "";
     for(var i = argv.length - 2; i >= 0; i--)
-        str += s.displayToString(argv[i]);
-    s.console.log("error", str + "\n");
-    return s.voidValue;
+        str += scheme.displayToString(argv[i]);
+    scheme.console.log("error", str + "\n");
+    return scheme.voidValue;
 }
 
-s.displayToString = function(obj) {
-    return s.writeToString(obj, true);
+scheme.displayToString = function(obj) {
+    return scheme.writeToString(obj, true);
 }
 
-s.writeToString = function(obj, display) {
+scheme.writeToString = function(obj, display) {
     var str = null;
-    if(!(obj instanceof s.Object))
+    if(!(obj instanceof scheme.Object))
         str = obj;
-    else if(obj.isUnspecified())
+    else if(scheme.isVoid(obj))
         str = null;
-    else if(obj.isNumber()) {
+    else if(scheme.isNumber(obj)) {
         str = obj.val;
     }
-    else if(obj.isChar()) {
-        str = "#\\" + s.charVal(obj);
+    else if(scheme.isChar(obj)) {
+        str = "#\\" + scheme.charVal(obj);
     }
-    else if(obj.isString()) {
-        str = s.stringVal(obj);
+    else if(scheme.isString(obj)) {
+        str = scheme.stringVal(obj);
         if(!display)
             str = "\"" + str + "\"";
     }
-    else if(obj.isSymbol()) {
-        str = s.symbolVal(obj);
+    else if(scheme.isSymbol(obj)) {
+        str = scheme.symbolVal(obj);
     }
-    else if(obj.isBoolean()) {
+    else if(scheme.isBoolean(obj)) {
         str = obj.val ? "#t" : "#f";
     }
-    else if(obj.isEmptyList()) {
+    else if(scheme.isEmptyList(obj)) {
         str = "()";
     }
-    else if(obj.isPair()) {
-        if(s.isList(obj)) {
-            if(s.car(obj) == s.quoteSymbol)
-                str = s.writeQuote(obj);
+    else if(scheme.isPair(obj)) {
+        if(scheme.isList(obj)) {
+            if(scheme.car(obj) == scheme.quoteSymbol)
+                str = scheme.writeQuote(obj);
             else
-                str = s.writeList(obj);
+                str = scheme.writeList(obj);
         } else {
-            str = s.writePair(obj);
+            str = scheme.writePair(obj);
         }
     }
-    else if(obj.isProcedure()) {
+    else if(scheme.isProcedure(obj)) {
         str = '#[procedure:' + obj.val.getName() + "]";
     }
-    else if(obj.isNamespace())
+    else if(scheme.isNamespace(obj))
         str = '#[namespace:0]';
-    else if(obj.isJSObject())
-        str = s.objectVal(obj);
+    else if(scheme.isJSObject(obj))
+        str = scheme.objectVal(obj);
     else {
         str = obj.val.toString();
     }
     return str;
 }
 
-s.writeQuote = function(list) {
-    if(s.car(list) == s.quoteSymbol)
-        return "'" + s.writeQuote(s.cdr(list));
+scheme.writeQuote = function(list) {
+    if(scheme.car(list) == scheme.quoteSymbol)
+        return "'" + scheme.writeQuote(scheme.cdr(list));
     else 
-        return s.writeToString(s.car(list), false);
+        return scheme.writeToString(scheme.car(list), false);
 }
 
-s.writeList = function(list) {
+scheme.writeList = function(list) {
     var strs = [];
     var obj = list;
-    for(; obj.isPair(); obj = s.cdr(obj))
-        strs.push(s.writeToString(s.car(obj), false));
+    for(; scheme.isPair(obj); obj = scheme.cdr(obj))
+        strs.push(scheme.writeToString(scheme.car(obj), false));
     return '(' + strs.join(' ') + ')';
 }
 
-s.writePair = function(pair) {
+scheme.writePair = function(pair) {
     var str = '(';
     var obj = pair;
-    for(; obj.isPair(); obj = s.cdr(obj))
-        str += s.writeToString(s.car(obj), false) + " ";
-    str += ". " + s.writeToString(obj, false);
+    for(; scheme.isPair(obj); obj = scheme.cdr(obj))
+        str += scheme.writeToString(scheme.car(obj), false) + " ";
+    str += ". " + scheme.writeToString(obj, false);
     return str + ')';
 }
 
-s.outputValue = function(obj) {
-    if(obj.isUnspecified())
+scheme.outputValue = function(obj) {
+    if(obj && scheme.isVoid(obj))
         return;
-    var val = s.writeToString(obj);
+    var val = scheme.writeToString(obj);
     if(val != null) {
-        s.console && s.console.log(null, val + "</br>");
+        scheme.console && scheme.console.log(null, val + "</br>");
     }
 }
 

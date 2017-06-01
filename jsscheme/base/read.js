@@ -119,7 +119,7 @@ scheme.readMutil = function(src) {
                     result.push(scheme.makeInt(parseInt(token)));
                 }
                 else if(floatReg.test(token)) {
-                    result.push(scheme.makeReal(parseFloat(token)));
+                    result.push(scheme.makeDouble(parseFloat(token)));
                 }
                 else if(symbolReg.test(token)) {
                     result.push(scheme.internSymbol(token));

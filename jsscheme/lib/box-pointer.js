@@ -25,7 +25,7 @@
         } else if(content instanceof scheme.Object) {
             drawBox(ctx, this.x, this.y);
             // 如果是空表，画空表表示
-            if(content.isEmptyList()) {
+            if(scheme.isEmptyList(content)) {
                 ctx.beginPath();
                 ctx.moveTo(this.x, this.y + BOX_SIZE);
                 ctx.lineTo(this.x + BOX_SIZE, this.y);
@@ -98,7 +98,7 @@
         return ptr;
         
         function toBoxAndPointer(obj) {
-            if(obj.isPair()) {
+            if(scheme.isPair(obj)) {
                 var dpair = new DrawablePair();
                 dpair.carBox = new Box(new Pointer(toBoxAndPointer(scheme.car(obj))));
                 dpair.cdrBox = new Box(new Pointer(toBoxAndPointer(scheme.cdr(obj))));
@@ -325,5 +325,5 @@
         }
         ctx.restore();
     }
-})();
+})( );
 

@@ -1,29 +1,51 @@
-﻿var scheme = {};
-(function(s){
+﻿/* scheme module */
+var scheme = {};
+
+/* types */
+/* number types */
+const scheme_integer_type = 1;
+const scheme_double_type = 2;
+/* procedure types */
+const scheme_prim_type = 13;
+const scheme_comp_type = 14;
+/* other values */
+const scheme_char_type = 3;
+const scheme_char_string_type = 4;
+const scheme_bool_type = 6;
+const scheme_symbol_type = 7;
+const scheme_pair_type = 5;
+const scheme_vector_type = 8;
+const scheme_namespace_type = 9;
+const scheme_null_type = 10;
+const scheme_void_type = 11;
+/* extended types */
+const scheme_jsobject_type = 12;
+
+(function(scheme){
 "use strict";
 
-s.Object = function(type, val) {
+scheme.Object = function(type, val) {
     this.type = type;
     this.val = val;
-    this.isInteger = function() { return this.type == 1; }
-    this.isReal = function() { return this.type == 1 || this.type == 2; }
-    this.isNumber = function() { return this.type == 1 || this.type == 2; }
-    this.isChar = function() { return this.type == 3 }
-    this.isString = function() { return this.type == 4; }
-    this.isBoolean = function() { return this.type == 5; }
-    this.isSymbol = function() { return this.type == 6; }
-    this.isPair = function() { return this.type == 7; }
-    this.isPrimProc = function() { return this.type == 8; }
-    this.isCompProc = function() { return this.type == 9; }
-    this.isProcedure = function() { return this.type == 8 || this.type == 9; }
-    this.isEmptyList = function() { return this.type == 0; }
-    this.isNamespace = function() { return this.type == 10; }
-    this.isVector = function() { return this.type == 11; }
-    this.isJSObject = function() { return this.type == 30; }
-    this.isUnspecified = function() { return this.type == 40; }
 }
 
-s.PrimitiveProcedure = function(name, func, minArgs, maxArgs) {
+scheme.isInteger = function(obj) { return obj.type == scheme_integer_type; }
+scheme.isNumber = function(obj) { return obj.type == scheme_integer_type || obj.type == scheme_double_type; }
+scheme.isReal = function(obj) { return obj.type == scheme_integer_type || obj.type == scheme_double_type; }
+scheme.isChar = function(obj) { return obj.type == scheme_char_type; }
+scheme.isString = function(obj) { return obj.type == scheme_char_string_type; }
+scheme.isBoolean = function(obj) { return obj.type == scheme_bool_type; }
+scheme.isSymbol = function(obj) { return obj.type == scheme_symbol_type; }
+scheme.isPair = function(obj) { return obj.type == scheme_pair_type; }
+scheme.isEmptyList = function(obj) { return obj.type == scheme_null_type; }
+scheme.isVoid = function(obj) { return obj.type == scheme_void_type; }
+scheme.isPrim = function(obj) { return obj.type == scheme_prim_type; }
+scheme.isComp = function(obj) { return obj.type == scheme_comp_type; }
+scheme.isProcedure = function(obj) { return obj.type == scheme_prim_type || obj.type == scheme_comp_type; }
+scheme.isNamespace = function(obj) { return obj.type == scheme_namespace_type; }
+scheme.isJSObject = function(obj) { return obj.type == scheme_jsobject_type; }
+
+scheme.PrimitiveProcedure = function(name, func, minArgs, maxArgs) {
     var arity = [];
     if(minArgs !== undefined)
         arity.push(minArgs);
@@ -34,11 +56,11 @@ s.PrimitiveProcedure = function(name, func, minArgs, maxArgs) {
     this.getFunc = function(proc) { return func; }
     this.getArity = function(proc) { return arity; }
 }
-s.makePrimitiveProcedure = function(name, func, minArgs, maxArgs) {
-    return new s.Object(8, new s.PrimitiveProcedure(name, func, minArgs, maxArgs));
+scheme.makePrimitiveProcedure = function(name, func, minArgs, maxArgs) {
+    return new scheme.Object(scheme_prim_type, new scheme.PrimitiveProcedure(name, func, minArgs, maxArgs));
 }
 
-s.CompoundProcedure = function(name, parameters, body, env, minArgs, maxArgs) {
+scheme.CompoundProcedure = function(name, parameters, body, env, minArgs, maxArgs) {
     var arity = [];
     if(minArgs !== undefined)
         arity.push(minArgs);
@@ -50,16 +72,12 @@ s.CompoundProcedure = function(name, parameters, body, env, minArgs, maxArgs) {
     this.getParamters = function() { return parameters; }
     this.getBody = function() { return body; }
     this.getArity = function() { return arity; }
-    this.getEnv = function() { return env; }    //this env is pointer!
+    this.getEnv = function() { return env; }
 }
-s.makeCompoundProcedure = function(name, parameters, body, env, minArgs, maxArgs) {
-    return new s.Object(9, new s.CompoundProcedure(name, parameters, body, env, minArgs, maxArgs));
-}
-
-s.makeUnspecified = function() {
-    return new s.Object(40, undefined);
+scheme.makeCompoundProcedure = function(name, parameters, body, env, minArgs, maxArgs) {
+    return new scheme.Object(scheme_comp_type, new scheme.CompoundProcedure(name, parameters, body, env, minArgs, maxArgs));
 }
 
-s.voidValue = s.makeUnspecified();
+scheme.voidValue = new scheme.Object(scheme_void_type, undefined);
 
 })(scheme);

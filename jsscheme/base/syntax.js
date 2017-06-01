@@ -1,140 +1,140 @@
-(function(s){
+(function(scheme){
 "use strict";
 
 // 基本表达式
 //quote
-var quoteObject = s.cadr;
+var quoteObject = scheme.cadr;
 function makeQuotation(object) {
-    return s.list(s.quoteSymbol, object);
+    return scheme.list(scheme.quoteSymbol, object);
 }
 
 // application/procedure call
-var operator = s.car;
-var operands = s.cdr;
+var operator = scheme.car;
+var operands = scheme.cdr;
 function makeApplication(operator, operands) {
-    return s.cons(operator, operands || s.nil);
+    return scheme.cons(operator, operands || scheme.nil);
 }
 
 // lambda
-var lambdaParamters = s.cadr;
-var lambdaBody = s.cddr;
+var lambdaParamters = scheme.cadr;
+var lambdaBody = scheme.cddr;
 function makeLambda(parameters, body) {
-    return s.cons(s.lambdaSymbol, s.cons(parameters, body));
+    return scheme.cons(scheme.lambdaSymbol, scheme.cons(parameters, body));
 }
 
 
 // if
-var ifPredicate = s.cadr;
-var ifConsequent = s.caddr;
+var ifPredicate = scheme.cadr;
+var ifConsequent = scheme.caddr;
 function ifAlternative(exp) {
-    exp = s.cdddr(exp);
-    if(exp.isEmptyList())
+    exp = scheme.cdddr(exp);
+    if(scheme.isEmptyList(exp))
         return exp;
     else
-        return s.car(exp);
+        return scheme.car(exp);
 }
 function makeIf(predicate, consequent, alternative) {
-    return s.arrayToList([s.ifSymbol, predicate, consequent].concat(alternative || []));
+    return scheme.arrayToList([scheme.ifSymbol, predicate, consequent].concat(alternative || []));
 }
 
 // assignment
-var assignmentVar = s.cadr;
-var assignmentVal = s.caddr;
+var assignmentVar = scheme.cadr;
+var assignmentVal = scheme.caddr;
 
 // define variable/procedure
 function definitionVar(exp) { 
-    if(s.cadr(exp).isSymbol())
-        return s.cadr(exp);
-    else if(s.cadr(exp).isPair())
-        return s.caadr(exp);
+    if(scheme.isSymbol(scheme.cadr(exp)))
+        return scheme.cadr(exp);
+    else if(scheme.isPair(scheme.cadr(exp)))
+        return scheme.caadr(exp);
     else
-        return s.cadr(exp);
+        return scheme.cadr(exp);
 }
 function definitionVal(exp) {
-    if(s.cadr(exp).isSymbol())
-        return s.caddr(exp);
+    if(scheme.isSymbol(scheme.cadr(exp)))
+        return scheme.caddr(exp);
     else {
-        var formals = s.cdadr(exp);
-        var body = s.cddr(exp);
+        var formals = scheme.cdadr(exp);
+        var body = scheme.cddr(exp);
         return makeLambda(formals, body);
     }
 }
 function makeDefinition(variable, value) {
-    return s.list(s.defineSymbol, variable, value);
+    return scheme.list(scheme.defineSymbol, variable, value);
 }
 
 
 //派生表达式
 
 // begin
-var beginActions = s.cdr;
+var beginActions = scheme.cdr;
 function makeBegin(seq) {
-    return s.cons(s.beginSymbol, seq);
+    return scheme.cons(scheme.beginSymbol, seq);
 }
 
 function sequenceExp(seq) {
-    if(seq.isEmptyList()) return seq;
-    else if(s.cdr(seq).isEmptyList()) return s.car(seq);
+    if(scheme.isEmptyList(seq)) return seq;
+    else if(scheme.isEmptyList(scheme.cdr(seq))) return scheme.car(seq);
     else return makeBegin(seq);
 }
 
 // let
-function isNamedLet(exp) { return s.cadr(exp).isSymbol(); }
-function letVar(exp) { return s.cadr(exp); }
-function letBindings(exp) { return (isNamedLet(exp) ? s.caddr : s.cadr)(exp); }
-function letBody(exp) { return (isNamedLet(exp) ? s.cdddr : s.cddr)(exp); }
+function isNamedLet(exp) { return scheme.isSymbol(scheme.cadr(exp)); }
+function letVar(exp) { return scheme.cadr(exp); }
+function letBindings(exp) { return (isNamedLet(exp) ? scheme.caddr : scheme.cadr)(exp); }
+function letBody(exp) { return (isNamedLet(exp) ? scheme.cdddr : scheme.cddr)(exp); }
 function letBindingVars(bindings) {
-    return s.mapList(function(bind){ return s.car(bind); }, bindings);
+    return scheme.mapList(function(bind){ return scheme.car(bind); }, bindings);
 }
 function letBindingInits(bindings) {
-    return s.mapList(function(bind){ return s.cadr(bind); }, bindings);
+    return scheme.mapList(function(bind){ return scheme.cadr(bind); }, bindings);
 }
 function makeBindings(bindings) {
     return bindings;
 }
 function makeLet(name, bindings, body) {
-    return s.arrayToList(name ?
-        [s.letSymbol, name, bindings, body] : [s.letSymbol, bindings, body]);
+    return scheme.arrayToList(name ?
+        [scheme.letSymbol, name, bindings, body] : [scheme.letSymbol, bindings, body]);
 }
 // cond
-var condClauses = s.cdr;
-function clauesPredicate(clause) { return s.car(clause); }
-function clauseActions(clause) { return s.cdr(clause); }
-function isElseClause(clause) { return clauesPredicate(clause) == s.elseSymbol; }
-function makeCond(clauses) { return s.cons(s.condSymbol, clauses); }
+var condClauses = scheme.cdr;
+function clauesPredicate(clause) { return scheme.car(clause); }
+function clauseActions(clause) { return scheme.cdr(clause); }
+function isElseClause(clause) { return clauesPredicate(clause) == scheme.elseSymbol; }
+function makeCond(clauses) { return scheme.cons(scheme.condSymbol, clauses); }
 
 //case
-var caseKey = s.cadr;
-var caseClauses = s.cddr;
+var caseKey = scheme.cadr;
+var caseClauses = scheme.cddr;
 
 // and
-var andExps = s.cdr;
+var andExps = scheme.cdr;
 
 // or
-var orExps = s.cdr;
+var orExps = scheme.cdr;
 
 // when
-var whenTest = s.cadr;
-var whenBody = s.cddr;
-var unlessTest = s.cadr;
-var unlessBody = s.cddr;
+var whenTest = scheme.cadr;
+var whenBody = scheme.cddr;
+var unlessTest = scheme.cadr;
+var unlessBody = scheme.cddr;
 function makeWhen(test, body) {
-    return s.cons(s.whenSymbol, s.cons(test, body));
+    return scheme.cons(scheme.whenSymbol, scheme.cons(test, body));
 }
 
 
 // do
-function doBindings(exp) { return s.cadr(exp); }
-function doTest(exp) { return s.caaddr(exp); }
-function doExpressions(exp) { return s.cdaddr(exp); }
-function doCommands(exp) { return s.cdddr(exp); }
+function doBindings(exp) { return scheme.cadr(exp); }
+function doTest(exp) { return scheme.caaddr(exp); }
+function doExpressions(exp) { return scheme.cdaddr(exp); }
+function doCommands(exp) { return scheme.cdddr(exp); }
 function doBindingVarAndInits(bindings) { 
-    return s.mapList(function(bind){
-        return s.list(s.car(bind), s.cadr(bind));
+    return scheme.mapList(function(bind){
+        return scheme.list(scheme.car(bind), scheme.cadr(bind));
     }, bindings);
 }
 function doBindingSteps(bindings) {
-    return s.mapList(function(bind){ return s.caddr(bind); }, bindings);
+    return scheme.mapList(function(bind){ return scheme.caddr(bind); }, bindings);
 }
 
 
@@ -148,8 +148,8 @@ function letToCombination(exp) {
     if(isNamedLet(exp)) {
         return makeApplication(
             makeLambda(
-                s.nil,
-                s.list(
+                scheme.nil,
+                scheme.list(
                     makeDefinition(letVar(exp), makeLambda(letBindingVars(bindings), body)),
                     makeApplication(letVar(exp), letBindingInits(bindings)))));
     }
@@ -163,20 +163,20 @@ function letToCombination(exp) {
 function condToIf(exp) {
     return expandClauses(condClauses(exp));
     function expandClauses(clauses) {
-        if(clauses.isEmptyList())
-            return s.False;
-        var first = s.car(clauses);
-        var rest = s.cdr(clauses);
+        if(scheme.isEmptyList(clauses))
+            return scheme.False;
+        var first = scheme.car(clauses);
+        var rest = scheme.cdr(clauses);
         if(isElseClause(first))
-            if(rest.isEmptyList())
+            if(scheme.isEmptyList(rest))
                 return sequenceExp(clauseActions(first));
             else
-                s.throwError('badSyntax', "'else' clause must be last");
+                scheme.throwError('badSyntax', "'else' clause must be last");
         else {
             var predicate = clauesPredicate(first);
             var actionSequence= sequenceExp(clauseActions(first));
-            if(actionSequence.isEmptyList())
-                return makeIf(s.True, predicate, expandClauses(rest));
+            if(scheme.isEmptyList(actionSequence))
+                return makeIf(scheme.True, predicate, expandClauses(rest));
             else
                 return makeIf(predicate, actionSequence, expandClauses(rest));
         }
@@ -185,45 +185,45 @@ function condToIf(exp) {
 
 function caseToCond(exp) {
     var key = caseKey(exp);
-    var tempVar = s.genSymbol();
-    var clauses = s.mapList(function(clause) {
+    var tempVar = scheme.genSymbol();
+    var clauses = scheme.mapList(function(clause) {
         return isElseClause(clause) ? clause :
-            s.append(s.list(
-                makeApplication(s.makeSymbol("memv"), s.list(tempVar, makeQuotation(clauesPredicate(clause))))),
+            scheme.append(scheme.list(
+                makeApplication(scheme.makeSymbol("memv"), scheme.list(tempVar, makeQuotation(clauesPredicate(clause))))),
                 clauseActions(clause));
         }, caseClauses(exp));
-    return makeLet(null, makeBindings(s.list(s.list(tempVar, key))), makeCond(clauses));
+    return makeLet(null, makeBindings(scheme.list(scheme.list(tempVar, key))), makeCond(clauses));
 }
 
 function andToIf(exp) {
     var exps = andExps(exp);
-    if(exps.isEmptyList())
-        return s.True;
-    var tempVar = s.genSymbol();
+    if(scheme.isEmptyList(exps))
+        return scheme.True;
+    var tempVar = scheme.genSymbol();
     return expandExps(exps);
     function expandExps(exps) {
-        var predicate = makeApplication(s.makeSymbol("not"), s.list(tempVar));
-        var rest = s.cdr(exps);
+        var predicate = makeApplication(scheme.makeSymbol("not"), scheme.list(tempVar));
+        var rest = scheme.cdr(exps);
         return makeLet(null,
-            makeBindings(s.list(s.list(tempVar, s.car(exps)))),
+            makeBindings(scheme.list(scheme.list(tempVar, scheme.car(exps)))),
             makeIf(predicate, tempVar,
-                (rest.isEmptyList() ? tempVar : expandExps(rest))));
+                (scheme.isEmptyList(rest) ? tempVar : expandExps(rest))));
     }
 }
 
 function orToIf(exp) {
     var exps = orExps(exp);
-    if(exps.isEmptyList())
-        return s.False;
-    var tempVar = s.genSymbol();
+    if(scheme.isEmptyList(exps))
+        return scheme.False;
+    var tempVar = scheme.genSymbol();
     return expandExps(exps);
     function expandExps(exps) {
         var predicate = tempVar;
-        var rest = s.cdr(exps);
+        var rest = scheme.cdr(exps);
         return makeLet(null,
-            makeBindings(s.list(s.list(tempVar, s.car(exps)))),
+            makeBindings(scheme.list(scheme.list(tempVar, scheme.car(exps)))),
             makeIf(predicate, tempVar,
-                (rest.isEmptyList() ? s.False : expandExps(rest))));
+                (scheme.isEmptyList(rest) ? scheme.False : expandExps(rest))));
     }
 }
 
@@ -233,70 +233,70 @@ function whenToIf(exp) {
 
 function unlessToIf(exp) {
     return makeIf(
-        makeApplication(s.makeSymbol("not"), s.list(unlessTest(exp))),
+        makeApplication(scheme.makeSymbol("not"), scheme.list(unlessTest(exp))),
         makeBegin(unlessBody(exp)));
 }
 
 function doToCombination(exp) {
     var bindings = doBindings(exp);
-    var iterProcVar = s.genSymbol();
+    var iterProcVar = scheme.genSymbol();
     var ifAlter = sequenceExp(
-        s.append(doCommands(exp),
-            s.list(makeApplication(iterProcVar, doBindingSteps(bindings)))));
+        scheme.append(doCommands(exp),
+            scheme.list(makeApplication(iterProcVar, doBindingSteps(bindings)))));
     return makeLet(iterProcVar,
         doBindingVarAndInits(bindings),
         makeIf(doTest(exp), sequenceExp(doExpressions(exp)), ifAlter));
 }
 
 function transformWhile(exp) {
-    var whileTest = s.cadr(exp);
-    var whileBody = s.cddr(exp);
-    var loopProcVar = s.genSymbol();
+    var whileTest = scheme.cadr(exp);
+    var whileBody = scheme.cddr(exp);
+    var loopProcVar = scheme.genSymbol();
     return makeLet(
-        loopProcVar, s.nil,
+        loopProcVar, scheme.nil,
         makeWhen(whileTest,
-            s.append(whileBody, s.list(makeApplication(loopProcVar)))));
+            scheme.append(whileBody, scheme.list(makeApplication(loopProcVar)))));
 }
 
 function transformFor(exp) {
-    var forVar = s.cadr(exp);
-    var forLst = s.cadddr(exp);
-    var forBody = s.cddddr(exp);
-    if(s.car(forLst).isNumber() && s.cadr(forLst) && s.caddr(forLst)) {//(<from> to <end>)
-        var fromNum = s.car(forLst);
-        var endNum = s.caddr(forLst);
-        var loopProcVar = s.genSymbol();
-        var bindings = s.list(s.list(forVar, fromNum));
-        var loopInc = makeApplication(s.makeSymbol("+"), s.list(forVar, s.makeInt(1)));
-        var loopCond = makeApplication(s.makeSymbol("<"), s.list(forVar, endNum));
+    var forVar = scheme.cadr(exp);
+    var forLst = scheme.cadddr(exp);
+    var forBody = scheme.cddddr(exp);
+    if(scheme.isNumber(scheme.car(forLst)) && scheme.cadr(forLst) && scheme.caddr(forLst)) {//(<from> to <end>)
+        var fromNum = scheme.car(forLst);
+        var endNum = scheme.caddr(forLst);
+        var loopProcVar = scheme.genSymbol();
+        var bindings = scheme.list(scheme.list(forVar, fromNum));
+        var loopInc = makeApplication(scheme.makeSymbol("+"), scheme.list(forVar, scheme.makeInt(1)));
+        var loopCond = makeApplication(scheme.makeSymbol("<"), scheme.list(forVar, endNum));
         var whenUse = makeWhen(loopCond,
-                        s.append(forBody, s.list(makeApplication(loopProcVar, s.list(loopInc)))));
+                        scheme.append(forBody, scheme.list(makeApplication(loopProcVar, scheme.list(loopInc)))));
         return makeLet(loopProcVar, bindings, whenUse);
     }
 }
 
-s.quoteObject = quoteObject;
-s.operator = operator;
-s.operands = operands;
-s.lambdaParamters = lambdaParamters;
-s.lambdaBody = lambdaBody;
-s.ifPredicate = ifPredicate;
-s.ifConsequent = ifConsequent;
-s.ifAlternative = ifAlternative;
-s.assignmentVar = assignmentVar;
-s.assignmentVal = assignmentVal;
-s.definitionVar = definitionVar;
-s.definitionVal = definitionVal;
-s.beginActions = beginActions;
+scheme.quoteObject = quoteObject;
+scheme.operator = operator;
+scheme.operands = operands;
+scheme.lambdaParamters = lambdaParamters;
+scheme.lambdaBody = lambdaBody;
+scheme.ifPredicate = ifPredicate;
+scheme.ifConsequent = ifConsequent;
+scheme.ifAlternative = ifAlternative;
+scheme.assignmentVar = assignmentVar;
+scheme.assignmentVal = assignmentVal;
+scheme.definitionVar = definitionVar;
+scheme.definitionVal = definitionVal;
+scheme.beginActions = beginActions;
 
-s.letToCombination = letToCombination;
-s.transformCond = condToIf;
-s.transformCase = caseToCond;
-s.transformAnd = andToIf;
-s.transformOr = orToIf;
-s.transformDo = doToCombination;
-s.transformWhen = whenToIf;
-s.transformUnless = unlessToIf;
-s.transformWhile = transformWhile;
-s.transformFor = transformFor;
+scheme.letToCombination = letToCombination;
+scheme.transformCond = condToIf;
+scheme.transformCase = caseToCond;
+scheme.transformAnd = andToIf;
+scheme.transformOr = orToIf;
+scheme.transformDo = doToCombination;
+scheme.transformWhen = whenToIf;
+scheme.transformUnless = unlessToIf;
+scheme.transformWhile = transformWhile;
+scheme.transformFor = transformFor;
 })(scheme);

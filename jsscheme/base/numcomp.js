@@ -1,32 +1,32 @@
 ﻿/*
     数值运算
 */
-(function(s){
+(function(scheme){
 "use strict";
 
-s.initNumComp = function(env) {
-    s.addPrimProc(env, "=", equalNumber, 2, -1);
-    s.addPrimProc(env, "<", lessThan, 2, -1);
-    s.addPrimProc(env, ">", greaThan, 2, -1);
-    s.addPrimProc(env, "<=", lteq, 2, -1);
-    s.addPrimProc(env, ">=", gteq, 2, -1);
+scheme.initNumComp = function(env) {
+    scheme.addPrimProc(env, "=", equalNumber, 2, -1);
+    scheme.addPrimProc(env, "<", lessThan, 2, -1);
+    scheme.addPrimProc(env, ">", greaThan, 2, -1);
+    scheme.addPrimProc(env, "<=", lteq, 2, -1);
+    scheme.addPrimProc(env, ">=", gteq, 2, -1);
 }
 
 function equalNumber(argv) {
     var first = argv[0];
     var obj;
-    if(!first.isNumber())
-        return s.wrongContract("=", "number?", 0, argv);
+    if(!scheme.isNumber(first))
+        return scheme.wrongContract("=", "number?", 0, argv);
     for(var i = 0; i < argv.length; i++) {
         obj = argv[i];
-        if(obj.isNumber()) {
+        if(scheme.isNumber(obj)) {
             if(first.val != obj.val)
-                return s.False;
+                return scheme.False;
         }
         else
-            return s.wrongContract("=", "number?", i, argv);
+            return scheme.wrongContract("=", "number?", i, argv);
     }
-    return s.True;
+    return scheme.True;
 }
 
 function lessThan(argv) {
@@ -34,14 +34,14 @@ function lessThan(argv) {
     for(var i = 0; i < argv.length - 1; i++) {
         obj1 = argv[i];
         obj2 = argv[i + 1];
-        if(!obj1.isReal())
-            return s.wrongContract("<", "real?", i, argv);
-        if(!obj2.isReal())
-            return s.wrongContract("<", "real?", i+1, argv);
+        if(!scheme.isReal(obj1))
+            return scheme.wrongContract("<", "real?", i, argv);
+        if(!scheme.isReal(obj2))
+            return scheme.wrongContract("<", "real?", i+1, argv);
         if(obj1.val >= obj2.val)
-            return s.False;
+            return scheme.False;
     }
-    return s.True;
+    return scheme.True;
 }
 
 function greaThan(argv) {
@@ -49,14 +49,14 @@ function greaThan(argv) {
     for(var i = 0; i < argv.length - 1; i++) {
         obj1 = argv[i];
         obj2 = argv[i + 1];
-        if(!obj1.isReal())
-            return s.wrongContract(">", "real?", i, argv);
-        if(!obj2.isReal())
-            return s.wrongContract(">", "real?", i+1, argv);
+        if(!scheme.isReal(obj1))
+            return scheme.wrongContract(">", "real?", i, argv);
+        if(!scheme.isReal(obj2))
+            return scheme.wrongContract(">", "real?", i+1, argv);
         if(obj1.val <= obj2.val)
-            return s.False;
+            return scheme.False;
     }
-    return s.True;
+    return scheme.True;
 }
 
 function lteq(argv) {
@@ -64,14 +64,14 @@ function lteq(argv) {
     for(var i = 0; i < argv.length - 1; i++) {
         obj1 = argv[i];
         obj2 = argv[i + 1];
-        if(!obj1.isReal())
-            return s.wrongContract("<=", "real?", i, argv);
-        if(!obj2.isReal())
-            return s.wrongContract("<=", "real?", i+1, argv);
+        if(!scheme.isReal(obj1))
+            return scheme.wrongContract("<=", "real?", i, argv);
+        if(!scheme.isReal(obj2))
+            return scheme.wrongContract("<=", "real?", i+1, argv);
         if(obj1.val > obj2.val)
-            return s.False;
+            return scheme.False;
     }
-    return s.True;
+    return scheme.True;
 }
 
 function gteq(argv) {
@@ -79,14 +79,14 @@ function gteq(argv) {
     for(var i = 0; i < argv.length - 1; i++) {
         obj1 = argv[i];
         obj2 = argv[i + 1];
-        if(!obj1.isReal())
-            return s.wrongContract(">=", "real?", i, argv);
-        if(!obj2.isReal())
-            return s.wrongContract(">=", "real?", i+1, argv);
+        if(!scheme.isReal(obj1))
+            return scheme.wrongContract(">=", "real?", i, argv);
+        if(!scheme.isReal(obj2))
+            return scheme.wrongContract(">=", "real?", i+1, argv);
         if(obj1.val < obj2.val)
-            return s.False;
+            return scheme.False;
     }
-    return s.True;
+    return scheme.True;
 }
 
 })(scheme);
