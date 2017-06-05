@@ -53,16 +53,22 @@
  
 * 注释  
   单行注释：`;line comment`
-
 ### 扩展与库
 * 盒子-指针表示:`draw-box-pointer`  
-    + Scheme可以通过调用`cons`来进行粘合两个变量，形成的复合变量有两个指针，分别指向两个被黏和的变量，分别通过`car`和`cdr`获取，例如`(define a (cons 1 2))`, 变量`a`是一个复合变量，经过多重复合后，可以组合成各种复杂的数据结构。 因为每一个复合变量都可以用盒子指针模型来表示，调用`draw-box-pointer`可以描绘出复合变量的2D结构，例如调用`(draw-box-pointer a)`可以描绘`a`的结构  
+  过程`draw-box-pointer`可以画出序对的盒子指针表示方式，帮你理解序对的更形象的方式。
       ```
-      -->[*][*]->[2]
-          |
-          v
-         [1]
-      ```  
+        (draw-box-pointer (cons 1 2))
+        (draw-box-pointer (cons
+                            (cons 1 2)
+                            (cons 3 4)))
+        (draw-box-pointer (cons (cons 1
+                                      (cons 2 3))
+                                4))
+      ```
+
+  ![(cons 1 2)](https://github.com/hlpp/toyJSScheme/raw/master/doc/iamges/bp1.jpg)
+  ![(cons (cons 1 2) (cons 3 4))](https://github.com/hlpp/toyJSScheme/raw/master/doc/iamges/bp2.jpg)
+  ![(cons (cons 1(cons 2 3)) 4)](https://github.com/hlpp/toyJSScheme/raw/master/doc/iamges/bp3.jpg)
 * 基础语言JavaScript的能力
 
 
