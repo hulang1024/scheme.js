@@ -56,15 +56,15 @@
 ### 扩展与库
 * 盒子-指针表示:`draw-box-pointer`  
   过程`draw-box-pointer`可以画出序对的盒子指针表示方式，帮你理解序对的更形象的方式。  
-      ```lisp
-        (draw-box-pointer (cons 1 2))
-        (draw-box-pointer (cons
-                            (cons 1 2)
-                            (cons 3 4)))
-        (draw-box-pointer (cons (cons 1
-                                      (cons 2 3))
-                                4))
-      ```
+  ```scheme
+  (draw-box-pointer (cons 1 2))
+  (draw-box-pointer (cons
+                      (cons 1 2)
+                      (cons 3 4)))
+  (draw-box-pointer (cons (cons 1
+                                (cons 2 3))
+                          4))
+   ```
   ![(cons 1 2)](https://github.com/hlpp/toyJSScheme/raw/master/doc/images/bp1.png)
   ![(cons (cons 1 2) (cons 3 4))](https://github.com/hlpp/toyJSScheme/raw/master/doc/images/bp2.png)
   ![(cons (cons 1(cons 2 3)) 4)](https://github.com/hlpp/toyJSScheme/raw/master/doc/images/bp3.png)
