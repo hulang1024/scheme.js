@@ -65,9 +65,9 @@
                                 (cons 2 3))
                           4))
    ```
-  ![(cons 1 2)](https://github.com/hlpp/toyJSScheme/raw/master/doc/images/bp1.png)
-  ![(cons (cons 1 2) (cons 3 4))](https://github.com/hlpp/toyJSScheme/raw/master/doc/images/bp2.png)
-  ![(cons (cons 1(cons 2 3)) 4)](https://github.com/hlpp/toyJSScheme/raw/master/doc/images/bp3.png)
+  ![(cons 1 2)](docs/images/bp1.png)
+  ![(cons (cons 1 2) (cons 3 4))](docs/images/bp2.png)
+  ![(cons (cons 1(cons 2 3)) 4)](docs/images/bp3.png)
 * 基础语言JavaScript的能力
 
 
@@ -111,3 +111,8 @@
     browser-load.js定义了一个函数`loadScheme`，该函数加载JSScheme到浏览器环境。  
     scm.js会扫描出所有的包含属性`type="text/scm"`和`ignore`的脚本，然后在同一个Scheme全局环境里，顺序执行脚本中的Scheme程序。
  3. 上面的例子程序运行会弹出 hello scheme 和 4 。
+
+## 更多
+- [代码结构说明](docs/code_struct.md)
+- [如何写一个Scheme解释器](docs/how_to_write_an_interpreter.md)
+   
