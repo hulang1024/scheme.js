@@ -133,8 +133,8 @@ else if(obj.type == scheme_symbol_type)
   console.log(obj)
 ...
 ```
-在这里，我们采用统一的"类型“字段”表示法，统一用类型字段判断，并且依赖于JS的动态类型。
-它有一个值字段，一个类型字段：
+在这里，我们采用统一的“类型”字段表示法，统一用类型字段判断，并且依赖于JS的动态类型。
+它有一个值字段，一个类型字段，它是一种通用接口：
 ```js
 scheme.Object = function(type, val) {
     this.type = type;
