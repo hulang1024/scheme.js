@@ -164,5 +164,5 @@ scheme.Object = function(type, val) {
                     {"type":5,"val":[
                         {"type":1,"val":6},
                         {"type":10,"val":null}]}]}]},
-                        {"type":10,"val":null}]}]}]}
+            {"type":10,"val":null}]}]}]}
 ```
