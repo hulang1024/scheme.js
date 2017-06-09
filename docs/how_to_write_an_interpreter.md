@@ -89,7 +89,7 @@ car(z) === a        // true
 setCdr(z, b);
 cdr(z) === b        // true
 ```
-在具体层面上，一个包含2个元素的数组可以实现：
+在具体层面上，可以实现为对一个包含2个元素的数组的操作：
 ```js
 function cons(x, y) { return [x, y]; }
 function car(z) { return z[0]; }
@@ -165,4 +165,41 @@ scheme.Object = function(type, val) {
                         {"type":1,"val":6},
                         {"type":10,"val":null}]}]}]},
             {"type":10,"val":null}]}]}]}
+```
+本文重点不在语法分析和语法检查，所以不讨论如何实现语法分析器，但是你可以参考[read.js](../jsscheme/base/read.js))。
+
+接下来我们将启程，进入最有趣最神奇的地方。
+
+## 6.准备求值
+&emsp;&emsp;上面JSON具有比较深的对象嵌套，可以看作一颗树，而一般，递归是处理层次性数据结构的最简洁有力的手段。我们接下来将要使用递归，本文虽然可以单独地仔细介绍递归，不过我们可以一边应用一边理解递归。  
+我们应该已经知道，数值是最简单的表达式，它的值就是自身。最普遍的是过程调用表达式（又叫组合式），它的求值规则，举例来说，`(+ (* 3 5) (- 10 6))`是一个过程调用表达式，先计算运算符部分`+`，返回一个`+`代表的那个过程，然后依次求值运算数得到实际参数`15`和`4`，最后将`+`的值的过程应用到实际参数`15`和`4`，结果是`19`。  
+可以看到，`(* 3 5)`和`(- 10 6)`也是组合式，总共来说，我们使用了3次上述同一求值规则：我们第1次使用规则是为`(+ (* 3 5) (- 10 6))`，在遇到`(* 3 5)`时，我们将第1次规则进程“挂起”，记住我们将会返回，并第2次使用规则算出`15`，然后确实回到第1次规则的进程状态继续，遇到`(- 10 6)`，我们第3次使用规则算出`4`，之后回到第1次规则进程中。接下来我们尝试写一个计算器
+```js
+
+function plus(x, y) { return x + y; }
+function minus(x, y) { return x - y; }
+function mul(x, y) { return x * y; }
+function div(x, y) { return x / y; }
+
+var opMap = {};
+opMap['+'] = function(argv) { return argv.reduce(plus, 0); }
+opMap['-'] = function(argv) { return argv.reduce(minus); }
+opMap['*'] = function(argv) { return argv.reduce(mul, 1); }
+opMap['/'] = function(argv) { return argv.reduce(div); }
+
+function seval(exp) {
+    if(typeof exp === 'number')
+        return exp;
+    else if(typeof exp === 'string')
+        return opMap[exp];
+    else if(exp instanceof Array) {
+        if(exp.length == 0)
+            throw new Error();
+        var operator = seval(exp[0]);
+        var operands = exp.slice(1).map(seval);
+        return operator(operands);
+    }
+    else
+        throw new Error();
+}
 ```
