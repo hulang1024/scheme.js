@@ -173,9 +173,30 @@ scheme.Object = function(type, val) {
 ## 6.准备求值
 &emsp;&emsp;上面JSON具有比较深的对象嵌套，可以看作一颗树，而一般，递归是处理层次性数据结构的最简洁有力的手段。我们接下来将要使用递归，本文虽然可以单独地仔细介绍递归，不过我们也可以一边应用一边理解递归。  
 我们应该已经知道，数值是最简单的表达式，它的值就是自身。最普遍的是过程调用表达式（又叫组合式），它的求值规则，举例来说，`(+ (* 3 5) (- 10 6))`是一个过程调用表达式，先计算运算符部分`+`，返回一个`+`代表的那个过程，然后依次求值运算数得到实际参数`15`和`4`，最后将`+`的值的过程应用到实际参数`15`和`4`，结果是`19`。  
-可以看到，`(* 3 5)`和`(- 10 6)`也是组合式，总共来说，我们使用了3次上述同一求值规则：我们第1次使用规则是为`(+ (* 3 5) (- 10 6))`，在遇到`(* 3 5)`时，我们将第1次规则进程“挂起”，记住我们将会返回，并第2次使用规则算出`15`，然后确实回到第1次规则的进程状态继续，遇到`(- 10 6)`，我们第3次使用规则算出`4`，之后回到第1次规则进程中。接下来我们尝试写一个计算器：
+可以看到，`(* 3 5)`和`(- 10 6)`也是组合式，总共来说，我们使用了3次上述同一求值规则：我们第1次使用规则是为`(+ (* 3 5) (- 10 6))`，在遇到`(* 3 5)`时，我们将第1次规则进程“挂起”，记住我们将会返回，并第2次使用规则算出`15`，然后确实回到第1次规则的进程状态继续，遇到`(- 10 6)`，我们第3次使用规则算出`4`，之后回到第1次规则进程中。接下来我们尝试写一个当表达式计算器用的简单解释器：
 ```js
 var seval = (function() {
+    // 求值
+    function seval(exp) {
+        if(isNumber(exp))       // 是数字
+            return exp;            // 直接返回
+        else if(isSymbol(exp))  // 是符号
+            return lookup(exp);    // 返回它所指的对象
+        else if(isCall(exp)) {  // 是调用
+            var proc = seval(operator(exp));     // 求值运算符，得到过程
+            var args = operands(exp).map(seval); // 求值运算数，得到实际参数
+            return apply(proc, args);            // 将过程应用到实际参数
+        }
+        else
+            throw new Error("未知类型表达式");
+    }
+    
+    // 应用
+    function apply(proc, args) {
+        var func = proc;
+        return func(args);
+    }
+
     // 根据符号查找对象
     var lookup = (function(){
         // 数值算术运算
@@ -183,12 +204,14 @@ var seval = (function() {
         function minus(x, y) { return x - y; }
         function mul(x, y) { return x * y; }
         function div(x, y) { return x / y; }
+
         // 符号名到运算函数的map
         var symMap = {};
         symMap['+'] = function(argv) { return argv.reduce(plus, 0); }
         symMap['-'] = function(argv) { return argv.reduce(minus); }
         symMap['*'] = function(argv) { return argv.reduce(mul, 1); }
         symMap['/'] = function(argv) { return argv.reduce(div); }
+
         function lookup(sym) { return symMap[sym]; }
 
         return lookup;
@@ -199,21 +222,6 @@ var seval = (function() {
     function isCall(obj) { return obj instanceof Array; }
     function operator(exp) { return exp[0]; }
     function operands(exp) { return exp.slice(1); }
-
-    // 求值
-    function seval(exp) {
-        if(isNumber(exp))       // 是数字
-            return exp;            // 直接返回
-        else if(isSymbol(exp))  // 是符号
-            return lookup(exp);    // 返回它所指的函数
-        else if(isCall(exp)) {  // 是调用
-            var func = seval(operator(exp));     // 求值运算符，得到函数
-            var args = operands(exp).map(seval); // 求值运算数，得到实际参数
-            return func(args);               // 将运算符应用到运算数
-        }
-        else
-            throw new Error("未知类型表达式");
-    }
 
     return seval;
 })();

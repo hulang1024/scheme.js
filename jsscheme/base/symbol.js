@@ -15,7 +15,7 @@ scheme.makeSymbol = function(val) {
 }
 scheme.symbolVal = function(obj) { return obj.val; }
 
-scheme.symbolTable = [];
+var symbolTable = [];
 scheme.internSymbol = function(str) {
     var nameInTable = "__scheme_symbol_" + str;
     var sym = scheme.symbolTable[nameInTable];
