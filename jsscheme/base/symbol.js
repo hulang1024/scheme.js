@@ -18,10 +18,10 @@ scheme.symbolVal = function(obj) { return obj.val; }
 var symbolTable = [];
 scheme.internSymbol = function(str) {
     var nameInTable = "__scheme_symbol_" + str;
-    var sym = scheme.symbolTable[nameInTable];
+    var sym = symbolTable[nameInTable];
     if(!(sym instanceof scheme.Object)) {
         sym = scheme.makeSymbol(str);
-        scheme.symbolTable[nameInTable] = sym;
+        symbolTable[nameInTable] = sym;
     }
     return sym;
 }
