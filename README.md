@@ -1,6 +1,7 @@
-# toyJSScheme
+﻿# scheme.js
 
-编程语言[Scheme](https://en.wikipedia.org/wiki/Scheme_(programming_language))的JavaScript实现。在线IDE:[https://hlpp.github.io/toyJSScheme/ide/](https://hlpp.github.io/toyJSScheme/ide)
+编程语言[Scheme](https://en.wikipedia.org/wiki/Scheme_(programming_language))的JavaScript实现。  
+IDE: [https://hlpp.github.io/scheme.js/ide/](https://hlpp.github.io/scheme.js/ide)
 
 
 ## 特性
