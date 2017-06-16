@@ -3,8 +3,8 @@
 
 import os
 
-SCM_IN_FILE  = 'jsscheme/lib/lib.scm'
-JS_OUT_FILE  = 'jsscheme/lib/lib.js'
+SCM_IN_FILE  = 'lib/lib.scm'
+JS_OUT_FILE  = 'lib/lib.js'
 
 # Read the SCM file
 scmFile = open(SCM_IN_FILE, 'rb')

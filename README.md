@@ -1,6 +1,6 @@
 # toyJSScheme
 
-编程语言[Scheme](https://en.wikipedia.org/wiki/Scheme_(programming_language))的JavaScript实现。在线IDE地址:[https://hlpp.github.io/toyJSScheme/](https://hlpp.github.io/toyJSScheme/)
+编程语言[Scheme](https://en.wikipedia.org/wiki/Scheme_(programming_language))的JavaScript实现。在线IDE:[https://hlpp.github.io/toyJSScheme/ide/](https://hlpp.github.io/toyJSScheme/ide)
 
 
 ## 特性
@@ -102,14 +102,12 @@
     </script>
     ```
 
- 2. 在所有scheme代码之后，引入broswer-load.js和scm.js：
+ 2. 在所有scheme代码之后，引入broswer-loader.js和scm.js：
     ```html
-    <script src="../jsscheme/browser-load.js"></script>
-    <script src="../jsscheme/scm.js"></script>
+    <script src="../src/browser-loader.js"></script>
+    <script src="../src/scm.js"></script>
     ```
 
-    browser-load.js定义了一个函数`loadScheme`，该函数加载JSScheme到浏览器环境。  
-    scm.js会扫描出所有的包含属性`type="text/scm"`和`ignore`的脚本，然后在同一个Scheme全局环境里，顺序执行脚本中的Scheme程序。
  3. 上面的例子程序运行会弹出 hello scheme 和 4 。
 
 ## 更多

@@ -40,7 +40,7 @@
     (if (= (dom-get event 'keyCode) 27)
         (set! pause (not pause)))))
 </script>
-<script src="../jsscheme/browser-load.js"></script>
+<script src="../src/browser-loader.js"></script>
 <script>
 loadScheme("../", function(){
     scheme.evalString(document.querySelector("script[type='text/scm']").innerText);
