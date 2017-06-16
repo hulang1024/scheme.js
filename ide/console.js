@@ -13,7 +13,7 @@
     });
 
     this.clear = function() {
-        divConsole.html("<p>Welcome to <a target=\"_blank\" href=\"http://github.com/hlpp/JSScheme\" style=\"color:blue\">scheme.js</a>.</p>");
+        divConsole.html("<p>Welcome to <a target=\"_blank\" href=\"http://github.com/hlpp/scheme.js\" style=\"color:blue\">scheme.js</a>.</p>");
     }
     
     this.resetInput = function() {
