@@ -27,7 +27,7 @@ var ExamplesMenu = function(ide) {
         item.onClick(function() {
             if(confirm('Any unsaved data will be lost. Are you sure?')) {
                 var req = new XMLHttpRequest();
-                req.open('GET', '../tests/' + itemProp.file, true);
+                req.open('GET', '../tests/SICP/' + itemProp.file, true);
                 req.addEventListener('load', function(event){
                     var content = event.target.responseText;
                     ide.editor.setValue(content);
