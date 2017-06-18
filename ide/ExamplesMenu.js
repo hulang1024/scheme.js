@@ -13,11 +13,11 @@ var ExamplesMenu = function(ide) {
 
     var itemProps = [
         {title: 'SICP ch1', file: 'ch1.scm'},
-        {title: 'SICP ch2', file: 'ch2.scm'},
         {title: 'SICP ch2 support', file: 'ch2support.scm'},
-        {title: 'SICP ch2 test', file: 'ch2test.scm'},
-        {title: 'SICP ch3', file: 'ch3.scm'},
+        {title: 'SICP ch2', file: 'ch2.scm'},
+        {title: 'SICP ch2 test', file: 'ch2tests.scm'},
         {title: 'SICP ch3 support', file: 'ch3support.scm'},
+        {title: 'SICP ch3', file: 'ch3.scm'},
     ];
     for(var i = 0; i < itemProps.length; i++) {
         (function() {
