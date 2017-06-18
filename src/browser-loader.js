@@ -1,6 +1,6 @@
 ﻿﻿var loadScheme = function(rootdir, onLoad) {
     rootdir = (rootdir || "") + "src/";
-    var jsArray = [
+    var jss = [
         "base/object",
         "base/read",
         "base/print",
@@ -27,7 +27,7 @@
     loadNext();
 
     function loadNext() {
-        if(count == jsArray.length) {
+        if(count == jss.length) {
             scheme.initBasicEnv();
             scheme.makeGlobalEnv();
                 
@@ -37,7 +37,7 @@
         }
 
         var script = document.createElement("script");
-        script.src = rootdir + jsArray[count++] + ".js?v=" + new Date().getMonth();
+        script.src = rootdir + jss[count++] + ".js";
         script.onload = loadNext;
         document.body.appendChild(script);
     }
