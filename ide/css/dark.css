@@ -1,0 +1,87 @@
+button {
+	border: 0px;
+	padding: 5px 8px;
+	cursor: pointer;
+	outline: none;
+}
+
+	button:hover {
+		background-color: #999;
+	}
+
+	button.selected {
+		background-color: #08f;
+	}
+
+
+/* UI */
+
+#menubar {
+	width: 100%;
+	height: 32px;
+	background: #444;
+	padding: 0;
+	margin: 0;
+	right: 0;
+	top: 0;
+}
+
+	#menubar .menu {
+		float: left;
+		cursor: pointer;
+		padding-right: 8px;
+	}
+
+	#menubar .menu.right {
+		float: right;
+		cursor: auto;
+		padding-right: 0;
+		text-align: right;
+	}
+
+		#menubar .menu .title {
+			display: inline-block;
+			color: #888;
+			margin: 0;
+			padding: 8px;
+		}
+
+		#menubar .menu .menuitems {
+			position: absolute;
+			display: none;
+			padding: 5px 0;
+			background: #333;
+			width: 150px;
+		}
+
+		#menubar .menu:hover .menuitems {
+			display: block;
+			z-index: 100;
+		}
+
+			#menubar .menu .menuitems hr {
+				border-color: #222;
+			}
+
+			#menubar .menu .menuitems .menuitem {
+				color: #888;
+				background-color: transparent;
+				padding: 5px 10px;
+				margin: 0 !important;
+			}
+
+				#menubar .menu .menuitems .menuitem:hover {
+					color: #fff;
+					background-color: #08f;
+				}
+
+				#menubar .menu .menuitems .menuitem:active {
+					background: transparent;
+				}
+
+		#menubar .menu .menuitems .inactive {
+			color: #444;
+			background-color: transparent;
+			padding: 5px 10px;
+			margin: 0 !important;
+		}

@@ -5,33 +5,24 @@
     <title>scheme.js - IDE</title>
     <link rel="stylesheet" href="libs/codemirror/codemirror.css">
     <link rel="stylesheet" href="libs/codemirror/theme/scheme-classic-color.css">
-    <link rel="stylesheet" href="ide.css">
+    <link rel="stylesheet" href="css/dark.css">
+    <link rel="stylesheet" href="css/main.css">
 </head>
 
 <body>
-    <div id="loading"><h1>Loading...</h1></div>
-    <div id="frame">
-        <div id="toolbar">
-            <button id="run">Run</button>
-            <button id="clearConsole">Clear Console</button>
-            <button id="toggleInteractions">Hide Interactions</button>
-            <button id="toggleDefinitions">Hide Definitions</button>
-            <button id="viewPlain">View Plain</button>
-        </div>
-        <div id="content">
-            <div id="definitions">
-                <textarea id="definitions_textarea"></textarea>
-            </div>
-            <div id="console"></div>
-        </div>
-    </div>
+    <div id="loading">Loading...</div>
     
     <script src="libs/jquery-3.1.1.min.js"></script>
     <script src="libs/codemirror/codemirror.js"></script>
     <script src="libs/codemirror/mode/scheme.js"></script>
     <script src="libs/codemirror/addon/edit/matchbrackets.js"></script>
     <script src="../src/browser-loader.js"></script>
-    <script src="console.js?v=1.1"></script>
-    <script src="ide.js?v=1.2"></script>
+    <script src="libs/ui.js"></script>
+    <script src="ExamplesMenu.js"></script>
+    <script src="MenuBar.js"></script>
+    <script src="ToolBar.js"></script>
+    <script src="Editor.js"></script>
+    <script src="REPLConsole.js"></script>
+    <script src="ide.js"></script>
 </body>
 </html>
