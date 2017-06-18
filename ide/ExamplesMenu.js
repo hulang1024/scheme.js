@@ -36,9 +36,9 @@ var ExamplesMenu = function(ide) {
                     req.send(null);
                 }
             });
+            items.add(item);
         })();
 
-        items.add(item);
     }
 
     return container;
