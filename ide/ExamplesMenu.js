@@ -20,21 +20,23 @@ var ExamplesMenu = function(ide) {
         {title: 'SICP ch3 support', file: 'ch3support.scm'},
     ];
     for(var i = 0; i < itemProps.length; i++) {
-        var itemProp = itemProps[i];
-        var item = new UI.Row();
-        item.setClass('menuitem');
-        item.setTextContent(itemProp.title);
-        item.onClick(function() {
-            if(confirm('Any unsaved data will be lost. Are you sure?')) {
-                var req = new XMLHttpRequest();
-                req.open('GET', '../tests/SICP/' + itemProp.file, true);
-                req.addEventListener('load', function(event){
-                    var content = event.target.responseText;
-                    ide.editor.setValue(content);
-                }, false);
-                req.send(null);
-            }
-        });
+        (function() {
+            var itemProp = itemProps[i];
+            var item = new UI.Row();
+            item.setClass('menuitem');
+            item.setTextContent(itemProp.title);
+            item.onClick(function() {
+                if(confirm('Any unsaved data will be lost. Are you sure?')) {
+                    var req = new XMLHttpRequest();
+                    req.open('GET', '../tests/SICP/' + itemProp.file, true);
+                    req.addEventListener('load', function(event){
+                        var content = event.target.responseText;
+                        ide.editor.setValue(content);
+                    }, false);
+                    req.send(null);
+                }
+            });
+        })();
 
         items.add(item);
     }
