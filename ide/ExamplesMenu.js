@@ -1,4 +1,4 @@
-var ExamplesMenu = function() {
+var ExamplesMenu = function(ide) {
     var container = new UI.Panel();
     container.setClass('menu');
 
