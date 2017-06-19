@@ -8,10 +8,10 @@ var Editor = function(ide) {
         value: '',
         lineNumbers: true,
         matchBrackets: true,
-		lineWrapping: true,
-		matchBrackets: true,
-		indentWithTabs: true,
-		tabSize: 4,
+        lineWrapping: true,
+        matchBrackets: true,
+        indentWithTabs: true,
+        tabSize: 4,
         indentUnit: 4,
     });    
     codemirror.setSize('height', "100%");
