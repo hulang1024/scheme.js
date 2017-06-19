@@ -60,6 +60,10 @@ button {
 			z-index: 100;
 		}
 
+			#menubar .menu .title:hover {
+				color:white;
+			}
+
 			#menubar .menu .menuitems hr {
 				border-color: #222;
 			}
@@ -72,7 +76,7 @@ button {
 			}
 
 				#menubar .menu .menuitems .menuitem:hover {
-					color: #fff;
+					color:white;
 					background-color: #08f;
 				}
 
