@@ -8,13 +8,6 @@ body, * {
     font-family: Courier New;
 }
 
-#loading {
-    width: 200px;
-    margin: 0 auto;
-    color: black;
-    font-size: 30px;
-}
-
 #toolbar {
     width: 100%;
     height: 26px;

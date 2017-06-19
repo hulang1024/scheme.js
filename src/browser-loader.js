@@ -1,6 +1,6 @@
-﻿﻿var loadScheme = function(rootdir, onLoad) {
+﻿﻿var loadScheme = function(rootdir, onLoad, progress) {
     rootdir = (rootdir || "") + "src/";
-    var jss = [
+    var jsfiles = [
         "base/object",
         "base/read",
         "base/print",
@@ -27,17 +27,19 @@
     loadNext();
 
     function loadNext() {
-        if(count == jss.length) {
+        progress && progress(count, jsfiles.length);
+        
+        if(count == jsfiles.length) {
             scheme.initBasicEnv();
             scheme.makeGlobalEnv();
                 
-            onLoad && onLoad();
+            onLoad();
 
             return;
         }
 
         var script = document.createElement("script");
-        script.src = rootdir + jss[count++] + ".js";
+        script.src = rootdir + jsfiles[count++] + ".js";
         script.onload = loadNext;
         document.body.appendChild(script);
     }
