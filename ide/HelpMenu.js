@@ -14,7 +14,7 @@ var HelpMenu = function(ide) {
     var item = new UI.Row();
     item.setClass('menuitem');
     item.setTextContent('About');
-    item.onClick(function(){
+    item.onClick(function() {
         window.open('http://github.com/hlpp/scheme.js/', '_blank');
     });
     items.add(item);

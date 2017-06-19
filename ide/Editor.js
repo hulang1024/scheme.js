@@ -1,4 +1,3 @@
-// Define Area Editor
 var Editor = function(ide) {
     var container = new UI.Panel();
     container.setId('definitions');

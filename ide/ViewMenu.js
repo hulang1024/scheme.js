@@ -39,12 +39,12 @@ var ViewMenu = function(ide) {
 
 
     var mainPanelRecords = {
-        'Definitions': {
+        Definitions: {
             visible: true,
             panel: ide.editor,
             lastHeight: $(ide.editor.dom).height() + '%'
         },
-        'Interactions': {
+        Interactions: {
             visible: true,
             panel: ide.replConsole,
             lastHeight: $(ide.replConsole.dom).height() + '%'

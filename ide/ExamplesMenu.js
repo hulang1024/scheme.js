@@ -11,6 +11,7 @@ var ExamplesMenu = function(ide) {
     items.setClass('menuitems');
     container.add(items);
 
+
     var itemProps = [
         {title: 'SICP ch1', file: 'ch1.scm'},
         {title: 'SICP ch2 support', file: 'ch2support.scm'},
@@ -19,6 +20,7 @@ var ExamplesMenu = function(ide) {
         {title: 'SICP ch3 support', file: 'ch3support.scm'},
         {title: 'SICP ch3', file: 'ch3.scm'},
     ];
+
     for(var i = 0; i < itemProps.length; i++) {
         (function() {
             var itemProp = itemProps[i];

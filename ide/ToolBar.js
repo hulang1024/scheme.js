@@ -10,7 +10,7 @@ var ToolBar = function(ide) {
         ide.replConsole.resetInput();
     });
     container.add(runButton);
-    
+
     var clsButton = new UI.Button('Clear Console');
     clsButton.setId('clearConsole');
     clsButton.onClick(function(){

@@ -8,6 +8,6 @@ var Menubar = function(ide) {
     container.add( new SchemeMenu(ide) );
     container.add( new ExamplesMenu(ide) );
     container.add( new HelpMenu(ide) );
-
+ 
     return container;
 }

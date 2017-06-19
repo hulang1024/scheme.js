@@ -2,8 +2,8 @@
     var container = new UI.Panel();
     container.setId('console');
 
-    var consoleInput;
     var historyLook = new HistoryLook();
+    var consoleInput;
     var self = container;
 
     container.clear = function() {
