@@ -1,6 +1,17 @@
 ﻿var IDE = function() {
     var ide = this;
 
+    this.signals = {
+        mainPanelSizeChanged: new signals.Signal()
+    };
+
+    var editor = new Editor(ide);
+    ide.editor = editor;
+
+    var replConsole = new REPLConsole(ide);
+    ide.replConsole = replConsole;
+    scheme.console = replConsole; 
+
     var menuBar = new Menubar(ide);
     ide.menuBar = menuBar;
     document.body.appendChild(menuBar.dom);
@@ -11,13 +22,7 @@
 
     var container = new UI.Panel();
     container.setId('content');
-    var editor = new Editor(ide);
-    ide.editor = editor;
-    container.add(editor.container);
-
-    var replConsole = new REPLConsole(ide);
-    scheme.console = replConsole; 
-    ide.replConsole = replConsole;
+    container.add(editor);
     container.add(replConsole);
 
     document.body.appendChild(container.dom);

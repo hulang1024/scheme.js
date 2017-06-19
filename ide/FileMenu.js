@@ -11,19 +11,44 @@ var FileMenu = function(ide) {
     items.setClass('menuitems');
     container.add(items);
 
-    var exportItem = new UI.Row();
-    exportItem.setClass('menuitem');
-    exportItem.setTextContent('Export');
-    exportItem.onClick(function(){
+    var openItem = new UI.Row();
+    openItem.setClass('menuitem');
+    openItem.setTextContent('Open');
+    openItem.onClick(function(){
+        var fileUpload = document.getElementById('file');
+        if(fileUpload == null) {
+            fileUpload = document.createElement('input');
+            fileUpload.id = 'file';
+            fileUpload.type = 'file';
+            fileUpload.onchange = function() {
+                if(!this.files.length)
+                    return;
+                var file = this.files[0];
+                var reader = new FileReader();
+                reader.onload = function() {
+                    ide.editor.setValue(this.result);
+                };
+                reader.readAsText(file);
+            };
+            document.body.appendChild(fileUpload);
+        }
+        fileUpload.click();
+    });
+    items.add(openItem);
+
+    var saveItem = new UI.Row();
+    saveItem.setClass('menuitem');
+    saveItem.setTextContent('Save');
+    saveItem.onClick(function(){
         var output = ide.editor.getValue();
 
-        var blob = new Blob( [ output ], { type: 'text/plain' } );
+        var blob = new Blob( [ output ], { type: 'text/plain;charset=utf8' } );
         var objectURL = URL.createObjectURL( blob );
 
         window.open( objectURL, '_blank' );
         window.focus();
     });
-    items.add(exportItem);
+    items.add(saveItem);
     
     return container;
 }

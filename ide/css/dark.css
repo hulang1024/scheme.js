@@ -18,7 +18,7 @@ button {
 
 #menubar {
 	width: 100%;
-	height: 32px;
+	height: 28px;
 	background: #444;
 	padding: 0;
 	margin: 0;
@@ -30,6 +30,7 @@ button {
 		float: left;
 		cursor: pointer;
 		padding-right: 8px;
+		font-size: 14px;
 	}
 
 	#menubar .menu.right {
@@ -43,7 +44,7 @@ button {
 			display: inline-block;
 			color: #888;
 			margin: 0;
-			padding: 8px;
+			padding: 6px;
 		}
 
 		#menubar .menu .menuitems {
@@ -51,7 +52,7 @@ button {
 			display: none;
 			padding: 5px 0;
 			background: #333;
-			width: 150px;
+			width: 300px;
 		}
 
 		#menubar .menu:hover .menuitems {

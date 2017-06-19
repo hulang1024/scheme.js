@@ -15,7 +15,7 @@ var ExamplesMenu = function(ide) {
         {title: 'SICP ch1', file: 'ch1.scm'},
         {title: 'SICP ch2 support', file: 'ch2support.scm'},
         {title: 'SICP ch2', file: 'ch2.scm'},
-        {title: 'SICP ch2 test', file: 'ch2tests.scm'},
+        {title: 'SICP ch2 tests', file: 'ch2tests.scm'},
         {title: 'SICP ch3 support', file: 'ch3support.scm'},
         {title: 'SICP ch3', file: 'ch3.scm'},
     ];

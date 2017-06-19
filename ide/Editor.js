@@ -17,15 +17,23 @@ var Editor = function(ide) {
     codemirror.setSize('height', "100%");
     codemirror.setOption('theme', "scheme-classic-color");
 
-    this.codemirror = codemirror;
+    $.extend(container, {
+        setValue: function(content) {
+            return codemirror.setValue(content);
+        },
+        getValue: function() {
+            return codemirror.getValue();
+        },
+        command: function(name) {
+            return codemirror.execCommand(name);
+        },
+        setOption: function(key, value) {
+            return codemirror.setOption(key, value);
+        },
+        getOption: function(key) {
+            return codemirror.getOption(key);
+        }
+    });
 
+    return container;
 }
-
-Editor.prototype = {
-    setValue: function(content) {
-        return this.codemirror.setValue(content);
-    },
-    getValue: function() {
-        return this.codemirror.getValue();
-    }
-};
