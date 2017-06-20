@@ -42,6 +42,7 @@ var Loader = function() {
     panel.setTop('44%');
     panel.setMargin('-142px 0 0 -123px');
 
+    // logo Y
     var img = new UI.Element(new Image());
     img.setWidth('100%');
     img.dom.src = 'imgs/y.png';
@@ -51,6 +52,7 @@ var Loader = function() {
     // 进度条
     var progressbar = new UI.Panel();
     progressbar.setBorder('1px solid gray');
+    progressbar.setBorderRadius('3px');
     progressbar.setWidth('100%');
     progressbar.setHeight('30px');
     progressbar.setMargin('0 auto');
@@ -66,7 +68,7 @@ var Loader = function() {
 
 
     document.body.appendChild(panel.dom);
-    
+
     loadScheme("../",
         function() {
             bar.setWidth('100%');
