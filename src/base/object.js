@@ -18,6 +18,7 @@ const scheme_vector_type = 8;
 const scheme_namespace_type = 9;
 const scheme_null_type = 10;
 const scheme_void_type = 11;
+const scheme_primitive_syntax_type = 40;
 /* extended types */
 const scheme_jsobject_type = 12;
 
@@ -43,6 +44,7 @@ scheme.isPrim = function(obj) { return obj.type == scheme_prim_type; }
 scheme.isComp = function(obj) { return obj.type == scheme_comp_type; }
 scheme.isProcedure = function(obj) { return obj.type == scheme_prim_type || obj.type == scheme_comp_type; }
 scheme.isNamespace = function(obj) { return obj.type == scheme_namespace_type; }
+scheme.isSyntax = function(obj) { return obj.type == scheme_primitive_syntax_type; }
 scheme.isJSObject = function(obj) { return obj.type == scheme_jsobject_type; }
 
 scheme.PrimitiveProcedure = function(name, func, minArgs, maxArgs) {

@@ -33,6 +33,7 @@ scheme.initBasicEnv = function() {
     scheme.initFun(env);
     scheme.initRead(env);
     scheme.initPrint(env);
+    scheme.initSyntax(env);
     scheme.initEval(env);
     scheme.initJSObject(env);
     

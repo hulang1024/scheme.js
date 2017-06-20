@@ -68,50 +68,19 @@ function evaluate(exp, env) {
     } else if(scheme.isSymbol(exp)) {
         return scheme.lookup(exp, env);
     } else if(scheme.isPair(exp)) {
-        var operator = scheme.operator(exp); 
-        if(scheme.isSymbol(operator)) {
-            switch(operator) {
-                case scheme.quoteSymbol:
-                    return evalQuotation(exp);
-                case scheme.assignmentSymbol:
-                    return evalAssignment(exp, env);
-                case scheme.defineSymbol:
-                    return evalDefinition(exp, env);
-                case scheme.ifSymbol:
-                    return evalIf(exp, env);
-                case scheme.lambdaSymbol:
-                    return evalLambda(exp, env);
-                case scheme.beginSymbol:
-                    return evalSequence(scheme.beginActions(exp), env);
-                case scheme.letSymbol:
-                    return evaluate(scheme.letToCombination(exp), env);
-                case scheme.condSymbol:
-                    return evaluate(scheme.transformCond(exp), env);
-                case scheme.caseSymbol:
-                    return evaluate(scheme.transformCase(exp), env);
-                case scheme.andSymbol:
-                    return evaluate(scheme.transformAnd(exp), env);
-                case scheme.orSymbol:
-                    return evaluate(scheme.transformOr(exp), env);
-                case scheme.whenSymbol:
-                    return evaluate(scheme.transformWhen(exp), env);
-                case scheme.unlessSymbol:
-                    return evaluate(scheme.transformUnless(exp), env);
-                case scheme.doSymbol:
-                    return evaluate(scheme.transformDo(exp), env);
-                case scheme.whileSymbol:
-                    return evaluate(scheme.transformWhile(exp), env);
-                case scheme.forSymbol:
-                    return evaluate(scheme.transformFor(exp), env);
-                default: {}
-            }
-        }
-        return apply(operator, listOfValues(scheme.operands(exp), env));
+        var operator = evaluate(scheme.operator(exp), env);
+        if(scheme.isSyntax(operator))
+            return applySyntax(operator, exp, env)
+        else 
+            return apply(operator, listOfValues(scheme.operands(exp), env));
     } else {
         return scheme.throwError('eval', "unknown expression type");
     }
 }
 
+function applySyntax(operator, exp, env) {
+    return operator.val(exp, env);
+}
 // 过程(函数)调用
 function apply(procedure, argv) {
     if(scheme.error)
@@ -122,8 +91,7 @@ function apply(procedure, argv) {
         if(ok) {
             return procedure.val.getFunc()(argv);
         }
-    }
-    else if(scheme.isComp(procedure)) {
+    } else if(scheme.isComp(procedure)) {
         var ok = matchArity(procedure, argv);
         if(ok) {
             //将形式参数约束于对应到实际参数
@@ -156,7 +124,7 @@ function apply(procedure, argv) {
         }
     }
     else
-        scheme.applicationError(procedure);
+        scheme.applicationError(operator);
 }
 
 function isSelfEvaluating(exp) {
@@ -283,4 +251,43 @@ function matchArity(procedure, argv) {
     return !mismatch;
 }
 
+
+scheme.quoteSyntaxFunc = evalQuotation;
+scheme.setSyntaxFunc = evalAssignment;
+scheme.defineSyntaxFunc = evalDefinition;
+scheme.ifSyntaxFunc = evalIf;
+scheme.lambdaSyntaxFunc = evalLambda;
+scheme.beginSyntaxFunc = function(exp, env) {
+    return evalSequence(scheme.beginActions(exp), env);
+}
+scheme.letSyntaxFunc = function(exp, env) {
+    return evaluate(scheme.letToCombination(exp), env);
+}
+scheme.condSyntaxFunc = function(exp, env) {
+    return evaluate(scheme.transformCond(exp), env);
+}
+scheme.caseSyntaxFunc = function(exp, env) {
+    return evaluate(scheme.transformCase(exp), env);
+}
+scheme.andSyntaxFunc = function(exp, env) {
+    return evaluate(scheme.transformAnd(exp), env);
+}
+scheme.orSyntaxFunc = function(exp, env) {
+    return evaluate(scheme.transformOr(exp), env);
+}
+scheme.whenSyntaxFunc = function(exp, env) {
+    return evaluate(scheme.transformWhen(exp), env);
+}
+scheme.unlessSyntaxFunc = function(exp, env) {
+    return evaluate(scheme.transformUnless(exp), env);
+}
+scheme.doSyntaxFunc = function(exp, env) {
+    return evaluate(scheme.transformDo(exp), env);
+}
+scheme.whileSyntaxFunc = function(exp, env) {
+    return evaluate(scheme.transformWhile(exp), env);
+}
+scheme.forSyntaxFunc = function(exp, env) {
+    return evaluate(scheme.transformFor(exp), env);
+}
 })(scheme);

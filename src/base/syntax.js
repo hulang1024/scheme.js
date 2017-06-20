@@ -1,6 +1,29 @@
 (function(scheme){
 "use strict";
 
+scheme.initSyntax = function(env) {
+    scheme.addObject(env, "quote", scheme.makeSyntax(scheme.quoteSyntaxFunc));
+    scheme.addObject(env, "set", scheme.makeSyntax(scheme.setSyntaxFunc));
+    scheme.addObject(env, "define", scheme.makeSyntax(scheme.defineSyntaxFunc));
+    scheme.addObject(env, "if", scheme.makeSyntax(scheme.ifSyntaxFunc));
+    scheme.addObject(env, "lambda", scheme.makeSyntax(scheme.lambdaSyntaxFunc));
+    scheme.addObject(env, "begin", scheme.makeSyntax(scheme.beginSyntaxFunc));
+    scheme.addObject(env, "let", scheme.makeSyntax(scheme.letSyntaxFunc));
+    scheme.addObject(env, "cond", scheme.makeSyntax(scheme.condSyntaxFunc));
+    scheme.addObject(env, "case", scheme.makeSyntax(scheme.caseSyntaxFunc));
+    scheme.addObject(env, "and", scheme.makeSyntax(scheme.andSyntaxFunc));
+    scheme.addObject(env, "or", scheme.makeSyntax(scheme.orSyntaxFunc));
+    scheme.addObject(env, "when", scheme.makeSyntax(scheme.whenSyntaxFunc));
+    scheme.addObject(env, "unless", scheme.makeSyntax(scheme.unlessSyntaxFunc));
+    scheme.addObject(env, "do", scheme.makeSyntax(scheme.doSyntaxFunc));
+    scheme.addObject(env, "while", scheme.makeSyntax(scheme.whileSyntaxFunc));
+    scheme.addObject(env, "for", scheme.makeSyntax(scheme.forSyntaxFunc));
+}
+
+scheme.makeSyntax = function(val) {
+    return new scheme.Object(scheme_primitive_syntax_type, val);
+}
+
 // 基本表达式
 //quote
 var quoteObject = scheme.cadr;
