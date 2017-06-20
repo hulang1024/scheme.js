@@ -68,9 +68,9 @@ function evaluate(exp, env) {
     } else if(scheme.isSymbol(exp)) {
         return scheme.lookup(exp, env);
     } else if(scheme.isPair(exp)) {
-        var first = scheme.car(exp);
-        if(scheme.isSymbol(first)) {
-            switch(first) {
+        var operator = scheme.operator(exp); 
+        if(scheme.isSymbol(operator)) {
+            switch(operator) {
                 case scheme.quoteSymbol:
                     return evalQuotation(exp);
                 case scheme.assignmentSymbol:
@@ -103,11 +103,10 @@ function evaluate(exp, env) {
                     return evaluate(scheme.transformWhile(exp), env);
                 case scheme.forSymbol:
                     return evaluate(scheme.transformFor(exp), env);
-                default:
-                    ;//apply
+                default: {}
             }
         }
-        return apply(evaluate(scheme.operator(exp), env), listOfValues(scheme.operands(exp), env));
+        return apply(operator, listOfValues(scheme.operands(exp), env));
     } else {
         return scheme.throwError('eval', "unknown expression type");
     }
