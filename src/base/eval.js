@@ -106,13 +106,13 @@ function evaluate(exp, env) {
                 default: {}
             }
         }
-        return apply(operator, listOfValues(scheme.operands(exp), env));
+        return apply(evaluate(operator, env), listOfValues(scheme.operands(exp), env));
     } else {
         return scheme.throwError('eval', "unknown expression type");
     }
 }
 
-// 过程(函数)调用
+// 应用:求值过程调用
 function apply(procedure, argv) {
     if(scheme.error)
         throw scheme.error;
