@@ -45,6 +45,7 @@ var Loader = function() {
     // logo Y
     var img = new UI.Element(new Image());
     img.setWidth('100%');
+    img.setHeight('252px');
     img.dom.src = 'imgs/y.png';
     panel.add(img);
 
