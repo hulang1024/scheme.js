@@ -7,7 +7,7 @@ var ToolBar = function(ide) {
 
     self.setVisible(config.get('toolbar.show'));
 
-    var runButton = new UI.Button(window.localeBundle.getString('Run'));
+    var runButton = new UI.Button(localeBundle.getString('Run'));
     runButton.setId('run');
     runButton.onClick(function() {
         ide.replConsole.clear();
@@ -16,7 +16,7 @@ var ToolBar = function(ide) {
     });
     container.add(runButton);
 
-    var clsButton = new UI.Button(window.localeBundle.getString('ClearConsole'));
+    var clsButton = new UI.Button(localeBundle.getString('ClearConsole'));
     clsButton.setId('clearConsole');
     clsButton.onClick(function(){
         ide.replConsole.clear();

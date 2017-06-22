@@ -6,7 +6,7 @@ var ViewMenu = function(ide) {
 
     var title = new UI.Panel();
     title.setClass('title');
-    title.setTextContent(window.localeBundle.getString('View'));
+    title.setTextContent(localeBundle.getString('View'));
     container.add(title);
 
     var items = new UI.Panel();
@@ -33,14 +33,13 @@ var ViewMenu = function(ide) {
     
     var item = new UI.Row();
     item.setClass('menuitem');
-    item.setTextContent((config.get('toolbar.show') ? window.localeBundle.getString('Hide') : window.localeBundle.getString('Show'))
-        + window.localeBundle.getString('ToolBar'));
+    item.setTextContent(localeBundle.getString(config.get('toolbar.show') ? 'Hide' : 'Show')
+        + localeBundle.getString('ToolBar'));
     item.onClick(function(){
         var val = ! $(ide.toolBar.dom).is(':visible');
         ide.toolBar.setVisible(val);
         config.set('toolbar.show', val);
-        this.setTextContent((val ? window.localeBundle.getString('Hide') : window.localeBundle.getString('Show'))
-            + window.localeBundle.getString('ToolBar'));
+        this.setTextContent(localeBundle.getString(val ? 'Hide' : 'Show') + localeBundle.getString('ToolBar'));
     });
     items.add(item);
 
@@ -84,15 +83,14 @@ var ViewMenu = function(ide) {
         function setState(record, b) {
             record.visible = b;
             $(record.panel.dom)[b ? 'show' : 'hide']();
-            record.menuItem.setTextContent((b ? window.localeBundle.getString('Hide') : window.localeBundle.getString('Show'))
-                + record.menuItem.titleName);
+            record.menuItem.setTextContent(localeBundle.getString(b ? 'Hide' : 'Show') + record.menuItem.titleName);
         }
     }
 
     var item = new UI.Row();
     item.setClass('menuitem');
-    item.titleName = window.localeBundle.getString('Definitions');
-    item.setTextContent(window.localeBundle.getString('Hide') + window.localeBundle.getString('Definitions'));
+    item.titleName = localeBundle.getString('Definitions');
+    item.setTextContent(localeBundle.getString('Hide') + localeBundle.getString('Definitions'));
     item.onClick(function(){
         toggleMainPanelVisible('Definitions');
     });
@@ -101,8 +99,8 @@ var ViewMenu = function(ide) {
 
     var item = new UI.Row();
     item.setClass('menuitem');
-    item.titleName = window.localeBundle.getString('Interactions');
-    item.setTextContent(window.localeBundle.getString('Hide') + window.localeBundle.getString('Interactions'));
+    item.titleName = localeBundle.getString('Interactions');
+    item.setTextContent(localeBundle.getString('Hide') + localeBundle.getString('Interactions'));
     item.onClick(function(){
         toggleMainPanelVisible('Interactions');
     });
@@ -112,12 +110,14 @@ var ViewMenu = function(ide) {
 
     var item = new UI.Row();
     item.setClass('menuitem');
-    item.setTextContent(window.localeBundle.getString('HideLineNumbers'));
+    item.setTextContent(localeBundle.getString(ide.editor.config.get('lineNumbersShow') ? 'Hide' : 'Show')
+        + localeBundle.getString('LineNumbers'));
     item.onClick(function(){
         var val = ! ide.editor.getOption('lineNumbers');
         ide.editor.setOption('lineNumbers', val);
-        this.setTextContent(window.localeBundle.getString(val ? 'Hide' : 'Show')
-            + window.localeBundle.getString('LineNumbers'));
+        this.setTextContent(localeBundle.getString(val ? 'Hide' : 'Show')
+            + localeBundle.getString('LineNumbers'));
+        ide.editor.config.set('lineNumbersShow', val);
     });
     items.add(item);
 
@@ -132,8 +132,8 @@ var ViewMenu = function(ide) {
         inc = Math.abs(inc);
         $(ide.editor.dom).css('fontSize', size + 'px');
         $(ide.replConsole.dom).css('fontSize', size + 'px');
-        decFontSizeItem.setTextContent(window.localeBundle.getString('DecreaseFontSize').replace("${fontSize}", size - inc));
-        incFontSizeItem.setTextContent(window.localeBundle.getString('IncreaseFontSize').replace("${fontSize}", size + inc));
+        decFontSizeItem.setTextContent(localeBundle.getString('DecreaseFontSize').replace("${fontSize}", size - inc));
+        incFontSizeItem.setTextContent(localeBundle.getString('IncreaseFontSize').replace("${fontSize}", size + inc));
 
         config.set('fontSize', size);
     }

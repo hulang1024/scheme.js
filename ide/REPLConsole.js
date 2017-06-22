@@ -7,7 +7,7 @@
     var self = container;
 
     container.clear = function() {
-        container.dom.innerHTML = "<p>" + window.localeBundle.getString('WelcomeTo')
+        container.dom.innerHTML = "<p>" + localeBundle.getString('WelcomeTo')
             + "<a target=\"_blank\" href=\"http://github.com/hlpp/scheme.js\" style=\"color:blue\">scheme.js</a>.</p>";
     }
     

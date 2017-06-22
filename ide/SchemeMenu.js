@@ -14,7 +14,7 @@ var SchemeMenu = function(ide) {
 
     var item = new UI.Row();
     item.setClass('menuitem');
-    item.setTextContent(window.localeBundle.getString('Run'));
+    item.setTextContent(localeBundle.getString('Run'));
     item.onClick(function() {
         ide.replConsole.clear();
         scheme.evalStringWithNewEnv(ide.editor.getValue());

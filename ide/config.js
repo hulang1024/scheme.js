@@ -10,6 +10,9 @@ var Config = (function() {
 				show: true
 			}
 		},
+		editor: {
+			lineNumbersShow: true
+		}
 	};
 
 	return function(name) {

@@ -79,6 +79,10 @@ function getLocalisationResourceBundle(locale) {
     res = localisationResources[locale.toString()];
   }
 
+  that.getLocale = function() {
+      return locale;
+  }
+
   that.setLocale(locale);
 
   return that;

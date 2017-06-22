@@ -1,11 +1,13 @@
 var Editor = function(ide) {
     var container = new UI.Panel();
     container.setId('definitions');
-    this.container = container;
+
+    var config = new Config('editor');
+    container.config = config;
 
     var codemirror = CodeMirror(container.dom, {
         value: '',
-        lineNumbers: true,
+        lineNumbers: config.get('lineNumbersShow'),
         matchBrackets: true,
         lineWrapping: true,
         matchBrackets: true,

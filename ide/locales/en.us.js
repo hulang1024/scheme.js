@@ -1,4 +1,5 @@
 ﻿(function(us){
+
 // File menu
 us.File = 'File';
 us.Open = 'Open';
@@ -28,7 +29,8 @@ us.About = 'About';
 
 us.WelcomeTo = 'Welcome to ';
 us.InteractInLanuage = 'Interact With Scheme In English';
-us.ChangeGUILanuageRestartConfirm = 'This will change the language of the GUI, which requires you to restart Scheme. Are you sure?';
+us.ChangeGUILanuageRestartConfirm = 'This will change the language of the GUI,which requires you to restart Scheme. Are you sure?';
 us.UnsavedCodeLostConfrim = 'Any unsaved code will be lost. Are you sure?';
 us.ClearConsole = 'Clear Console';
+
 })(localisationResources[Locale.US.toString()] = {});

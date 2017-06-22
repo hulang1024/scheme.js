@@ -4,7 +4,7 @@ var ExamplesMenu = function(ide) {
 
     var title = new UI.Panel();
     title.setClass('title');
-    title.setTextContent(window.localeBundle.getString('Examples'));
+    title.setTextContent(localeBundle.getString('Examples'));
     container.add(title);
 
     var items = new UI.Panel();
@@ -28,7 +28,7 @@ var ExamplesMenu = function(ide) {
             item.setClass('menuitem');
             item.setTextContent(itemProp.title);
             item.onClick(function() {
-                if(confirm(window.localeBundle.getString('UnsavedCodeLostConfrim'))) {
+                if(confirm(localeBundle.getString('UnsavedCodeLostConfrim'))) {
                     var req = new XMLHttpRequest();
                     req.open('GET', '../tests/SICP/' + itemProp.file, true);
                     req.addEventListener('load', function(event){

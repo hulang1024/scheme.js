@@ -4,7 +4,7 @@ var HelpMenu = function(ide) {
 
     var title = new UI.Panel();
     title.setClass('title');
-    title.setTextContent(window.localeBundle.getString('Help'));
+    title.setTextContent(localeBundle.getString('Help'));
     container.add(title);
 
     var items = new UI.Panel();
@@ -13,7 +13,7 @@ var HelpMenu = function(ide) {
 
     var item = new UI.Row();
     item.setClass('menuitem');
-    item.setTextContent(window.localeBundle.getString('About'));
+    item.setTextContent(localeBundle.getString('About'));
     item.onClick(function() {
         window.open('http://github.com/hlpp/scheme.js/', '_blank');
     });
@@ -21,7 +21,8 @@ var HelpMenu = function(ide) {
 
     var langItemProps = [];
     for(var loc in localisationResources) {
-        langItemProps.push({title: localisationResources[loc].InteractInLanuage, locale: loc});
+        if(loc != localeBundle.getLocale())
+            langItemProps.push({title: localisationResources[loc].InteractInLanuage, locale: loc});
     }
     for(var i = 0; i < langItemProps.length; i++) {
         (function() {
@@ -30,8 +31,11 @@ var HelpMenu = function(ide) {
             item.setClass('menuitem');
             item.setTextContent(itemProp.title);
             item.onClick(function() {
-                if(confirm(window.localeBundle.getString('ChangeGUILanuageRestartConfirm'))) {
-                    ide.config.set('GUILanguage', itemProp.locale);
+                var setLocale = itemProp.locale;
+                var setLangConfrim = localisationResources[setLocale].ChangeGUILanuageRestartConfirm;
+                var nowLangConfrim = localeBundle.getString('ChangeGUILanuageRestartConfirm');
+                if(confirm(setLangConfrim + '\n\n' + nowLangConfrim + '\n')) {
+                    ide.config.set('GUILanguage', setLocale);
                     location.reload();
                 }
             });
