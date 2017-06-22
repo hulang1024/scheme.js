@@ -7,7 +7,7 @@ var Config = (function() {
 		view: {
 			fontSize: 15,
 			toolbar: {
-				show: false
+				show: true
 			}
 		},
 	};
