@@ -1,9 +1,16 @@
 var IDE = function() {
     var ide = this;
-
+    
+    var config = new Config('ide');
+    this.config = config;
+    
     this.signals = {
         mainPanelSizeChanged: new signals.Signal()
     };
+    
+    var locale = Locale.fromDisplayLanguage(config.get('GUILanguage'));
+    window.localeBundle = getLocalisationResourceBundle(locale);
+    
 
     var editor = new Editor(ide);
     ide.editor = editor;
@@ -12,19 +19,19 @@ var IDE = function() {
     ide.replConsole = replConsole;
     scheme.console = replConsole; 
 
-    var menuBar = new Menubar(ide);
-    ide.menuBar = menuBar;
-    document.body.appendChild(menuBar.dom);
-
     var toolBar = new ToolBar(ide);
     ide.toolBar = toolBar;
-    document.body.appendChild(toolBar.dom);
+
+    var menuBar = new Menubar(ide);
+    ide.menuBar = menuBar;
 
     var container = new UI.Panel();
     container.setId('content');
     container.add(editor);
     container.add(replConsole);
 
+    document.body.appendChild(menuBar.dom);
+    document.body.appendChild(toolBar.dom);
     document.body.appendChild(container.dom);
 
     editor.setValue('');
@@ -41,7 +48,8 @@ var Loader = function() {
     panel.setLeft('50%');
     panel.setTop('44%');
     panel.setMargin('-142px 0 0 -123px');
-
+    document.body.appendChild(panel.dom);
+    
     // logo Y
     var img = new UI.Element(new Image());
     img.setWidth('100%');
@@ -66,9 +74,6 @@ var Loader = function() {
     bar.setHeight('100%');
     bar.setBackgroundColor('#1DBB37');
     progressbar.add(bar);
-
-
-    document.body.appendChild(panel.dom);
 
     loadScheme("../",
         function() {

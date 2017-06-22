@@ -4,7 +4,7 @@ var ExamplesMenu = function(ide) {
 
     var title = new UI.Panel();
     title.setClass('title');
-    title.setTextContent('Examples');
+    title.setTextContent(window.localeBundle.getString('Examples'));
     container.add(title);
 
     var items = new UI.Panel();
@@ -13,12 +13,12 @@ var ExamplesMenu = function(ide) {
 
 
     var itemProps = [
-        {title: 'SICP ch1', file: 'ch1.scm'},
-        {title: 'SICP ch2 support', file: 'ch2support.scm'},
-        {title: 'SICP ch2', file: 'ch2.scm'},
-        {title: 'SICP ch2 tests', file: 'ch2tests.scm'},
-        {title: 'SICP ch3 support', file: 'ch3support.scm'},
-        {title: 'SICP ch3', file: 'ch3.scm'},
+        {title: 'SICP chapter1', file: 'ch1.scm'},
+        {title: 'SICP chapter2 support', file: 'ch2support.scm'},
+        {title: 'SICP chapter2', file: 'ch2.scm'},
+        {title: 'SICP chapter2 tests', file: 'ch2tests.scm'},
+        {title: 'SICP chapter3 support', file: 'ch3support.scm'},
+        {title: 'SICP chapter3', file: 'ch3.scm'},
     ];
 
     for(var i = 0; i < itemProps.length; i++) {
@@ -28,7 +28,7 @@ var ExamplesMenu = function(ide) {
             item.setClass('menuitem');
             item.setTextContent(itemProp.title);
             item.onClick(function() {
-                if(confirm('Any unsaved data will be lost. Are you sure?')) {
+                if(confirm(window.localeBundle.getString('UnsavedCodeLostConfrim'))) {
                     var req = new XMLHttpRequest();
                     req.open('GET', '../tests/SICP/' + itemProp.file, true);
                     req.addEventListener('load', function(event){
@@ -40,7 +40,6 @@ var ExamplesMenu = function(ide) {
             });
             items.add(item);
         })();
-
     }
 
     return container;

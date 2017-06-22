@@ -7,7 +7,8 @@
     var self = container;
 
     container.clear = function() {
-        container.dom.innerHTML = "<p>Welcome to <a target=\"_blank\" href=\"http://github.com/hlpp/scheme.js\" style=\"color:blue\">scheme.js</a>.</p>";
+        container.dom.innerHTML = "<p>" + window.localeBundle.getString('WelcomeTo')
+            + "<a target=\"_blank\" href=\"http://github.com/hlpp/scheme.js\" style=\"color:blue\">scheme.js</a>.</p>";
     }
     
     container.resetInput = function() {

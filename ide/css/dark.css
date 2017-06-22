@@ -45,6 +45,7 @@ button {
 			color: #888;
 			margin: 0;
 			padding: 6px;
+			line-height: 100%;
 		}
 
 		#menubar .menu .menuitems {
@@ -52,7 +53,7 @@ button {
 			display: none;
 			padding: 5px 0;
 			background: #333;
-			width: 300px;
+			min-width: 100px;
 		}
 
 		#menubar .menu:hover .menuitems {

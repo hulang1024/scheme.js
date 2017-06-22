@@ -4,7 +4,7 @@ var FileMenu = function(ide) {
 
     var title = new UI.Panel();
     title.setClass('title');
-    title.setTextContent('File');
+    title.setTextContent(window.localeBundle.getString('File'));
     container.add(title);
 
     var items = new UI.Panel();
@@ -13,7 +13,7 @@ var FileMenu = function(ide) {
 
     var openItem = new UI.Row();
     openItem.setClass('menuitem');
-    openItem.setTextContent('Open');
+    openItem.setTextContent(window.localeBundle.getString('Open'));
     openItem.onClick(function(){
         var fileUpload = document.getElementById('file');
         if(fileUpload == null) {
@@ -38,7 +38,7 @@ var FileMenu = function(ide) {
 
     var saveItem = new UI.Row();
     saveItem.setClass('menuitem');
-    saveItem.setTextContent('Save');
+    saveItem.setTextContent(window.localeBundle.getString('Save'));
     saveItem.onClick(function(){
         var output = ide.editor.getValue();
 

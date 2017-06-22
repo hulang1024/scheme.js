@@ -4,7 +4,7 @@ var EditMenu = function(ide) {
 
     var title = new UI.Panel();
     title.setClass('title');
-    title.setTextContent('Edit');
+    title.setTextContent(window.localeBundle.getString('Edit'));
     container.add(title);
 
     var items = new UI.Panel();
@@ -13,9 +13,9 @@ var EditMenu = function(ide) {
 
 
     var cmdItemProps = [
-        {title: 'Undo', key: 'Ctrl+Z', cmd: 'undo'},
-        {title: 'Redo', key: 'Ctrl+Y', cmd: 'redo'},
-        {title: 'Select All', key: 'Ctrl+A', cmd: 'selectAll'}
+        {title: window.localeBundle.getString('Undo'), key: 'Ctrl+Z', cmd: 'undo'},
+        {title: window.localeBundle.getString('Redo'), key: 'Ctrl+Y', cmd: 'redo'},
+        {title: window.localeBundle.getString('SelectAll'), key: 'Ctrl+A', cmd: 'selectAll'}
     ];
 
     for(var i = 0; i < cmdItemProps.length; i++) {

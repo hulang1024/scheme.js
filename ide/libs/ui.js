@@ -102,6 +102,13 @@ UI.Element.prototype = {
 
 	},
 
+	setVisible: function ( value ) {
+		
+		this.dom.style.display = value ? 'block' : 'none';
+		
+		return this;
+	},
+
 	setTextContent: function ( value ) {
 
 		this.dom.textContent = value;

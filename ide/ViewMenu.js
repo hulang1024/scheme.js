@@ -1,10 +1,12 @@
 var ViewMenu = function(ide) {
+    var config = new Config('view');
+    
     var container = new UI.Panel();
     container.setClass('menu');
 
     var title = new UI.Panel();
     title.setClass('title');
-    title.setTextContent('View');
+    title.setTextContent(window.localeBundle.getString('View'));
     container.add(title);
 
     var items = new UI.Panel();
@@ -12,31 +14,35 @@ var ViewMenu = function(ide) {
     container.add(items);
 
 
-    var item = new UI.Row();
-    item.setClass('menuitem');
-    item.setTextContent('Decrease Font Size');
-    item.onClick(function(){
+    var decFontSizeItem = new UI.Row();
+    decFontSizeItem.setClass('menuitem');
+    decFontSizeItem.onClick(function(){
         resetFontSize(-1);
     });
-    items.add(item);
+    items.add(decFontSizeItem);
 
-    var item = new UI.Row();
-    item.setClass('menuitem');
-    item.setTextContent('Increase Font Size');
-    item.onClick(function(){
+    var incFontSizeItem = new UI.Row();
+    incFontSizeItem.setClass('menuitem');
+    incFontSizeItem.onClick(function(){
         resetFontSize(+1);
     });
-    items.add(item);
+    items.add(incFontSizeItem);
 
+    setFontSize(config.get('fontSize'), 1);
+
+    
     var item = new UI.Row();
     item.setClass('menuitem');
-    item.setTextContent('Toolbar');
+    item.setTextContent((config.get('toolbar.show') ? window.localeBundle.getString('Hide') : window.localeBundle.getString('Show'))
+        + window.localeBundle.getString('ToolBar'));
     item.onClick(function(){
         var val = ! $(ide.toolBar.dom).is(':visible');
-        $(ide.toolBar.dom)[val ? 'show' : 'hide']();
+        ide.toolBar.setVisible(val);
+        config.set('toolbar.show', val);
+        this.setTextContent((val ? window.localeBundle.getString('Hide') : window.localeBundle.getString('Show'))
+            + window.localeBundle.getString('ToolBar'));
     });
     items.add(item);
-
 
     var mainPanelRecords = {
         Definitions: {
@@ -78,14 +84,15 @@ var ViewMenu = function(ide) {
         function setState(record, b) {
             record.visible = b;
             $(record.panel.dom)[b ? 'show' : 'hide']();
-            record.menuItem.setTextContent((b ? 'Hide ' : 'Show ') + record.menuItem.titleName);
+            record.menuItem.setTextContent((b ? window.localeBundle.getString('Hide') : window.localeBundle.getString('Show'))
+                + record.menuItem.titleName);
         }
     }
 
     var item = new UI.Row();
     item.setClass('menuitem');
-    item.titleName = 'Definitions';
-    item.setTextContent('Hide Definitions');
+    item.titleName = window.localeBundle.getString('Definitions');
+    item.setTextContent(window.localeBundle.getString('Hide') + window.localeBundle.getString('Definitions'));
     item.onClick(function(){
         toggleMainPanelVisible('Definitions');
     });
@@ -94,8 +101,8 @@ var ViewMenu = function(ide) {
 
     var item = new UI.Row();
     item.setClass('menuitem');
-    item.titleName = 'Interactions';
-    item.setTextContent('Hide Interactions');
+    item.titleName = window.localeBundle.getString('Interactions');
+    item.setTextContent(window.localeBundle.getString('Hide') + window.localeBundle.getString('Interactions'));
     item.onClick(function(){
         toggleMainPanelVisible('Interactions');
     });
@@ -105,11 +112,12 @@ var ViewMenu = function(ide) {
 
     var item = new UI.Row();
     item.setClass('menuitem');
-    item.setTextContent('Hide Line Numbers');
+    item.setTextContent(window.localeBundle.getString('HideLineNumbers'));
     item.onClick(function(){
         var val = ! ide.editor.getOption('lineNumbers');
         ide.editor.setOption('lineNumbers', val);
-        this.setTextContent(val ? 'Hide Line Numbers' : 'Show Line Numbers');
+        this.setTextContent(window.localeBundle.getString(val ? 'Hide' : 'Show')
+            + window.localeBundle.getString('LineNumbers'));
     });
     items.add(item);
 
@@ -117,8 +125,17 @@ var ViewMenu = function(ide) {
     function resetFontSize(inc) {
         var fontSize = parseInt($(ide.editor.dom).css('fontSize'));
         fontSize += inc;
-        $(ide.editor.dom).css('fontSize', fontSize + 'px');
-        $(ide.replConsole.dom).css('fontSize', fontSize + 'px');
+        setFontSize(fontSize, inc);
+    }
+
+    function setFontSize(size, inc) {
+        inc = Math.abs(inc);
+        $(ide.editor.dom).css('fontSize', size + 'px');
+        $(ide.replConsole.dom).css('fontSize', size + 'px');
+        decFontSizeItem.setTextContent(window.localeBundle.getString('DecreaseFontSize').replace("${fontSize}", size - inc));
+        incFontSizeItem.setTextContent(window.localeBundle.getString('IncreaseFontSize').replace("${fontSize}", size + inc));
+
+        config.set('fontSize', size);
     }
 
     ide.signals.mainPanelSizeChanged.add(function() {
