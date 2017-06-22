@@ -38,15 +38,14 @@ body, * {
 
 #definitions {
     width: 100%;
-    height: 50%;
-    font-size: 15px;
+    height: 50% !important;
     overflow-y:auto;
     resize: none;
 }
 
 #console {
     width: 100%;
-	height: 50%;
+	height: 50% !important;
     overflow: auto;
     border-top: 2px gray solid;
     background-color:white;
