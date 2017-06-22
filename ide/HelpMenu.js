@@ -36,7 +36,8 @@ var HelpMenu = function(ide) {
                 var nowLangConfrim = localeBundle.getString('ChangeGUILanuageRestartConfirm');
                 if(confirm(setLangConfrim + '\n\n' + nowLangConfrim + '\n')) {
                     ide.config.set('GUILanguage', setLocale);
-                    location.reload();
+                    // location.reload();
+                    location.href = location.href; // faster 
                 }
             });
             items.add(item);
