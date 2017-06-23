@@ -10,7 +10,7 @@ function stringToNumber(argv) {
     var obj = argv[0];
     if(!scheme.isString(obj))
         return scheme.wrongContract("string->number", "string?", 0, argv);
-    return scheme.makeDouble(parseFloat(scheme.stringVal(obj)));
+    return scheme.makeNumber(parseFloat(scheme.stringVal(obj)));
 }
 
 function numberToString(argv) {
