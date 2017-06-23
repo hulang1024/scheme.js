@@ -61,120 +61,148 @@ function eval_prim(argv) {
 // evaluations
 //-------------
 function evaluate(exp, env) {
-    if(exp == scheme.voidValue) {
-        return exp;
-    } else if(isSelfEvaluating(exp)) {
-        return exp;
-    } else if(scheme.isSymbol(exp)) {
-        return scheme.lookup(exp, env);
-    } else if(scheme.isPair(exp)) {
-        var operator = scheme.operator(exp); 
-        if(scheme.isSymbol(operator)) {
-            switch(operator) {
-                case scheme.quoteSymbol:
-                    return evalQuotation(exp);
-                case scheme.assignmentSymbol:
-                    return evalAssignment(exp, env);
-                case scheme.defineSymbol:
-                    return evalDefinition(exp, env);
-                case scheme.ifSymbol:
-                    return evalIf(exp, env);
-                case scheme.lambdaSymbol:
-                    return evalLambda(exp, env);
-                case scheme.beginSymbol:
-                    return evalSequence(scheme.beginActions(exp), env);
-                case scheme.letSymbol:
-                    return evaluate(scheme.letToCombination(exp), env);
-                case scheme.condSymbol:
-                    return evaluate(scheme.transformCond(exp), env);
-                case scheme.caseSymbol:
-                    return evaluate(scheme.transformCase(exp), env);
-                case scheme.andSymbol:
-                    return evaluate(scheme.transformAnd(exp), env);
-                case scheme.orSymbol:
-                    return evaluate(scheme.transformOr(exp), env);
-                case scheme.whenSymbol:
-                    return evaluate(scheme.transformWhen(exp), env);
-                case scheme.unlessSymbol:
-                    return evaluate(scheme.transformUnless(exp), env);
-                case scheme.doSymbol:
-                    return evaluate(scheme.transformDo(exp), env);
-                case scheme.whileSymbol:
-                    return evaluate(scheme.transformWhile(exp), env);
-                case scheme.forSymbol:
-                    return evaluate(scheme.transformFor(exp), env);
-                default: {}
+    while(true) {
+        if(scheme.error)
+            throw scheme.error;
+        if(exp == scheme.voidValue) {
+            return exp;
+        } else if(scheme.isNumber(exp)
+               || scheme.isChar(exp)
+               || scheme.isString(exp)
+               || scheme.isBoolean(exp)) { // self evaluating
+            return exp;
+        } else if(scheme.isSymbol(exp)) {
+            return scheme.lookup(exp, env);
+        } else if(scheme.isPair(exp)) {
+            var operator = scheme.operator(exp); 
+            if(scheme.isSymbol(operator)) {
+                switch(operator) {
+                    case scheme.quoteSymbol:
+                        // eval quotation
+                        return scheme.quoteObject(exp);
+                    case scheme.assignmentSymbol:
+                        return evalAssignment(exp, env);
+                    case scheme.defineSymbol:
+                        return evalDefinition(exp, env);
+                    case scheme.ifSymbol:
+                        // eval if
+                        exp = scheme.isTrue(evaluate(scheme.ifPredicate(exp), env)) ?
+                            scheme.ifConsequent(exp) : scheme.ifAlternative(exp);
+                        continue;
+                    case scheme.lambdaSymbol:
+                        return evalLambda(exp, env);
+                    case scheme.beginSymbol:
+                        // eval sequence
+                        var exps = scheme.beginActions(exp);
+                        if(!scheme.isEmptyList(exps)) {
+                            for(; ! scheme.isEmptyList( scheme.cdr(exps) ); exps = scheme.cdr(exps) )
+                                evaluate(scheme.car(exps), env);
+                            exp = scheme.car(exps); // last exp
+                            continue;
+                        } else {
+                            return scheme.voidValue;
+                        }
+                    case scheme.letSymbol:
+                        return evaluate(scheme.letToCombination(exp), env);
+                    case scheme.condSymbol:
+                        return evaluate(scheme.transformCond(exp), env);
+                    case scheme.caseSymbol:
+                        return evaluate(scheme.transformCase(exp), env);
+                    case scheme.andSymbol:
+                        return evaluate(scheme.transformAnd(exp), env);
+                    case scheme.orSymbol:
+                        return evaluate(scheme.transformOr(exp), env);
+                    case scheme.whenSymbol:
+                        return evaluate(scheme.transformWhen(exp), env);
+                    case scheme.unlessSymbol:
+                        return evaluate(scheme.transformUnless(exp), env);
+                    case scheme.doSymbol:
+                        return evaluate(scheme.transformDo(exp), env);
+                    case scheme.whileSymbol:
+                        return evaluate(scheme.transformWhile(exp), env);
+                    case scheme.forSymbol:
+                        return evaluate(scheme.transformFor(exp), env);
+                    default: {}
+                }
             }
+
+
+            // apply
+            var procedure = evaluate(operator, env);
+            var argv = arrayOfValues(scheme.operands(exp), env);
+            if(scheme.isPrim(procedure)) {
+                return applyPrimitiveProcedure(procedure, argv);
+            } else if(scheme.isComp(procedure)) {
+                var ok = matchArity(procedure, argv);
+                if(ok) {
+                    exp = scheme.makeBegin(procedure.val.getBody());
+                    env = makeProcedureApplyEnv(procedure, argv);
+                }
+                continue;
+            } else {
+                scheme.applicationError(procedure);
+            }
+
+        } else {
+            return scheme.throwError('eval', "unknown expression type");
         }
-        return apply(evaluate(operator, env), listOfValues(scheme.operands(exp), env));
-    } else {
-        return scheme.throwError('eval', "unknown expression type");
     }
 }
 
 // 应用:求值过程调用
 function apply(procedure, argv) {
-    if(scheme.error)
-        throw scheme.error;
-
     if(scheme.isPrim(procedure)) {
+        return applyPrimitiveProcedure(procedure, argv);
+    } else if(scheme.isComp(procedure)) {
         var ok = matchArity(procedure, argv);
         if(ok) {
-            return procedure.val.getFunc()(argv);
-        }
-    }
-    else if(scheme.isComp(procedure)) {
-        var ok = matchArity(procedure, argv);
-        if(ok) {
-            //将形式参数约束于对应到实际参数
-            var bindings = {};
-            var paramters = procedure.val.getParamters();
-            var arity = procedure.val.getArity();
-            var argvList = scheme.arrayToList(argv);
-            if(arity.length == 1) {     // 0个或固定数量参数
-                for(var index = 0; index < paramters.length; index++)
-                    bindings[paramters[index].val] = argv[index];
-            }
-            else if(arity[0] > 0 && arity[1] == -1) {   // n或更多个参数
-                var index;
-                for(index = 0; index < paramters.length - 1; index++)
-                    bindings[paramters[index].val] = argv[index];
-                bindings[paramters[index].val] = scheme.arrayToList(argv.slice(index));
-            }
-            else if(arity[0] == 0) {    // n个参数
-                bindings[paramters[0].val] = argvList;
-            }
-            //参考JS的arguments特性
-            bindings["arguments"] = argvList;
-            bindings["callee"] = procedure;
-            
-            //构造一个新环境,将创建该过程时的环境作为外围环境
-            var newEnv = scheme.extendEnv(bindings, procedure.val.getEnv());
             //在这个新环境上下文中求值过程体
-            var lastValue = evalSequence(procedure.val.getBody(), newEnv);
-            return lastValue;
+            return evaluate(scheme.makeBegin(procedure.val.getBody()), makeProcedureApplyEnv(procedure, argv));
         }
-    }
-    else
+    } else {
         scheme.applicationError(procedure);
+    }
 }
 
-function isSelfEvaluating(exp) {
-    return (scheme.isNumber(exp) || scheme.isChar(exp) || scheme.isString(exp) || scheme.isBoolean(exp));
+function makeProcedureApplyEnv(procedure, argv) {
+    //将形式参数约束于对应到实际参数
+    var bindings = {};
+    var paramters = procedure.val.getParamters();
+    var arity = procedure.val.getArity();
+    var argvList = scheme.arrayToList(argv);
+    if(arity.length == 1) {     // 0个或固定数量参数
+        for(var index = 0; index < paramters.length; index++)
+            bindings[paramters[index].val] = argv[index];
+    } else if(arity[0] > 0 && arity[1] == -1) {   // n或更多个参数
+        var index;
+        for(index = 0; index < paramters.length - 1; index++)
+            bindings[paramters[index].val] = argv[index];
+        bindings[paramters[index].val] = scheme.arrayToList(argv.slice(index));
+    } else if(arity[0] == 0) {    // n个参数
+        bindings[paramters[0].val] = argvList;
+    }
+    //参考JS的arguments特性
+    bindings["arguments"] = argvList;
+    bindings["callee"] = procedure;
+    
+    //构造一个新环境,将创建该过程时的环境作为外围环境
+    return scheme.extendEnv(bindings, procedure.val.getEnv());
 }
 
+function applyPrimitiveProcedure(procedure, argv) {
+    var ok = matchArity(procedure, argv);
+    if(ok) {
+        return procedure.val.getFunc()(argv);
+    }
+}
 
-function listOfValues(operands, env) {
+function arrayOfValues(operands, env) {
     var values = [];
     while(!scheme.isEmptyList(operands)) {
         values.push(evaluate(scheme.car(operands), env));
         operands = scheme.cdr(operands);
     }
     return values;
-}
-
-function evalQuotation(exp) {
-    return scheme.quoteObject(exp);
 }
 
 function evalAssignment(exp, env) {
@@ -191,18 +219,6 @@ function evalDefinition(exp, env) {
         value.val.setName(scheme.symbolVal(variable));
     scheme.defineVariable(variable, value, env);
     return scheme.voidValue;
-}
-
-function evalIf(exp, env) {
-    if(scheme.isTrue(evaluate(scheme.ifPredicate(exp), env)))
-        return evaluate(scheme.ifConsequent(exp), env);
-    else {
-        var alt = scheme.ifAlternative(exp);
-        if(scheme.isEmptyList(alt))
-            return scheme.voidValue;
-        else
-            return evaluate(alt, env);
-    }
 }
 
 function evalLambda(exp, env) {
@@ -245,13 +261,6 @@ function evalLambda(exp, env) {
     }
     //做一个过程
     return scheme.makeCompoundProcedure("", paramters, scheme.lambdaBody(exp), env, minArgs, maxArgs);
-}
-
-function evalSequence(exps, env) {
-    var lastValue = scheme.voidValue;
-    for(; !scheme.isEmptyList(exps); exps = scheme.cdr(exps))
-        lastValue = evaluate(scheme.car(exps), env);
-    return lastValue;
 }
 
 function matchArity(procedure, argv) {

@@ -71,6 +71,7 @@ var beginActions = scheme.cdr;
 function makeBegin(seq) {
     return scheme.cons(scheme.beginSymbol, seq);
 }
+scheme.makeBegin = makeBegin;
 
 function sequenceExp(seq) {
     if(scheme.isEmptyList(seq)) return seq;
