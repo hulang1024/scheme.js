@@ -86,8 +86,10 @@ function evaluate(exp, env) {
                         return evalDefinition(exp, env);
                     case scheme.ifSymbol:
                         // eval if
+                        var alt; // optional
                         exp = scheme.isTrue(evaluate(scheme.ifPredicate(exp), env)) ?
-                            scheme.ifConsequent(exp) : scheme.ifAlternative(exp);
+                            scheme.ifConsequent(exp) : (alt = scheme.ifAlternative(exp),
+                                                        scheme.isEmptyList(alt) ? scheme.voidValue : alt);
                         continue;
                     case scheme.lambdaSymbol:
                         return evalLambda(exp, env);
