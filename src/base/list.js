@@ -27,7 +27,7 @@ var listFuncNames = [
     "caaaar", "caaadr", "caadar", "caaddr", "cadaar", "cadadr", "caddar",
     "cadddr", "cdaaar", "cdaadr", "cdadar", "cdaddr", "cddaar", "cddadr", "cdddar", "cddddr"];
 
-function genListFuncs() {
+(function() {
     listFuncNames.forEach(function(funcName){
         var argName = "argv";
         scheme[funcName] = new Function(argName, genFuncBody(funcName, argName));
@@ -56,9 +56,7 @@ function genListFuncs() {
         body += genFuncBody(funcName, argName + "[0]");
         return body;
     }
-}
-
-genListFuncs();
+})();
     
 scheme.makePair = function(val) {
     return new scheme.Object(scheme_pair_type, val);
