@@ -64,89 +64,124 @@ function evaluate(exp, env) {
     while(true) {
         if(scheme.error)
             throw scheme.error;
-        if(exp == scheme.voidValue) {
+
+        if(exp == scheme.voidValue)
             return exp;
-        } else if(scheme.isNumber(exp)
-               || scheme.isChar(exp)
-               || scheme.isString(exp)
-               || scheme.isBoolean(exp)) { // self evaluating
-            return exp;
-        } else if(scheme.isSymbol(exp)) {
-            return scheme.lookup(exp, env);
-        } else if(scheme.isPair(exp)) {
-            var operator = scheme.operator(exp); 
-            if(scheme.isSymbol(operator)) {
-                switch(operator) {
-                    case scheme.quoteSymbol:
-                        // eval quotation
-                        return scheme.quoteObject(exp);
-                    case scheme.assignmentSymbol:
-                        return evalAssignment(exp, env);
-                    case scheme.defineSymbol:
-                        return evalDefinition(exp, env);
-                    case scheme.ifSymbol:
-                        // eval if
-                        var alt; // optional
-                        exp = scheme.isTrue(evaluate(scheme.ifPredicate(exp), env)) ?
-                            scheme.ifConsequent(exp) : (alt = scheme.ifAlternative(exp),
-                                                        scheme.isEmptyList(alt) ? scheme.voidValue : alt);
-                        continue;
-                    case scheme.lambdaSymbol:
-                        return evalLambda(exp, env);
-                    case scheme.beginSymbol:
-                        // eval sequence
-                        var exps = scheme.beginActions(exp);
-                        if(!scheme.isEmptyList(exps)) {
-                            for(; ! scheme.isEmptyList( scheme.cdr(exps) ); exps = scheme.cdr(exps) )
-                                evaluate(scheme.car(exps), env);
-                            exp = scheme.car(exps); // last exp
+
+        // 根据表达式类型分派动作
+        switch(exp.type) {
+            case scheme_integer_type:
+            case scheme_double_type:
+            case scheme_char_type:
+            case scheme_char_string_type:
+            case scheme_bool_type:
+                // self evaluating
+                return exp;
+    
+            case scheme_symbol_type:
+                // 是符号，查询在环境中关联的值
+                return scheme.lookup(exp, env);
+
+            case scheme_pair_type:
+                // TODO: 是序对，但有可能不是列表
+                var operator = scheme.operator(exp);
+                // 如果运算符为符号，可能是语法关键字
+                if(scheme.isSymbol(operator)) {
+                    switch(operator) {
+                        case scheme.quoteSymbol:
+                            // eval quotation
+                            return scheme.quoteObject(exp);
+                        case scheme.assignmentSymbol:
+                            return evalAssignment(exp, env);
+                        case scheme.defineSymbol:
+                            return evalDefinition(exp, env);
+                        case scheme.ifSymbol:
+                            /// 求值if表达式
+                            var optionalAlt;
+                            // 首先求值谓词表达式
+                            // 然后继续判断谓词的值：如果为真，返回后件，否则返回前件
+                            exp = scheme.isTrue(evaluate(scheme.ifPredicate(exp), env)) ?
+                                scheme.ifConsequent(exp) : (optionalAlt = scheme.ifAlternative(exp),
+                                                            scheme.isEmptyList(optionalAlt) ? scheme.voidValue : optionalAlt);
+                            // 在if中处于尾上下文，继续求值尾上下文中的表达式
                             continue;
-                        } else {
-                            return scheme.voidValue;
-                        }
-                    case scheme.letSymbol:
-                        return evaluate(scheme.letToCombination(exp), env);
-                    case scheme.condSymbol:
-                        return evaluate(scheme.transformCond(exp), env);
-                    case scheme.caseSymbol:
-                        return evaluate(scheme.transformCase(exp), env);
-                    case scheme.andSymbol:
-                        return evaluate(scheme.transformAnd(exp), env);
-                    case scheme.orSymbol:
-                        return evaluate(scheme.transformOr(exp), env);
-                    case scheme.whenSymbol:
-                        return evaluate(scheme.transformWhen(exp), env);
-                    case scheme.unlessSymbol:
-                        return evaluate(scheme.transformUnless(exp), env);
-                    case scheme.doSymbol:
-                        return evaluate(scheme.transformDo(exp), env);
-                    case scheme.whileSymbol:
-                        return evaluate(scheme.transformWhile(exp), env);
-                    case scheme.forSymbol:
-                        return evaluate(scheme.transformFor(exp), env);
-                    default: {}
+                        case scheme.lambdaSymbol:
+                            return evalLambda(exp, env);
+                        case scheme.beginSymbol:
+                            // 求值顺序表达式/序列
+                            var exps = scheme.beginActions(exp);
+                            if(!scheme.isEmptyList(exps)) {
+                                // 顺序求值尾部前面的表达式
+                                for(; ! scheme.isEmptyList( scheme.cdr(exps) ); exps = scheme.cdr(exps) )
+                                    evaluate(scheme.car(exps), env);
+                                // 获取尾上下文中的表达式
+                                exp = scheme.car(exps); // last exp
+                                // 继续
+                                continue;
+                            } else {
+                                return scheme.voidValue;
+                            }
+                        case scheme.letSymbol:
+                            // let在语法上变换到lambda
+                            exp = scheme.letToCombination(exp);
+                            // 继续
+                            continue;
+                        case scheme.condSymbol:
+                            exp = scheme.condToIf(exp);
+                            continue;
+                        case scheme.caseSymbol:
+                            exp = scheme.caseToCond(exp);
+                            continue;
+                        case scheme.andSymbol:
+                            exp = scheme.andToIf(exp);
+                            continue;
+                        case scheme.orSymbol:
+                            exp = scheme.orToIf(exp);
+                            continue;
+                        case scheme.whenSymbol:
+                            exp = scheme.whenToIf(exp);
+                            continue;
+                        case scheme.unlessSymbol:
+                            exp = scheme.unlessToIf(exp);
+                            continue;
+                        case scheme.doSymbol:
+                            exp = scheme.transformDo(exp);
+                            continue;
+                        case scheme.whileSymbol:
+                            exp = scheme.transformWhile(exp);
+                            continue;
+                        case scheme.forSymbol:
+                            exp = scheme.transformFor(exp);
+                            continue;
+                    }
                 }
-            }
-
-
-            // apply
-            var procedure = evaluate(operator, env);
-            var argv = arrayOfValues(scheme.operands(exp), env);
-            if(scheme.isPrim(procedure)) {
-                return applyPrimitiveProcedure(procedure, argv);
-            } else if(scheme.isComp(procedure)) {
-                var ok = matchArity(procedure, argv);
-                if(ok) {
-                    exp = scheme.makeBegin(procedure.val.getBody());
-                    env = makeProcedureApplyEnv(procedure, argv);
+                /// 另外，是符号但不是语法关键字，或者不是符号，就是过程应用表达式：
+                // 首先求值运算符，得到过程对象
+                var procedure = evaluate(operator, env);
+                // 然后求值运算数，得到实际参数
+                var argv = arrayOfValues(scheme.operands(exp), env);
+                // 如果是基本过程
+                if(scheme.isPrim(procedure)) {
+                    return applyPrimitiveProcedure(procedure, argv);
                 }
-                continue;
-            } else {
-                scheme.applicationError(procedure);
-            }
-
-        } else {
-            return scheme.throwError('eval', "unknown expression type");
+                // 如果是复合过程
+                else if(scheme.isComp(procedure)) {
+                    // 检查实参个数是否匹配形参个数
+                    var ok = matchArity(procedure, argv);
+                    if(ok) {
+                        // 将过程体转换为begin类型表达式
+                        exp = scheme.makeBegin(procedure.val.getBody());
+                        // 构造一个用于执行过程应用的新环境
+                        env = makeProcedureApplyEnv(procedure, argv);
+                    } 
+                    // 继续, 在这个新环境上下文中求值过程体。注意这里没有去递归调用evaluate，上同
+                    continue;
+                } else {
+                    scheme.applicationError(procedure);
+                    break;
+                }
+            default:
+                return scheme.throwError('eval', "unknown expression type");
         }
     }
 }
@@ -158,7 +193,6 @@ function apply(procedure, argv) {
     } else if(scheme.isComp(procedure)) {
         var ok = matchArity(procedure, argv);
         if(ok) {
-            //在这个新环境上下文中求值过程体
             return evaluate(scheme.makeBegin(procedure.val.getBody()), makeProcedureApplyEnv(procedure, argv));
         }
     } else {
@@ -208,7 +242,7 @@ function arrayOfValues(operands, env) {
 }
 
 function evalAssignment(exp, env) {
-    scheme.setVariableValue(scheme.assignmentVar(exp), evaluate(scheme.assignmentVal(exp), env), env);
+    scheme.set(scheme.assignmentVar(exp), evaluate(scheme.assignmentVal(exp), env), env);
     return scheme.voidValue;
 }
 
@@ -219,7 +253,7 @@ function evalDefinition(exp, env) {
     var value = evaluate(scheme.definitionVal(exp), env);
     if(scheme.isComp(value))
         value.val.setName(scheme.symbolVal(variable));
-    scheme.defineVariable(variable, value, env);
+    scheme.define(variable, value, env);
     return scheme.voidValue;
 }
 
