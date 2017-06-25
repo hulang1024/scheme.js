@@ -218,7 +218,9 @@ function ajaxLoad(argv) {
     if(!scheme.isProcedure(onLoadProc))
         return scheme.wrongContract("ajax-load", "procedure?", 1, argv);
     
-    filePath = location.href + '/../' + scheme.stringVal(filePath);
+    filePath = location.href
+        + (location.href[location.href.length-1] == '/' ? '' : '/')
+        + '../' + scheme.stringVal(filePath);
     
     var req = new XMLHttpRequest();
     req.open('GET', filePath, true);
