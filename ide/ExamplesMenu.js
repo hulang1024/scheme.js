@@ -14,9 +14,10 @@ var ExamplesMenu = function(ide) {
 
     var itemProps = [
         {title: 'SICP chapter1', file: 'ch1.scm'},
-        {title: 'SICP chapter2 support', file: 'ch2support.scm'},
         {title: 'SICP chapter2', file: 'ch2.scm'},
+        {title: 'SICP chapter2 support', file: 'ch2support.scm'},
         {title: 'SICP chapter2 tests', file: 'ch2tests.scm'},
+        {title: 'SICP chapter3', file: 'ch3.scm'},
         {title: 'SICP chapter3 support', file: 'ch3support.scm'},
         {title: 'SICP chapter4', file: 'ch4.scm'},
         {title: 'SICP chapter4 meta circular evaluator', file: 'ch4-mceval.scm'},
