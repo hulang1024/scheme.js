@@ -217,19 +217,28 @@ function ajaxLoad(argv) {
         return scheme.wrongContract("ajax-load", "string?", 0, argv);
     if(!scheme.isProcedure(onLoadProc))
         return scheme.wrongContract("ajax-load", "procedure?", 1, argv);
-
+    
+    filePath = location.href + '/../' + scheme.stringVal(filePath);
+    
     var req = new XMLHttpRequest();
-    req.open('GET', '../' + scheme.stringVal(filePath), true);
+    req.open('GET', filePath, true);
     req.addEventListener('load', function(event){
         var src = event.target.responseText;
         scheme.evalString(src);
-        try {
-            scheme.apply(onLoadProc, []);
-        } catch(e) {
-            scheme.outputError();
-            throw e;
+        if(req.status == 200) {
+            try {
+                scheme.apply(onLoadProc, []);
+            } catch(e) {
+                scheme.outputError();
+                throw e;
+            }
+        } else {
+            scheme.outputOpenInputError({errno: req.status, filePath: filePath});
         }
     }, false);
+    req.addEventListener('error', function() {
+        scheme.outputOpenInputError({errno: 1, filePath: filePath});
+    });
     req.send(null);
 
     return scheme.voidValue;

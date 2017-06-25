@@ -125,6 +125,22 @@ scheme.outputError = function() {
     }
     
     scheme.console && scheme.console.log("error", info);
-    console.log(info)
+    console.log(info);
 }
+
+scheme.outputOpenInputError = function(args) {
+    var info = "open-input-file: " + "cannot open input file";
+    info += "\n  path: " + args.filePath;
+    if(args.errno == 404) {
+        info += "\n  error: 找不到指定的文件。; errno=" + args.errno + ";"
+    }
+    if(scheme.console) {
+        scheme.console.clear();
+        scheme.console && scheme.console.log("error", info);
+        scheme.console.resetInput();
+    }
+    console.log(info);
+
+};
+
 })(scheme);
