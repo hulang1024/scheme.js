@@ -23,7 +23,9 @@ scheme.initJSObject = function(env) {
     scheme.addPrimProc(env, "dom-set-event", setDomEventProperty, 3);
     
     scheme.addPrimProc(env, "draw-box-pointer", drawBoxAndPointer, 1);
-
+    
+    scheme.addPrimProc(env, "ajax-load", ajaxLoad, 2);
+    
     scheme.addObject(env, "window", scheme.makeJSObject(window));
     scheme.addObject(env, "document", scheme.makeJSObject(window.document));
 }
@@ -205,6 +207,27 @@ function randomInt(argv) {
     n = scheme.intVal(n);
     m = scheme.intVal(m);
     return scheme.makeInt(Math.floor(Math.random() * (m - n)) + n);
+}
+
+function ajaxLoad(argv) {
+    var filePath = argv[0];
+    var onLoadProc = argv[1];
+    
+    if(!scheme.isString(filePath))
+        return scheme.wrongContract("ajax-load", "string?", 0, argv);
+    if(!scheme.isProcedure(onLoadProc))
+        return scheme.wrongContract("ajax-load", "procedure?", 1, argv);
+
+    var req = new XMLHttpRequest();
+    req.open('GET', '../' + filePath, true);
+    req.addEventListener('load', function(event){
+        var src = event.target.responseText;
+        scheme.evalString(src);
+        scheme.apply(onLoadProc, []);
+    }, false);
+    req.send(null);
+
+    return scheme.voidValue;
 }
 
 function jsObjectToScmObject(jsObj) {
