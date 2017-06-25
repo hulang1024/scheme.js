@@ -20,6 +20,7 @@ IDE: [https://hlpp.github.io/scheme.js/ide/](https://hlpp.github.io/scheme.js/id
 * 顺序结构: `begin`
 * 条件表达式: `if`,`cond`,`case`,`when`,`unless`,`and`,`or`
 * 递归
+* 尾递归
 * 迭代结构: 命名`let`,`do`,`while`,`for`
 * 标准过程
     + 相等谓词  
@@ -113,5 +114,5 @@ IDE: [https://hlpp.github.io/scheme.js/ide/](https://hlpp.github.io/scheme.js/id
 
 ## 更多
 - [代码结构说明](docs/code_struct.md)
-- [如何写一个Scheme解释器](docs/how_to_write_an_interpreter.md)
+
    
