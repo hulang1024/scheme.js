@@ -70,6 +70,10 @@ IDE: [https://hlpp.github.io/scheme.js/ide/](https://hlpp.github.io/scheme.js/id
   ![(cons 1 2)](docs/images/bp1.png)
   ![(cons (cons 1 2) (cons 3 4))](docs/images/bp2.png)
   ![(cons (cons 1(cons 2 3)) 4)](docs/images/bp3.png)
+* `ajax-load`
+  ```scheme
+  (ajax-load "tests/xyz.scm" (lambda () (alert 'onload)))
+  ```
 * 基础语言JavaScript的能力
 
 

@@ -17,7 +17,9 @@ var SchemeMenu = function(ide) {
     item.setTextContent(localeBundle.getString('Run'));
     item.onClick(function() {
         ide.replConsole.clear();
-        scheme.evalStringWithNewEnv(ide.editor.getValue());
+        try {
+            scheme.evalStringWithNewEnv(ide.editor.getValue());
+        } catch(e) {}
         ide.replConsole.resetInput();
     });
     items.add(item);

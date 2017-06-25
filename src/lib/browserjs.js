@@ -223,7 +223,12 @@ function ajaxLoad(argv) {
     req.addEventListener('load', function(event){
         var src = event.target.responseText;
         scheme.evalString(src);
-        scheme.apply(onLoadProc, []);
+        try {
+            scheme.apply(onLoadProc, []);
+        } catch(e) {
+            scheme.outputError();
+            throw e;
+        }
     }, false);
     req.send(null);
 

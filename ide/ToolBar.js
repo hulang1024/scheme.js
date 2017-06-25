@@ -11,7 +11,9 @@ var ToolBar = function(ide) {
     runButton.setId('run');
     runButton.onClick(function() {
         ide.replConsole.clear();
-        scheme.evalStringWithNewEnv(ide.editor.getValue());
+        try {
+            scheme.evalStringWithNewEnv(ide.editor.getValue());
+        } catch(e) {}
         ide.replConsole.resetInput();
     });
     container.add(runButton);
