@@ -48,15 +48,15 @@ var ViewMenu = function(ide) {
         Definitions: {
             visible: true,
             panel: ide.editor,
-            lastHeight: $(ide.editor.dom).height() + '%'
+            lastHeight: null
         },
         Interactions: {
             visible: true,
             panel: ide.replConsole,
-            lastHeight: $(ide.replConsole.dom).height() + '%'
+            lastHeight: null
         }
     };
-
+            
    function toggleMainPanelVisible(thisName) {
         var thisRecord = mainPanelRecords[thisName];
 
@@ -140,8 +140,8 @@ var ViewMenu = function(ide) {
     }
 
     ide.signals.mainPanelSizeChanged.add(function() {
-        mainPanelRecords['Definitions'].lastHeight = $(ide.editor.dom).height();
-        mainPanelRecords['Interactions'].lastHeight = $(ide.replConsole.dom).height();
+        mainPanelRecords['Definitions'].lastHeight = $(ide.editor.dom).height() + "%";
+        mainPanelRecords['Interactions'].lastHeight = $(ide.replConsole.dom).height() + "%";
     });
 
     return container;

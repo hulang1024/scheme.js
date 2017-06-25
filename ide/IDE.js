@@ -29,6 +29,10 @@ var IDE = function() {
     container.setId('content');
     container.add(editor);
     container.add(replConsole);
+    
+    $(editor.dom).css('height', '50%');
+    $(replConsole.dom).css('height', '50%');
+    this.signals.mainPanelSizeChanged.dispatch();
 
     document.body.appendChild(menuBar.dom);
     document.body.appendChild(toolBar.dom);
