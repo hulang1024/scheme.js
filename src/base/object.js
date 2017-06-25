@@ -29,6 +29,7 @@ scheme.Object = function(type, val) {
     this.val = val;
 }
 
+/* 最好是宏，但JS中并不支持宏 */
 scheme.isInteger = function(obj) { return obj.type == scheme_integer_type; }
 scheme.isNumber = function(obj) { return obj.type == scheme_integer_type || obj.type == scheme_double_type; }
 scheme.isReal = function(obj) { return obj.type == scheme_integer_type || obj.type == scheme_double_type; }

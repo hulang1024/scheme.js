@@ -1,6 +1,10 @@
 (function(scheme){
 "use strict";
 
+/*
+作为语法抽象的语法构造器与选择器
+ 最好是宏，但JS中并不支持宏
+*/
 // 基本表达式
 //quote
 var quoteObject = scheme.cadr;
@@ -276,6 +280,7 @@ function transformFor(exp) {
     }
 }
 
+
 scheme.quoteObject = quoteObject;
 scheme.operator = operator;
 scheme.operands = operands;
@@ -291,13 +296,13 @@ scheme.definitionVal = definitionVal;
 scheme.beginActions = beginActions;
 
 scheme.letToCombination = letToCombination;
-scheme.transformCond = condToIf;
-scheme.transformCase = caseToCond;
-scheme.transformAnd = andToIf;
-scheme.transformOr = orToIf;
+scheme.condToIf = condToIf;
+scheme.caseToCond = caseToCond;
+scheme.andToIf = andToIf;
+scheme.orToIf = orToIf;
 scheme.transformDo = doToCombination;
-scheme.transformWhen = whenToIf;
-scheme.transformUnless = unlessToIf;
+scheme.whenToIf = whenToIf;
+scheme.unlessToIf = unlessToIf;
 scheme.transformWhile = transformWhile;
 scheme.transformFor = transformFor;
 })(scheme);

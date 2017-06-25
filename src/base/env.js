@@ -69,13 +69,13 @@ scheme.extendEnv = function(bindings, parentEnv) {
     return new scheme.Env(bindings, parentEnv);
 }
 
-scheme.defineVariable = function(variable, value, env) {
+scheme.define = function(variable, value, env) {
     if(!scheme.isSymbol(variable))
         return scheme.throwError('define', "not an identifier: " + scheme.writeToString(variable));
     env.bindings[scheme.symbolVal(variable)] = value;
 }
 
-scheme.setVariableValue = function(variable, value, env) {
+scheme.set = function(variable, value, env) {
     if(!scheme.isSymbol(variable))
         return scheme.throwError('set!', "not an identifier: " + scheme.writeToString(variable));
     var name = scheme.symbolVal(variable);
