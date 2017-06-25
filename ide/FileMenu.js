@@ -14,24 +14,18 @@ var FileMenu = function(ide) {
     var openItem = new UI.Row();
     openItem.setClass('menuitem');
     openItem.setTextContent(localeBundle.getString('Open'));
-    openItem.onClick(function(){
+    openItem.onClick(function() {
         var fileUpload = document.getElementById('file');
         if(fileUpload == null) {
             fileUpload = document.createElement('input');
             fileUpload.id = 'file';
             fileUpload.type = 'file';
-            fileUpload.onchange = function() {
-                if(!this.files.length)
-                    return;
-                var file = this.files[0];
-                var reader = new FileReader();
-                reader.onload = function() {
-                    ide.editor.setValue(this.result);
-                };
-                reader.readAsText(file);
-            };
+            fileUpload.addEventListener('change', function() {
+                ide.editor.loadFile(this.files);
+            });
             document.body.appendChild(fileUpload);
         }
+
         fileUpload.click();
     });
     items.add(openItem);

@@ -30,7 +30,8 @@ var ViewMenu = function(ide) {
 
     setFontSize(config.get('fontSize'), 1);
 
-    
+    items.add(new UI.HorizontalRule());
+
     var item = new UI.Row();
     item.setClass('menuitem');
     item.setTextContent(localeBundle.getString(config.get('toolbar.show') ? 'Hide' : 'Show')

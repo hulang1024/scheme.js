@@ -25,6 +25,21 @@ var Editor = function(ide) {
         getValue: function() {
             return codemirror.getValue();
         },
+        loadFile: function(files) {
+            if(!this.files.length)
+                return;
+            var file = this.files[0];
+            var reader = new FileReader();
+            reader.onload = function() {
+                codemirror.setValue(this.result);
+            };
+            reader.onprogress = function ( event ) {
+                var size = '(' + Math.floor(event.total / 1000).format() + ' KB)';
+                var progress = Math.floor((event.loaded / event.total) * 100) + '%';
+                console.log('Loading', filename, size, progress);
+            };
+            reader.readAsText(file);
+        },
         command: function(name) {
             return codemirror.execCommand(name);
         },

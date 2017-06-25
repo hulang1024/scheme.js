@@ -15,12 +15,17 @@ var EditMenu = function(ide) {
     var cmdItemProps = [
         {title: localeBundle.getString('Undo'), key: 'Ctrl+Z', cmd: 'undo'},
         {title: localeBundle.getString('Redo'), key: 'Ctrl+Y', cmd: 'redo'},
+        null,
         {title: localeBundle.getString('SelectAll'), key: 'Ctrl+A', cmd: 'selectAll'}
     ];
 
     for(var i = 0; i < cmdItemProps.length; i++) {
         (function() {
             var itemProp = cmdItemProps[i];
+            if(itemProp == null) {
+                items.add(new UI.HorizontalRule());
+                return;
+            }
             var item = new UI.Row();
             item.setClass('menuitem');
             item.setTextContent(itemProp.title + '  (' + itemProp.key + ')');

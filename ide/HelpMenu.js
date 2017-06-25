@@ -18,7 +18,8 @@ var HelpMenu = function(ide) {
         window.open('http://github.com/hlpp/scheme.js/', '_blank');
     });
     items.add(item);
-
+    items.add(new UI.HorizontalRule());
+    
     var langItemProps = [];
     for(var loc in localisationResources) {
         if(loc != localeBundle.getLocale())
