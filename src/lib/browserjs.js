@@ -219,7 +219,7 @@ function ajaxLoad(argv) {
         return scheme.wrongContract("ajax-load", "procedure?", 1, argv);
 
     var req = new XMLHttpRequest();
-    req.open('GET', '../' + filePath, true);
+    req.open('GET', '../' + scheme.stringVal(filePath), true);
     req.addEventListener('load', function(event){
         var src = event.target.responseText;
         scheme.evalString(src);
