@@ -26,9 +26,9 @@ var Editor = function(ide) {
             return codemirror.getValue();
         },
         loadFile: function(files) {
-            if(!this.files.length)
+            if(!files.length)
                 return;
-            var file = this.files[0];
+            var file = files[0];
             var reader = new FileReader();
             reader.onload = function() {
                 codemirror.setValue(this.result);
