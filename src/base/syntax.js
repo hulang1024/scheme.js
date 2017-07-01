@@ -286,6 +286,7 @@ scheme.operator = operator;
 scheme.operands = operands;
 scheme.lambdaParamters = lambdaParamters;
 scheme.lambdaBody = lambdaBody;
+scheme.makeIf = makeIf;
 scheme.ifPredicate = ifPredicate;
 scheme.ifConsequent = ifConsequent;
 scheme.ifAlternative = ifAlternative;

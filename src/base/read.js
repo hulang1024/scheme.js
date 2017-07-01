@@ -8,7 +8,7 @@ var charReg = /^#\\/;
 var stringReg = /^\".*\"$/;
 var booleanReg = /^#[tf]|(true|false)$^/;
 var vectorReg = /^#\(/;
-var emptyListReg = /^\(\)$/;
+var emptyListReg = /^(\(\))|(\[\])$/;
 
 scheme.initRead = function(env) {
     scheme.addPrimProc(env, "read", read, 0, 1);
@@ -53,10 +53,10 @@ scheme.readMutil = function(src) {
         }
         return tokens;
     }
-    var tokens = getTokens(pstr.split(/(".*")|(\s+)|([\(\)]{1})/g));
+    var tokens = getTokens(pstr.split(/(".*")|(\s+)|([\(\)\[\]]{1})/g));
     tokens = tokens.map(function(t){
-        if(t == '(') return '[';
-        else if(t == ')') return ']';
+        if(t == '(' || t == '[') return '[';
+        else if(t == ')' || t == ']') return ']';
         else {
             if(t[0] == "#" && t[1] == "\\")
                 return "'" + t[0] + "\\" + t.substring(1) + "'";

@@ -6,7 +6,7 @@
 "use strict";
 
 scheme.initEval = function(env) {
-    scheme.addPrimProc(env, "eval", eval_prim, 2);
+    scheme.addPrimProc(env, "eval", eval_prim, 1, 2);
     scheme.addPrimProc(env, "expand", expand_prim, 1);
 }
 
@@ -52,16 +52,17 @@ scheme.evalObjects = function(exps, env) {
 
 function eval_prim(argv) {
     var exp = argv[0];
-    var env = argv[1];
-    if(!scheme.isNamespace(env))
-        return scheme.wrongContract("meval", "namespace?", 0, argv);
+    var env = scheme.interactionEnvironment();
+    if(argv.length > 1) {
+        env = argv[1];
+        if(!scheme.isNamespace(env))
+            return scheme.wrongContract("meval", "namespace?", 0, argv);
+    }
     return evaluate(exp, env.val);
 }
 
 function expand_prim(argv) {
     var exp = argv[0];
-    if(!scheme.isPair(exp))
-        return scheme.wrongContract("expand", "list?", 0, argv);
     return expand(exp, scheme.globalEnv);
 }
 
@@ -198,12 +199,14 @@ function evaluate(exp, env) {
 function apply(procedure, argv) {
     if(scheme.isPrim(procedure)) {
         return applyPrimitiveProcedure(procedure, argv);
-    } else if(scheme.isComp(procedure)) {
+    }
+    else if(scheme.isComp(procedure)) {
         var ok = matchArity(procedure, argv);
         if(ok) {
             return evaluate(scheme.makeBegin(procedure.val.getBody()), makeProcedureApplyEnv(procedure, argv));
         }
-    } else {
+    }
+    else {
         scheme.applicationError(procedure);
     }
 }
@@ -243,19 +246,57 @@ function applyPrimitiveProcedure(procedure, argv) {
 
 // 正则序求值的展开
 function expand(exp, env) {
-    if(scheme.isPair(exp)) {
-        var operator = scheme.operator(exp);
-        if(scheme.isSymbol(operator)) {
-            var procedure = scheme.lookup(operator, env);
+    switch(exp.type) {
+        case scheme_symbol_type:
+            return scheme.lookup(exp, env);
+        case scheme_pair_type:
+            var operator = scheme.operator(exp);
+            if(scheme.isSymbol(operator)) {
+                switch(operator) {
+                    case scheme.quoteSymbol:
+                    case scheme.defineSymbol:
+                    case scheme.ifSymbol:
+                    case scheme.beginSymbol:
+                        return exp;
+                    case scheme.lambdaSymbol:
+                        return evalLambda(exp, env);
+                    case scheme.letSymbol:
+                        return expand(scheme.letToCombination(exp), env);
+                    case scheme.condSymbol:
+                        return expand(scheme.condToIf(exp), env);
+                    case scheme.caseSymbol:
+                        return expand(scheme.caseToCond(exp), env);
+                    case scheme.andSymbol:
+                        return expand(scheme.andToIf(exp), env);
+                    case scheme.orSymbol:
+                        return expand(scheme.orToIf(exp), env);
+                    case scheme.whenSymbol:
+                        return expand(scheme.whenToIf(exp), env);
+                    case scheme.unlessSymbol:
+                        return expand(scheme.unlessToIf(exp), env);
+                    case scheme.doSymbol:
+                        return expand(scheme.transformDo(exp), env);
+                    case scheme.whileSymbol:
+                        return expand(scheme.transformWhile(exp), env);
+                    case scheme.forSymbol:
+                        return expand(scheme.transformFor(exp), env);
+                }
+            }
+
+            var procedure = expand(operator, env);
             if(scheme.isPrim(procedure)) {
                 return scheme.cons(operator,
-                    scheme.mapList(function(e){ return expand(e, env); }, scheme.operands(exp)));
-            } else if(scheme.isComp(procedure)) {
-                return expand(scheme.sequenceExp(
-                    substitute(procedure.val.getBody(),
-                        makeSubstituteMap(procedure, scheme.listToArray(scheme.operands(exp))))), env);
+                    scheme.mapList(function(e){
+                        return expand(e, env);
+                    }, scheme.operands(exp)));
             }
-        }
+            if(scheme.isComp(procedure)) {
+                return expand(scheme.sequenceExp(substitute(
+                    procedure.val.getBody(),
+                    makeSubstituteMap(procedure,
+                        scheme.listToArray(scheme.operands(exp))))), env);
+            }
+        return exp;
     }
     return exp;
 }

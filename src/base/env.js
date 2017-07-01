@@ -17,6 +17,10 @@ scheme.addObject = function(env, name, obj) {
 scheme.globalEnv = null;
 scheme.basicEnv = null;
 
+scheme.interactionEnvironment = function() {
+    return scheme.makeNamespace(scheme.globalEnv);
+}
+
 scheme.initBasicEnv = function() {
     scheme.basicEnv = new scheme.Env({}, null);
     var env = scheme.basicEnv;
@@ -39,7 +43,7 @@ scheme.initBasicEnv = function() {
     // init lib
     scheme.evalStringWithEnv(SCHEME_LIB_SRC, env);
     
-    scheme.addPrimProc(env, "interaction-environment", interactionEnvironment, 0);
+    scheme.addPrimProc(env, "interaction-environment", scheme.interactionEnvironment, 0);
 }
 
 scheme.makeGlobalEnv = function() {
@@ -84,10 +88,6 @@ scheme.set = function(variable, value, env) {
     if(env == null)
         return scheme.throwError('undefined', name);
     env.bindings[name] = value;
-}
-
-function interactionEnvironment() {
-    return scheme.makeNamespace(scheme.globalEnv);
 }
 
 })(scheme);
