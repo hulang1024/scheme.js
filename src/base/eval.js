@@ -296,7 +296,8 @@ function expand(exp, env) {
                     makeSubstituteMap(procedure,
                         scheme.listToArray(scheme.operands(exp))))), env);
             }
-        return exp;
+        default:
+            return exp;
     }
     return exp;
 }
