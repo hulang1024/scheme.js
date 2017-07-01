@@ -88,17 +88,22 @@
 (define subst
     (lambda (new old slist)
       (if (null? slist)
-	  '() (cons
+        '()
+        (cons
 	       (subst-in-s-exp new old (car slist)) 
 	       (subst new old (cdr slist))))))
 
 (define subst-in-s-exp
     (lambda (new old sexp)
-      (if (symbol? sexp)
-	  (if (eqv? sexp old) new sexp)
-	  (subst new old sexp))))
+      (cond ((symbol? sexp)
+             (if (eqv? sexp old) new sexp))
+            ((pair? sexp)
+             (subst new old sexp))
+            (else sexp))))
 
-      
+
+(define print display)
+
 (define (println obj)
   (display obj)
   (newline))
