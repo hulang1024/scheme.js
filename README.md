@@ -49,7 +49,7 @@ IDE: [https://hlpp.github.io/scheme.js/ide/](https://hlpp.github.io/scheme.js/id
     + 控制特征  
         `procedure?`,`apply`,`map`,`for-each`,`void`,`void?`
     + 求值  
-        `eval`,`interaction-environment`
+        `eval`,`interaction-environment`,`expand`
     + 输入/输出  
         `read`,`write`,`newline`,`display`,`error`
  

@@ -294,6 +294,7 @@ scheme.assignmentVal = assignmentVal;
 scheme.definitionVar = definitionVar;
 scheme.definitionVal = definitionVal;
 scheme.beginActions = beginActions;
+scheme.sequenceExp = sequenceExp;
 
 scheme.letToCombination = letToCombination;
 scheme.condToIf = condToIf;

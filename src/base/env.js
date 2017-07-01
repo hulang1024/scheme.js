@@ -87,7 +87,7 @@ scheme.set = function(variable, value, env) {
 }
 
 function interactionEnvironment() {
-    return scheme.makeNamespace(scheme.globalEnvironment);
+    return scheme.makeNamespace(scheme.globalEnv);
 }
 
 })(scheme);

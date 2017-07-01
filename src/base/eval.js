@@ -7,10 +7,11 @@
 
 scheme.initEval = function(env) {
     scheme.addPrimProc(env, "eval", eval_prim, 2);
+    scheme.addPrimProc(env, "expand", expand_prim, 1);
 }
 
 scheme.apply = apply;
-
+scheme.expand = expand;
 
 scheme.evalString = function(str) {
     return scheme.evalStringWithEnv(str, scheme.globalEnv);
@@ -55,6 +56,13 @@ function eval_prim(argv) {
     if(!scheme.isNamespace(env))
         return scheme.wrongContract("meval", "namespace?", 0, argv);
     return evaluate(exp, env.val);
+}
+
+function expand_prim(argv) {
+    var exp = argv[0];
+    if(!scheme.isPair(exp))
+        return scheme.wrongContract("expand", "list?", 0, argv);
+    return expand(exp, scheme.globalEnv);
 }
 
 //-------------
@@ -208,14 +216,14 @@ function makeProcedureApplyEnv(procedure, argv) {
     var argvList = scheme.arrayToList(argv);
     if(arity.length == 1) {     // 0个或固定数量参数
         for(var index = 0; index < paramters.length; index++)
-            bindings[paramters[index].val] = argv[index];
+            bindings[scheme.symbolVal(paramters[index])] = argv[index];
     } else if(arity[0] > 0 && arity[1] == -1) {   // n或更多个参数
         var index;
         for(index = 0; index < paramters.length - 1; index++)
-            bindings[paramters[index].val] = argv[index];
-        bindings[paramters[index].val] = scheme.arrayToList(argv.slice(index));
+            bindings[scheme.symbolVal(paramters[index])] = argv[index];
+        bindings[scheme.symbolVal(paramters[index])] = scheme.arrayToList(argv.slice(index));
     } else if(arity[0] == 0) {    // n个参数
-        bindings[paramters[0].val] = argvList;
+        bindings[scheme.symbolVal(paramters[0])] = argvList;
     }
     //参考JS的arguments特性
     bindings["arguments"] = argvList;
@@ -231,6 +239,64 @@ function applyPrimitiveProcedure(procedure, argv) {
         return procedure.val.getFunc()(argv);
     }
 }
+
+
+// 正则序求值的展开
+function expand(exp, env) {
+    if(scheme.isPair(exp)) {
+        var operator = scheme.operator(exp);
+        if(scheme.isSymbol(operator)) {
+            var procedure = scheme.lookup(operator, env);
+            if(scheme.isPrim(procedure)) {
+                return scheme.cons(operator,
+                    scheme.mapList(function(e){ return expand(e, env); }, scheme.operands(exp)));
+            } else if(scheme.isComp(procedure)) {
+                return expand(scheme.sequenceExp(
+                    substitute(procedure.val.getBody(),
+                        makeSubstituteMap(procedure, scheme.listToArray(scheme.operands(exp))))), env);
+            }
+        }
+    }
+    return exp;
+}
+
+function substitute(exp, oldToNewMap) {
+    if(scheme.isSymbol(exp)) {
+        var newExp = oldToNewMap[scheme.symbolVal(exp)];
+        return newExp ? newExp : exp;
+    } else {
+        if(scheme.isEmptyList(exp))
+            return scheme.nil;
+        if(scheme.isPair(exp)) {
+            return scheme.cons(
+                substitute(scheme.car(exp), oldToNewMap),
+                substitute(scheme.cdr(exp), oldToNewMap));
+        } else {
+            return exp;
+        }
+    }
+}
+
+function makeSubstituteMap(procedure, operands) {
+    var bindings = {};
+    var paramters = procedure.val.getParamters();
+    var arity = procedure.val.getArity();
+    var operandList = scheme.arrayToList(operands);
+    if(arity.length == 1) {     // 0个或固定数量参数
+        for(var index = 0; index < paramters.length; index++)
+            bindings[scheme.symbolVal(paramters[index])] = operands[index];
+    } else if(arity[0] > 0 && arity[1] == -1) {   // n或更多个参数
+        var index;
+        for(index = 0; index < paramters.length - 1; index++)
+            bindings[scheme.symbolVal(paramters[index])] = operands[index];
+        bindings[scheme.symbolVal(paramters[index])] = scheme.arrayToList(operands.slice(index));
+    } else if(arity[0] == 0) {    // n个参数
+        bindings[scheme.symbolVal(paramters[0])] = operandList;
+    }
+    
+    return bindings;
+}
+
 
 function arrayOfValues(operands, env) {
     var values = [];
