@@ -60,7 +60,7 @@ body, * {
 }
 #console #consoleInput {
     font-family: Courier New;
-    font-size: 15px;
+    font-size: inherit;
     width: 96%;
     border: 0;
     outline:none;
