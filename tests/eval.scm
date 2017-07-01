@@ -3,20 +3,24 @@
                (interaction-environment))))
   (f + 10)) ; 20
 
-;一些简单过程的定义
+;;下面测试过程expand,它是SICP SECTION 1.1.5介绍的正则序求值方式(完全展开而后归约)的实现
+;;实际解释器采用应用序求值方式（先求值参数而后应用）
+;定义一些简单过程
 (define (square x) (* x x))
 (define (sum-of-squares x y)
   (+ (square x) (square y)))
 (define (f a)
   (sum-of-squares (+ a 1) (* a 2)))
-;;;下面测试过程expand，它是SICP SECTION 1.1.5介绍的正则序求值方式（完全展开而后归约）的实现
-;;;实际解释器采用应用序求值方式（先求值参数而后应用）
+;用一些表达式作为测试
 (for-each
  (lambda (exp)
-   (let ((expaned (expand exp)))
-	 (println expaned)
-	 (if (not (eqv? (eval expaned (interaction-environment))
-                    (eval exp (interaction-environment))))
+   (define expaned-exp (expand exp))
+   (let [[expaned-exp-val (eval expaned-exp)]
+         [exp-val (eval exp)]]
+	 (print exp) (print " ;")
+	 (print expaned-exp) (print " ;")
+	 (println expaned-exp-val)
+	 (if (not (eqv? expaned-exp-val exp-val))
 	 	(error 'bad-expand))))
  '((square 21)
    (square (+ 2 5))
