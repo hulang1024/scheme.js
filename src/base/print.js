@@ -56,7 +56,7 @@ scheme.writeToString = function(obj, display) {
         str = scheme.symbolVal(obj);
     }
     else if(scheme.isBoolean(obj)) {
-        str = obj.val ? "#t" : "#f";
+        str = scheme.isTrue(obj) ? "#t" : "#f";
     }
     else if(scheme.isEmptyList(obj)) {
         str = "()";
@@ -72,14 +72,14 @@ scheme.writeToString = function(obj, display) {
         }
     }
     else if(scheme.isProcedure(obj)) {
-        str = '#[procedure:' + obj.val.getName() + "]";
+        str = '#[procedure:' + obj.getName() + "]";
     }
     else if(scheme.isNamespace(obj))
         str = '#[namespace:0]';
     else if(scheme.isJSObject(obj))
         str = scheme.objectVal(obj);
     else {
-        str = obj.val.toString();
+        str = obj.toString();
     }
     return str;
 }

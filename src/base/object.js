@@ -1,4 +1,4 @@
-﻿/* scheme module */
+﻿/* scheme namespace */
 var scheme = {};
 
 /* types */
@@ -21,64 +21,68 @@ const scheme_void_type = 11;
 /* extended types */
 const scheme_jsobject_type = 12;
 
-(function(scheme){
+(function(scm){
 "use strict";
 
-scheme.Object = function(type, val) {
+/**
+Scheme对象
+具有一个标识类型的字段
+*/
+scm.Object = function(type, val) {
     this.type = type;
+    // 动态类型值
     this.val = val;
 }
 
-/* 最好是宏，但JS中并不支持宏 */
-scheme.isInteger = function(obj) { return obj.type == scheme_integer_type; }
-scheme.isNumber = function(obj) { return obj.type == scheme_integer_type || obj.type == scheme_double_type; }
-scheme.isReal = function(obj) { return obj.type == scheme_integer_type || obj.type == scheme_double_type; }
-scheme.isChar = function(obj) { return obj.type == scheme_char_type; }
-scheme.isString = function(obj) { return obj.type == scheme_char_string_type; }
-scheme.isBoolean = function(obj) { return obj.type == scheme_bool_type; }
-scheme.isSymbol = function(obj) { return obj.type == scheme_symbol_type; }
-scheme.isPair = function(obj) { return obj.type == scheme_pair_type; }
-scheme.isEmptyList = function(obj) { return obj.type == scheme_null_type; }
-scheme.isVoid = function(obj) { return obj.type == scheme_void_type; }
-scheme.isPrim = function(obj) { return obj.type == scheme_prim_type; }
-scheme.isComp = function(obj) { return obj.type == scheme_comp_type; }
-scheme.isProcedure = function(obj) { return obj.type == scheme_prim_type || obj.type == scheme_comp_type; }
-scheme.isNamespace = function(obj) { return obj.type == scheme_namespace_type; }
-scheme.isJSObject = function(obj) { return obj.type == scheme_jsobject_type; }
-
-scheme.PrimitiveProcedure = function(name, func, minArgs, maxArgs) {
+scm.makePrimitiveProcedure = function(name, func, minArgs, maxArgs) {
+    var proc = new scm.Object(scheme_prim_type);
+    
     var arity = [];
     if(minArgs !== undefined)
         arity.push(minArgs);
     if(maxArgs !== undefined)
         arity.push(maxArgs);
     
-    this.getName = function(proc) { return name; }
-    this.getFunc = function(proc) { return func; }
-    this.getArity = function(proc) { return arity; }
-}
-scheme.makePrimitiveProcedure = function(name, func, minArgs, maxArgs) {
-    return new scheme.Object(scheme_prim_type, new scheme.PrimitiveProcedure(name, func, minArgs, maxArgs));
+    proc.getName = function() { return name; }
+    proc.getFunc = function() { return func; }
+    proc.getArity = function() { return arity; }
+    
+    return proc;
 }
 
-scheme.CompoundProcedure = function(name, parameters, body, env, minArgs, maxArgs) {
+scm.makeCompoundProcedure = function(name, parameters, body, env, minArgs, maxArgs) {
+    var proc = new scm.Object(scheme_comp_type);
+    
     var arity = [];
     if(minArgs !== undefined)
         arity.push(minArgs);
     if(maxArgs !== undefined)
         arity.push(maxArgs);
     
-    this.getName = function() { return name; }
-    this.setName = function(_name) { name = _name; }
-    this.getParamters = function() { return parameters; }
-    this.getBody = function() { return body; }
-    this.getArity = function() { return arity; }
-    this.getEnv = function() { return env; }
-}
-scheme.makeCompoundProcedure = function(name, parameters, body, env, minArgs, maxArgs) {
-    return new scheme.Object(scheme_comp_type, new scheme.CompoundProcedure(name, parameters, body, env, minArgs, maxArgs));
+    proc.getName = function() { return name; }
+    proc.setName = function(_name) { name = _name; }
+    proc.getParamters = function() { return parameters; }
+    proc.getBody = function() { return body; }
+    proc.getArity = function() { return arity; }
+    proc.getEnv = function() { return env; }
+    
+    return proc;
 }
 
-scheme.voidValue = new scheme.Object(scheme_void_type, undefined);
-
+/* 谓词 最好是宏，但JS中并不支持宏 */
+scm.isInteger = function(obj) { return obj.type == scheme_integer_type; }
+scm.isNumber = function(obj) { return obj.type == scheme_integer_type || obj.type == scheme_double_type; }
+scm.isReal = function(obj) { return obj.type == scheme_integer_type || obj.type == scheme_double_type; }
+scm.isChar = function(obj) { return obj.type == scheme_char_type; }
+scm.isString = function(obj) { return obj.type == scheme_char_string_type; }
+scm.isBoolean = function(obj) { return obj.type == scheme_bool_type; }
+scm.isSymbol = function(obj) { return obj.type == scheme_symbol_type; }
+scm.isPair = function(obj) { return obj.type == scheme_pair_type; }
+scm.isEmptyList = function(obj) { return obj.type == scheme_null_type; }
+scm.isVoid = function(obj) { return obj.type == scheme_void_type; }
+scm.isPrim = function(obj) { return obj.type == scheme_prim_type; }
+scm.isComp = function(obj) { return obj.type == scheme_comp_type; }
+scm.isProcedure = function(obj) { return obj.type == scheme_prim_type || obj.type == scheme_comp_type; }
+scm.isNamespace = function(obj) { return obj.type == scheme_namespace_type; }
+scm.isJSObject = function(obj) { return obj.type == scheme_jsobject_type; }
 })(scheme);

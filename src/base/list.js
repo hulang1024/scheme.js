@@ -58,9 +58,17 @@ var listFuncNames = [
     }
 })();
     
-scheme.makePair = function(val) {
-    return new scheme.Object(scheme_pair_type, val);
+scheme.cons = function(car, cdr) {
+    var pair = new scheme.Object(scheme_pair_type);
+    pair.car = car;
+    pair.cdr = cdr;
+    return pair;
 }
+scheme.car = function(o) { return o.car; }
+scheme.cdr = function(o) { return o.cdr; }
+scheme.setCar = function(o, car) { o.car = car; }
+scheme.setCdr = function(o, cdr) { o.cdr = cdr; }
+
 
 scheme.makeEmptyList = function(val) {
     return new scheme.Object(scheme_null_type, null);
@@ -96,11 +104,6 @@ scheme.append = function(list1, list2) {
         scheme.cons(scheme.car(list1), scheme.append(scheme.cdr(list1), list2)) : list2;
 }
 
-scheme.cons = function(x, y) { return new scheme.makePair([x, y]); }
-scheme.car = function(pair) { return pair.val[0]; }
-scheme.cdr = function(pair) { return pair.val[1]; }
-scheme.setCar = function(pair, pcar) { pair.val[0] = pcar; }
-scheme.setCdr = function(pair, pcdr) { pair.val[1] = pcdr; }
 scheme.car_prim = car_prim;
 scheme.cdr_prim = cdr_prim;
 scheme.list = function() { return scheme.arrayToList(arguments); }

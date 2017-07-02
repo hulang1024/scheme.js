@@ -12,7 +12,7 @@ scheme.initBool = function(env) {
 scheme.makeBoolean = function(val) {
     return new scheme.Object(scheme_bool_type, val);
 }
-
+scheme.boolVal = function(o) { return o.val; }
 scheme.True = scheme.makeBoolean(true);
 scheme.False = scheme.makeBoolean(false);
 scheme.isTrue = function(obj) { return obj != scheme.False; }

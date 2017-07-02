@@ -10,6 +10,8 @@ scheme.initEval = function(env) {
     scheme.addPrimProc(env, "expand", expand_prim, 1);
 }
 
+scheme.voidValue = new scheme.Object(scheme_void_type, undefined);
+
 scheme.apply = apply;
 scheme.expand = expand;
 
@@ -164,7 +166,7 @@ function evaluate(exp, env) {
                             continue;
                     }
                 }
-                /// 另外，是符号但不是语法关键字，或者不是符号，就是过程应用表达式：
+                /// 另外，是符号但不是语法关键字，或者不是符号，就是过程调用表达式：
                 // 首先求值运算符，得到过程对象
                 var procedure = evaluate(operator, env);
                 // 然后求值运算数，得到实际参数
@@ -179,8 +181,8 @@ function evaluate(exp, env) {
                     var ok = matchArity(procedure, argv);
                     if(ok) {
                         // 将过程体转换为begin类型表达式
-                        exp = scheme.makeBegin(procedure.val.getBody());
-                        // 构造一个用于执行过程应用的新环境
+                        exp = scheme.makeBegin(procedure.getBody());
+                        // 构造一个用于执行过程调用的新环境
                         env = makeProcedureApplyEnv(procedure, argv);
                     } 
                     // 继续, 在这个新环境上下文中求值过程体。注意这里没有去递归调用evaluate，上同
@@ -203,7 +205,7 @@ function apply(procedure, argv) {
     else if(scheme.isComp(procedure)) {
         var ok = matchArity(procedure, argv);
         if(ok) {
-            return evaluate(scheme.makeBegin(procedure.val.getBody()), makeProcedureApplyEnv(procedure, argv));
+            return evaluate(scheme.makeBegin(procedure.getBody()), makeProcedureApplyEnv(procedure, argv));
         }
     }
     else {
@@ -214,8 +216,8 @@ function apply(procedure, argv) {
 function makeProcedureApplyEnv(procedure, argv) {
     //将形式参数约束于对应到实际参数
     var bindings = {};
-    var paramters = procedure.val.getParamters();
-    var arity = procedure.val.getArity();
+    var paramters = procedure.getParamters();
+    var arity = procedure.getArity();
     var argvList = scheme.arrayToList(argv);
     if(arity.length == 1) {     // 0个或固定数量参数
         for(var index = 0; index < paramters.length; index++)
@@ -233,13 +235,13 @@ function makeProcedureApplyEnv(procedure, argv) {
     bindings["callee"] = procedure;
     
     //构造一个新环境,将创建该过程时的环境作为外围环境
-    return scheme.extendEnv(bindings, procedure.val.getEnv());
+    return scheme.extendEnv(bindings, procedure.getEnv());
 }
 
 function applyPrimitiveProcedure(procedure, argv) {
     var ok = matchArity(procedure, argv);
     if(ok) {
-        return procedure.val.getFunc()(argv);
+        return procedure.getFunc()(argv);
     }
 }
 
@@ -292,7 +294,7 @@ function expand(exp, env) {
             }
             if(scheme.isComp(procedure)) {
                 return expand(scheme.sequenceExp(substitute(
-                    procedure.val.getBody(),
+                    procedure.getBody(),
                     makeSubstituteMap(procedure,
                         scheme.listToArray(scheme.operands(exp))))), env);
             }
@@ -321,8 +323,8 @@ function substitute(exp, oldToNewMap) {
 
 function makeSubstituteMap(procedure, operands) {
     var bindings = {};
-    var paramters = procedure.val.getParamters();
-    var arity = procedure.val.getArity();
+    var paramters = procedure.getParamters();
+    var arity = procedure.getArity();
     var operandList = scheme.arrayToList(operands);
     if(arity.length == 1) {     // 0个或固定数量参数
         for(var index = 0; index < paramters.length; index++)
@@ -360,7 +362,7 @@ function evalDefinition(exp, env) {
         return scheme.throwError('define', "not an identifier: " + scheme.writeToString(variable));
     var value = evaluate(scheme.definitionVal(exp), env);
     if(scheme.isComp(value))
-        value.val.setName(scheme.symbolVal(variable));
+        value.setName(scheme.symbolVal(variable));
     scheme.define(variable, value, env);
     return scheme.voidValue;
 }
@@ -408,7 +410,7 @@ function evalLambda(exp, env) {
 }
 
 function matchArity(procedure, argv) {
-    var arity = procedure.val.getArity();
+    var arity = procedure.getArity();
     var min = arity[0];
     var mismatch = false;
     var isAtleast = false;
@@ -432,7 +434,7 @@ function matchArity(procedure, argv) {
             mismatch = true;
     }
     if(mismatch) 
-        scheme.arityMismatchError(procedure.val.getName(), argv, isAtleast, expected, argv.length);
+        scheme.arityMismatchError(procedure.getName(), argv, isAtleast, expected, argv.length);
     return !mismatch;
 }
 
