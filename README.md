@@ -15,13 +15,16 @@ IDE: [https://hlpp.github.io/scheme.js/ide/](https://hlpp.github.io/scheme.js/id
   + 抄录了JavaScript语言中的隐含参数`arguments`和`callee`
 * 静态(词法)作用域
 * 闭包
+* 动态类型
+* 第一级函数
+* 传值调用
 * 定义: `define`
 * 赋值: `set!`
 * 顺序结构: `begin`
 * 条件表达式: `if`,`cond`,`case`,`when`,`unless`,`and`,`or`
 * 递归
 * 尾递归
-* 迭代结构: 命名`let`,`do`,`while`,`for`
+* 迭代结构: `let`,`do`,`while`,`for`
 * 标准过程
     + 相等谓词  
         `eqv?`,`eq?`,`equal?`
