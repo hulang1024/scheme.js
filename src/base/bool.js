@@ -1,40 +1,40 @@
-(function(scheme){
+(function(scm){
 "use strict";
 
-scheme.initBool = function(env) {
-    scheme.addPrimProc(env, "boolean?", boolean_p, 1);
-    scheme.addPrimProc(env, "eqv?", eqv_p, 2);
-    scheme.addPrimProc(env, "eq?", eq_p, 2);
-    scheme.addPrimProc(env, "equal?", equal_p, 2);
-    scheme.addPrimProc(env, "not", not, 1);
+scm.initBool = function(env) {
+    scm.addPrimProc(env, "boolean?", boolean_p, 1);
+    scm.addPrimProc(env, "eqv?", eqv_p, 2);
+    scm.addPrimProc(env, "eq?", eq_p, 2);
+    scm.addPrimProc(env, "equal?", equal_p, 2);
+    scm.addPrimProc(env, "not", not, 1);
 }
 
-scheme.makeBoolean = function(val) {
-    return new scheme.Object(scheme_bool_type, val);
+scm.makeBoolean = function(val) {
+    return new scm.Object(scheme_bool_type, val);
 }
-scheme.boolVal = function(o) { return o.val; }
-scheme.True = scheme.makeBoolean(true);
-scheme.False = scheme.makeBoolean(false);
-scheme.isTrue = function(obj) { return obj != scheme.False; }
-scheme.isFalse = function(obj) { return obj == scheme.False; }
-scheme.getBoolean = function(val) { return val ? scheme.True : scheme.False; }
-scheme.getBool = scheme.getBoolean;
+scm.boolVal = function(o) { return o.val; }
+scm.True = scm.makeBoolean(true);
+scm.False = scm.makeBoolean(false);
+scm.isTrue = function(obj) { return obj != scm.False; }
+scm.isFalse = function(obj) { return obj == scm.False; }
+scm.getBoolean = function(val) { return val ? scm.True : scm.False; }
+scm.getBool = scm.getBoolean;
 
 function boolean_p(argv) {
-    return scheme.getBoolean(scheme.isBoolean(argv[0]));
+    return scm.getBoolean(scm.isBoolean(argv[0]));
 }
 
 function eqv_p(argv) {
     var x = argv[0];
     var y = argv[1];
     if(x.type != y.type)
-        return scheme.False;
-    if(scheme.isSymbol(x))
-        return scheme.getBoolean(scheme.symbolVal(x).toUpperCase() == scheme.symbolVal(y).toUpperCase());
-    else if(scheme.isNumber(x) || scheme.isChar(x) || scheme.isString(x) || x.isBoolean())
-        return scheme.getBoolean(x.val == y.val);
+        return scm.False;
+    if(scm.isSymbol(x))
+        return scm.getBoolean(scm.symbolVal(x).toUpperCase() == scm.symbolVal(y).toUpperCase());
+    else if(scm.isNumber(x) || scm.isChar(x) || scm.isString(x) || x.isBoolean())
+        return scm.getBoolean(x.val == y.val);
     else
-        return scheme.getBoolean(x == y);
+        return scm.getBoolean(x == y);
 }
 
 function eq_p(argv) {
@@ -45,22 +45,22 @@ function equal_p(argv) {
     var obj1 = argv[0];
     var obj2 = argv[1];
     var iseq = eq_p(argv);
-    if(scheme.isTrue(iseq))
+    if(scm.isTrue(iseq))
         return iseq;
-    else if(scheme.isPair(obj1)) {
-        while(scheme.isPair(obj1) && scheme.isPair(obj2)) {
-            if(scheme.isFalse(eq_p([scheme.car(obj1), scheme.car(obj2)])))
-                return scheme.False;
-            obj1 = scheme.cdr(obj1);
-            obj2 = scheme.cdr(obj2);
+    else if(scm.isPair(obj1)) {
+        while(scm.isPair(obj1) && scm.isPair(obj2)) {
+            if(scm.isFalse(eq_p([scm.car(obj1), scm.car(obj2)])))
+                return scm.False;
+            obj1 = scm.cdr(obj1);
+            obj2 = scm.cdr(obj2);
         }
-        return scheme.getBoolean(!(scheme.isPair(obj1) || scheme.isPair(obj2)));
+        return scm.getBoolean(!(scm.isPair(obj1) || scm.isPair(obj2)));
     }
     else
-        return scheme.False;
+        return scm.False;
 }
 
 function not(argv) {
-    return scheme.isTrue(argv[0]) ? scheme.False : scheme.True;
+    return scm.isTrue(argv[0]) ? scm.False : scm.True;
 }
-})(scheme);
+})(scm);

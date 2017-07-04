@@ -1,5 +1,5 @@
 ﻿/* scheme namespace */
-var scheme = {};
+var scheme = scm = {};
 
 /* types */
 /* number types */
@@ -85,4 +85,4 @@ scm.isComp = function(obj) { return obj.type == scheme_comp_type; }
 scm.isProcedure = function(obj) { return obj.type == scheme_prim_type || obj.type == scheme_comp_type; }
 scm.isNamespace = function(obj) { return obj.type == scheme_namespace_type; }
 scm.isJSObject = function(obj) { return obj.type == scheme_jsobject_type; }
-})(scheme);
+})(scm);
