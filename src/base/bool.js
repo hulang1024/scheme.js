@@ -12,6 +12,7 @@ scm.initBool = function(env) {
 scm.makeBoolean = function(val) {
     return new scm.Object(scheme_bool_type, val);
 }
+
 scm.boolVal = function(o) { return o.val; }
 scm.True = scm.makeBoolean(true);
 scm.False = scm.makeBoolean(false);
