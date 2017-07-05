@@ -31,7 +31,7 @@ function eqv_p(argv) {
         return scm.False;
     if(scm.isSymbol(x))
         return scm.getBoolean(scm.symbolVal(x).toUpperCase() == scm.symbolVal(y).toUpperCase());
-    else if(scm.isNumber(x) || scm.isChar(x) || scm.isString(x) || x.isBoolean())
+    else if(scm.isNumber(x) || scm.isChar(x) || scm.isString(x) || scm.isBoolean(x))
         return scm.getBoolean(x.val == y.val);
     else
         return scm.getBoolean(x == y);
