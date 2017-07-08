@@ -23,5 +23,5 @@
        "我的小鲤鱼"
        (hold (- depth 1)))
    "的我"))
- 
+
 (string-append "吓得我抱起了" (hold 3))
