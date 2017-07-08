@@ -31,7 +31,7 @@
     container.add(replConsole);
     
     $(editor.dom).css('height', '65%');
-    $(replConsole.dom).css('height', '35%');
+    $(replConsole.dom).css('height', '35%'); 
     this.signals.mainPanelSizeChanged.dispatch();
 
     document.body.appendChild(menuBar.dom);
