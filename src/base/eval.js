@@ -219,6 +219,11 @@ function makeProcedureApplyEnv(procedure, argv) {
     var paramters = procedure.getParamters();
     var arity = procedure.getArity();
     var argvList = scheme.arrayToList(argv);
+    
+    //参考JS的arguments特性，接下来如果有相同形参会被复写
+    bindings["arguments"] = argvList;
+    bindings["callee"] = procedure;
+    
     if(arity.length == 1) {     // 0个或固定数量参数
         for(var index = 0; index < paramters.length; index++)
             bindings[scheme.symbolVal(paramters[index])] = argv[index];
@@ -230,10 +235,7 @@ function makeProcedureApplyEnv(procedure, argv) {
     } else if(arity[0] == 0) {    // n个参数
         bindings[scheme.symbolVal(paramters[0])] = argvList;
     }
-    //参考JS的arguments特性
-    bindings["arguments"] = argvList;
-    bindings["callee"] = procedure;
-    
+
     //构造一个新环境,将创建该过程时的环境作为外围环境
     return scheme.extendEnv(bindings, procedure.getEnv());
 }

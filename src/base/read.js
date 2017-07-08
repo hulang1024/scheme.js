@@ -58,12 +58,13 @@ scheme.readMutil = function(src) {
         if(t == '(' || t == '[') return '[';
         else if(t == ')' || t == ']') return ']';
         else {
+            t = t.replace(/'/g, "\\'");
             if(t[0] == "#" && t[1] == "\\")
                 return "'" + t[0] + "\\" + t.substring(1) + "'";
             else if(t[0] == "\"")
-                return "'" + t[0] + t.substring(1) + "'";
+                return "'\"" + t.substring(1) + "'";
             else if(t[0] == "'")
-                return "\"\\" + t[0] + t.substring(1) + "\"";
+                return "\"\\'" + t.substring(1) + "\"";
 
             return "'" + t + "'";
         }

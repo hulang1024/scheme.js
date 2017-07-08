@@ -50,7 +50,9 @@
 	a
 	(gcd b (remainder a b))))
  
- 
+
+(define true #t)
+(define false #f)
  
 (define nil '())
 

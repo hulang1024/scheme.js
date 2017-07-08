@@ -1,4 +1,4 @@
-var IDE = function() {
+﻿var IDE = function() {
     var ide = this;
     
     var config = new Config('ide');
@@ -30,8 +30,8 @@ var IDE = function() {
     container.add(editor);
     container.add(replConsole);
     
-    $(editor.dom).css('height', '60%');
-    $(replConsole.dom).css('height', '40%');
+    $(editor.dom).css('height', '65%');
+    $(replConsole.dom).css('height', '35%');
     this.signals.mainPanelSizeChanged.dispatch();
 
     document.body.appendChild(menuBar.dom);
