@@ -9,7 +9,7 @@ var stringReg = /^\".*\"$/;
 var booleanReg = /^#[tf]|(true|false)$^/;
 var vectorReg = /^#\(/;
 var emptyListReg = /^(\(\))|(\[\])$/;
-
+ 
 scheme.initRead = function(env) {
     scheme.addPrimProc(env, "read", read, 0, 1);
 }
