@@ -1,6 +1,6 @@
 ﻿# scheme.js
 
-编程语言[Scheme](https://en.wikipedia.org/wiki/Scheme_(programming_language))的JavaScript实现。  
+[Scheme](https://en.wikipedia.org/wiki/Scheme_(programming_language))编程语言的JavaScript实现。  
 IDE: [https://hlpp.github.io/scheme.js/ide/](https://hlpp.github.io/scheme.js/ide)
 
 
@@ -119,16 +119,18 @@ IDE: [https://hlpp.github.io/scheme.js/ide/](https://hlpp.github.io/scheme.js/id
 
  3. 上面的例子程序运行会弹出 hello scheme 和 4 。
 
-## Q&A 
-这个是什么？  
-是为了学习编程语言而编写的，一般`Scheme`程序员都能实现的，Scheme语言的解释器，虽然提供了很多语言能力，  
+## F.A.Q
+* __这个是什么？__  
+是为了学习编程语言而编写的，一般`Scheme`程序员都能实现的，Scheme语言的可用的解释器，虽然提供了很多语言能力，  
 但是实现起来（基础特性）很简单，现在只是个玩具，但从中可以学到很多。  
-另外，[ide](https://hlpp.github.io/scheme.js/ide/)是该scheme解释器的小IDE，可以用它编写scheme和运行程序。
+另外，[ide](https://hlpp.github.io/scheme.js/ide/)是该scheme解释器的小IDE，用它可以编写和运行scheme代码。
 
-为什么用`JS`编程？  
+* __它怎么工作的？__  
+请阅读源代码。
+* __为什么用`JS`编程？__  
 因为用`JS`写更简洁，只需关注解释器的高层逻辑。如果用`C`写，意味着要更严肃些并且地考虑更多，以后会考虑用C。
 
-Scheme的高级特性还没有？  
+* __还没有实现Scheme的高级特性？__  
 第一级继续call/cc、宏、模式匹配，FFI lib等，这些我还不知道怎么实现，欢迎pull request。
 
 ## 更多
