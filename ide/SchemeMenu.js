@@ -21,6 +21,26 @@ var SchemeMenu = function(ide) {
         ide.replConsole.resetInput();
     });
     items.add(item);
-
+    
+    var item = new UI.Row();
+    item.setClass('menuitem');
+    item.setTextContent('Compile Output');
+    item.onClick(function() {
+        ide.replConsole.clear();
+        ide.replConsole.log("write", scheme.compileSrcString(ide.editor.getValue()));
+        ide.replConsole.resetInput();
+    });
+    items.add(item);
+    
+    var item = new UI.Row();
+    item.setClass('menuitem');
+    item.setTextContent('Compile & Run');
+    item.onClick(function() {
+        ide.replConsole.clear();
+        ide.replConsole.log("display", eval( scheme.compileSrcString(ide.editor.getValue()) ) );
+        ide.replConsole.resetInput();
+    });
+    items.add(item);
+    
     return container;
 }

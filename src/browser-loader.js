@@ -18,6 +18,7 @@
         "base/fun",
         "base/syntax",
         "base/eval",
+        "base/compiler",
         "lib/browserjs",
         "lib/box-pointer",
         "lib/lib",
