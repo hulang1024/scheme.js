@@ -20,6 +20,10 @@ scm.isTrue = function(obj) { return obj != scm.False; }
 scm.isFalse = function(obj) { return obj == scm.False; }
 scm.getBoolean = function(val) { return val ? scm.True : scm.False; }
 scm.getBool = scm.getBoolean;
+scm.eq_p = eq_p;
+scm.equal_p = equal_p;
+scm.eqv_p = eqv_p;
+scm.not = not;
 
 function boolean_p(argv) {
     return scm.getBoolean(scm.isBoolean(argv[0]));
