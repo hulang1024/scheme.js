@@ -121,8 +121,8 @@ IDE: [https://hlpp.github.io/scheme.js/ide/](https://hlpp.github.io/scheme.js/id
 
 ## F.A.Q
 * __这个是什么？__  
-是为了学习编程语言而编写的，一般`Scheme`程序员都能实现的，Scheme语言的可用的解释器，虽然提供了很多语言能力，  
-但是实现起来（基础特性）很简单，现在只是个玩具，但是从中可以学到很多。  
+是为了学习编程语言而编写的，一般`Scheme`程序员都能实现的，Scheme语言的可用的解释器，  
+虽然提供了很多语言能力，但是实现起来（基础特性）很简单，现在只是个玩具，但是从中可以学到很多。  
 另外，[ide](https://hlpp.github.io/scheme.js/ide/)是该scheme解释器的小IDE，用它可以编写和运行scheme代码。
 
 * __它怎么工作的？__  
