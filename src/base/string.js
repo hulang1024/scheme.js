@@ -101,7 +101,7 @@ function stringEqual(argv) {
     var str2 = argv[1];
     if(!scheme.isString(str1))
         return scheme.wrongContract("string=?", "string?", 0, argv);
-    if(!str2.isString())
+    if(!scheme.isString(str2))
         return scheme.wrongContract("string=?", "string?", 1, argv);
     return scheme.getBoolean(scheme.stringVal(str1) == scheme.stringVal(str2));
 }
