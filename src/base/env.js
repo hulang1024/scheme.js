@@ -38,6 +38,7 @@ scheme.initBasicEnv = function() {
     scheme.initRead(env);
     scheme.initPrint(env);
     scheme.initEval(env);
+    scheme.initPort(env);
     scheme.initJSObject(env);
     
     // init lib
