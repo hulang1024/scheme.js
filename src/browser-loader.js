@@ -2,6 +2,7 @@
     rootdir = (rootdir || "") + "src/";
     var jsfiles = [
         "base/object",
+        "base/port",
         "base/read",
         "base/print",
         "base/error",
