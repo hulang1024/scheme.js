@@ -1,6 +1,6 @@
 /*
- scheme reader.
- author: hu lang
+scheme reader.
+author: hu lang
 */
 (function(scm)
 {
@@ -13,16 +13,19 @@ scm.initRead = function(env)
 
 function read_prim(argv)
 {
-    var objs;
-    do {
-        objs = scm.readMutil(window.prompt());
-    } while (!objs.length);
-    return objs[0];
+    var port = scm.currentInputPort;
+    if(argv.length > 0) {
+        port = argv[0];
+        if(!scheme.isInputPort(port))
+            return scheme.wrongContract("read", "input-port?", 0, argv);
+    }
+    port.open();
+    return read(port);
 }
 
 scm.readMutil = function(src)
 {
-    var port = scm.makeStringPort(src);
+    var port = scm.makeStringInputPort(src);
     
     var objs = [];
     var obj;
@@ -61,18 +64,10 @@ function read(port)
         }
         break;
     case '-':
-        if(isdigit(scm.getc(port))) {
-            scm.ungetc(port);
-            obj = read_number(port, 10, -1);
-        } else {
-            scm.ungetc(port);
-            obj = read_symbol(c, port);
-        }
-        break;
     case '+': //TODO: +1a also a identifler
         if(isdigit(scm.getc(port))) {
             scm.ungetc(port);
-            obj = read_number(port, 10, 1);
+            obj = read_number(port, 10, c == '-' ? -1 : 1);
         } else {
             scm.ungetc(port);
             obj = read_symbol(c, port);
@@ -103,11 +98,6 @@ function read(port)
     return obj;
 }
 
-function read_error()
-{
-    return scm.throwError("read", "unexpected");
-}
-
 function read_list(port)
 {
     var head = scm.nil, prev = null, curr;
@@ -120,9 +110,7 @@ function read_list(port)
             break;
         
         scm.ungetc(port);
-        
         o = read(port);
-        
         skip_whitespace_comments(port);
         
         if(prev != null) {
@@ -155,12 +143,13 @@ function read_symbol(initch, port)
     var c;
     while(1) {
         c = scm.getc(port);
-        if(isdelimiter(c) || scm.eofp(c))
+        if(isdelimiter(c)) {
+            scm.ungetc(port);
+            break;
+        } else if(scm.eofp(c))
             break;
         buf += c;
     }
-    if(!scm.eofp(c))
-        scm.ungetc(port);
     
     return scm.internSymbol(buf);
 }
@@ -264,6 +253,11 @@ function skip_whitespace_comments(port)
             break;
     }
     scm.ungetc(port);
+}
+
+function read_error()
+{
+    return scm.throwError("read", "unexpected");
 }
 
 function isspace(c)
