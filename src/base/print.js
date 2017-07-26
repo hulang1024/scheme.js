@@ -1,119 +1,133 @@
-﻿(function(scheme){
+﻿(function(scm){
 "use strict";
 
-scheme.initPrint = function(env) {
-    scheme.addPrimProc(env, "write", write, 1);
-    scheme.addPrimProc(env, "display", display, 1);
-    scheme.addPrimProc(env, "newline", newline, 0);
-    scheme.addPrimProc(env, "error", error, 1, 3);
+scm.initPrint = function(env) {
+    scm.addPrimProc(env, "write", write, 1, 2);
+    scm.addPrimProc(env, "display", display, 1, 2);
+    scm.addPrimProc(env, "newline", newline, 0);
+    scm.addPrimProc(env, "error", error, 1, 3);
 }
 
 function write(argv) {
-    scheme.console.log("write", scheme.writeToString(argv[0], false));
-    return scheme.voidValue;
+    scm.console.log("write", scm.writeToString(argv[0], false));
+    return scm.voidValue;
 }
 
 function display(argv) {
-    scheme.console.log("display", scheme.displayToString(argv[0]));
-    return scheme.voidValue;
+    scm.console.log("display", scm.displayToString(argv[0]));
+    return scm.voidValue;
 }
 
 function newline(argv) {
-    scheme.console.log(null, "</br>");
-    return scheme.voidValue;
+    scm.console.log(null, "</br>");
+    return scm.voidValue;
 }
 
 function error(argv) {
     var str = "";
     for(var i = argv.length - 2; i >= 0; i--)
-        str += scheme.displayToString(argv[i]);
-    scheme.console.log("error", str + "\n");
-    return scheme.voidValue;
+        str += scm.displayToString(argv[i]);
+    scm.console.log("error", str + "\n");
+    return scm.voidValue;
 }
 
-scheme.displayToString = function(obj) {
-    return scheme.writeToString(obj, true);
+scm.displayToString = function(obj) {
+    return scm.writeToString(obj, true);
 }
 
-scheme.writeToString = function(obj, display) {
+scm.writeToString = function(obj, display) {
     var str = null;
-    if(!(obj instanceof scheme.Object))
-        str = obj;
-    else if(scheme.isVoid(obj))
+    
+    switch(obj.type) {
+    case scheme_void_type:
         str = null;
-    else if(scheme.isNumber(obj)) {
-        str = obj.val;
-    }
-    else if(scheme.isChar(obj)) {
-        str = "#\\" + scheme.charVal(obj);
-    }
-    else if(scheme.isString(obj)) {
-        str = scheme.stringVal(obj);
+        break;
+    case scheme_integer_type:
+        str = scm.intVal(obj);
+        break;
+    case scheme_double_type:
+        str = scm.doubleVal(obj);
+        break;
+    case scheme_char_type:
+        str = "#\\" + scm.charVal(obj);
+        break;
+    case scheme_char_string_type:
+        str = scm.stringVal(obj);
         if(!display)
             str = "\"" + str + "\"";
-    }
-    else if(scheme.isSymbol(obj)) {
-        str = scheme.symbolVal(obj);
-    }
-    else if(scheme.isBoolean(obj)) {
-        str = scheme.isTrue(obj) ? "#t" : "#f";
-    }
-    else if(scheme.isEmptyList(obj)) {
+        break;
+    case scheme_symbol_type:
+        str = scm.symbolVal(obj);
+        break;
+    case scheme_bool_type:
+        str = scm.isTrue(obj) ? "#t" : "#f";
+        break;
+    case scheme_null_type:
         str = "()";
-    }
-    else if(scheme.isPair(obj)) {
-        if(scheme.isList(obj)) {
-            if(scheme.car(obj) == scheme.quoteSymbol)
-                str = scheme.writeQuote(obj);
+        break;
+    case scheme_pair_type:
+        if(scm.isList(obj)) {
+            if(scm.car(obj) == scm.quoteSymbol)
+                str = scm.writeQuote(obj);
             else
-                str = scheme.writeList(obj);
+                str = scm.writeList(obj);
         } else {
-            str = scheme.writePair(obj);
+            str = scm.writePair(obj);
         }
-    }
-    else if(scheme.isProcedure(obj)) {
+        break;
+    case scheme_prim_type:
+    case scheme_comp_type:
         str = '#[procedure:' + obj.getName() + "]";
-    }
-    else if(scheme.isNamespace(obj))
+        break;
+    case scheme_namespace_type:
         str = '#[namespace:0]';
-    else if(scheme.isJSObject(obj))
-        str = scheme.objectVal(obj);
-    else {
+        break;
+    case scheme_input_port_type:
+        str = '#[input-port]';
+        break;
+    case scheme_output_port_type:
+        str = '#[output-port]';
+        break;
+    case scheme_jsobject_type:
+        str = scm.objectVal(obj);
+        break;
+    default:
         str = obj.toString();
     }
+    
     return str;
 }
 
-scheme.writeQuote = function(list) {
-    if(scheme.car(list) == scheme.quoteSymbol)
-        return "'" + scheme.writeQuote(scheme.cdr(list));
+scm.writeQuote = function(list) {
+    if(scm.car(list) == scm.quoteSymbol)
+        return "'" + scm.writeQuote(scm.cdr(list));
     else 
-        return scheme.writeToString(scheme.car(list), false);
+        return scm.writeToString(scm.car(list), false);
 }
 
-scheme.writeList = function(list) {
+scm.writeList = function(list) {
     var strs = [];
     var obj = list;
-    for(; scheme.isPair(obj); obj = scheme.cdr(obj))
-        strs.push(scheme.writeToString(scheme.car(obj), false));
+    for(; scm.isPair(obj); obj = scm.cdr(obj))
+        strs.push(scm.writeToString(scm.car(obj), false));
     return '(' + strs.join(' ') + ')';
 }
 
-scheme.writePair = function(pair) {
+scm.writePair = function(pair) {
     var str = '(';
     var obj = pair;
-    for(; scheme.isPair(obj); obj = scheme.cdr(obj))
-        str += scheme.writeToString(scheme.car(obj), false) + " ";
-    str += ". " + scheme.writeToString(obj, false);
+    for(; scm.isPair(obj); obj = scm.cdr(obj))
+        str += scm.writeToString(scm.car(obj), false) + " ";
+    str += ". " + scm.writeToString(obj, false);
     return str + ')';
 }
 
-scheme.outputValue = function(obj) {
-    if(obj && scheme.isVoid(obj))
+scm.outputValue = function(obj) {
+    if(obj && scm.isVoid(obj))
         return;
-    var val = scheme.writeToString(obj);
+    var val = scm.writeToString(obj);
     if(val != null) {
-        scheme.console && scheme.console.log(null, val + "</br>");
+        scm.console && scm.console.log(null, val + "</br>");
     }
 }
 
