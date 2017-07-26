@@ -6,7 +6,6 @@ scheme.initNumber = function(env) {
     scheme.addPrimProc(env, "real?", real_p, 1);
     scheme.addPrimProc(env, "number?", number_p, 1);
     scheme.addPrimProc(env, "remainder", remainder, 2);
-    
 }
 
 scheme.makeInt = function(val) {
