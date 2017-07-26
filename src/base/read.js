@@ -1,162 +1,331 @@
-﻿(function(scheme){
+/*
+ scheme reader.
+ author: hu lang
+*/
+(function(scm)
+{
 "use strict";
 
-var symbolReg = /^(?![0-9])[a-zA-Z_$0-9\!\-\?\*%\.\+\-\*\/\<\>\=\u4e00-\u9fa5]+$/;
-var decimalReg = /^[+-]?\d+$/;
-var floatReg = /^[+-]?\d+\.\d+$/;
-var charReg = /^#\\/;
-var stringReg = /^\".*\"$/;
-var booleanReg = /^#[tf]|(true|false)$^/;
-var vectorReg = /^#\(/;
-var emptyListReg = /^(\(\))|(\[\])$/;
- 
-scheme.initRead = function(env) {
-    scheme.addPrimProc(env, "read", read, 0, 1);
+scm.initRead = function(env)
+{
+    scm.addPrimProc(env, "read", read_prim, 0, 1);
 }
 
-function read(argv) {
+function read_prim(argv)
+{
     var objs;
     do {
-        objs = scheme.readMutil(window.prompt());
+        objs = scm.readMutil(window.prompt());
     } while (!objs.length);
     return objs[0];
 }
 
-scheme.readMutil = function(src) {
-    //delete comment line
-    src += '\n';
-    var pstr = "";
-    var state = 0;
-    for(var i=0;i<src.length;i++) {
-        if(src[i]=="\"") {
-            switch(state) {
-            case 0: state = 1; break;
-            case 1: state = 0; break;
-            }
-        }
-        else if(src[i] == ";") {
-            if(state == 0) {
-                for(i++; i < src.length && src[i] != '\n'; ) i++;
-            }
-        }
-        pstr += src[i];
-    }
-    pstr = pstr.substring(0, pstr.length-1);
-
-    function getTokens(splits) {
-        var tokens = [], part, s;
-        for(var i = 0; i < splits.length; i++) {
-            part = splits[i];
-            if(part && part.trim()) {
-                tokens.push(part);
-            }
-        }
-        return tokens;
-    }
-    var tokens = getTokens(pstr.split(/(".*")|(\s+)|([\(\)\[\]]{1})/g));
-    tokens = tokens.map(function(t){
-        if(t == '(' || t == '[') return '[';
-        else if(t == ')' || t == ']') return ']';
-        else {
-            t = t.replace(/'/g, "\\'");
-            if(t[0] == "#" && t[1] == "\\")
-                return "'" + t[0] + "\\" + t.substring(1) + "'";
-            else if(t[0] == "\"")
-                return "'\"" + t.substring(1) + "'";
-            else if(t[0] == "'")
-                return "\"\\'" + t.substring(1) + "\"";
-
-            return "'" + t + "'";
-        }
-    }).join(',');
-    var arrayExp = "[" + tokens.replace(/\[,/g,'[').replace(/,\]/g,']') + "]";
-    var array;
-    try {
-        //console.log('token arrayExp:');
-        //console.log(arrayExp);
-        array = eval(arrayExp);
-    } catch(e) {
-        return scheme.throwError("read", "unexpected");
-    }
-    return inner(array);
+scm.readMutil = function(src)
+{
+    var port = scm.makeStringPort(src);
     
-    function inner(array) {
-        var result = [];
-        for(var index = 0; index < array.length; index++) {
-            if(array[index].constructor == Array) {
-                var array1 = inner(array[index]);
-                var pair;
-                if(array1.length > 0) {
-                    var currPair;
-                    if(array1[0] != scheme.dotSymbol) {
-                        pair = currPair = scheme.cons(array1[0], scheme.nil);
-                        for(var i = 1; i < array1.length; i++) {
-                            var elem = array1[i];
-                            if(elem != scheme.dotSymbol) {
-                                var nextPair = scheme.cons(array1[i], scheme.nil);
-                                scheme.setCdr(currPair, nextPair);
-                            } else {
-                                ++i;
-                                if(i == array1.length - 1)
-                                    scheme.setCdr(currPair, array1[i]);
-                                else {
-                                    scheme.throwError("read", "unexpected");
-                                    break;
-                                }
-                            }
-                            currPair = nextPair;
-                        }
-                    } else {
-                        scheme.throwError("read", "unexpected");
-                    }
+    var objs = [];
+    var obj;
+    while(!scm.eofp( scm.getc(port) )) {
+        scm.ungetc(port);
+        obj = read(port);
+        if(obj != null)
+            objs.push(obj);
+    }
+    return objs;
+}
+
+function read(port)
+{
+    var obj = null;
+    
+    skip_whitespace_comments(port);
+    
+    var c = scm.getc(port);
+    
+    switch(c) {
+    case '#':
+        c = scm.getc(port);
+        switch(c) {
+        case 't':
+            obj = scm.True;
+            break;
+        case 'f':
+            obj = scm.False;
+            break;
+        case '\\':
+            obj = read_char(port);
+            break;
+        default:
+            obj = read_number(port, c, 1);
+        }
+        break;
+    case '-':
+        if(isdigit(scm.getc(port))) {
+            scm.ungetc(port);
+            obj = read_number(port, 10, -1);
+        } else {
+            scm.ungetc(port);
+            obj = read_symbol(c, port);
+        }
+        break;
+    case '+': //TODO: +1a also a identifler
+        if(isdigit(scm.getc(port))) {
+            scm.ungetc(port);
+            obj = read_number(port, 10, 1);
+        } else {
+            scm.ungetc(port);
+            obj = read_symbol(c, port);
+        }
+        break;
+    case '.': //TODO: .5 == 0.5
+        obj = read_symbol(c, port);
+        break;
+    case '(':
+    case '[':
+        obj = read_list(port);
+        break;
+    case '"':
+        obj = read_string(port);
+        break;
+    case '\'':
+        obj = read_quote_abbrev(port);
+        break;
+    default:
+        if(isdigit(c)) {
+            scm.ungetc(port);
+            obj = read_number(port, 10, 1);
+        } else if(isletter(c) || is_special_inital(c)) {
+            obj = read_symbol(c, port);
+        }
+    }
+    
+    return obj;
+}
+
+function read_error()
+{
+    return scm.throwError("read", "unexpected");
+}
+
+function read_list(port)
+{
+    var head = scm.nil, prev = null, curr;
+    var found_dot = 0;
+    var o;
+    var c;
+    while(1) {
+        c = scm.getc(port);
+        if(c == ')' || c == ']' || scm.eofp(c))
+            break;
+        
+        scm.ungetc(port);
+        
+        o = read(port);
+        
+        skip_whitespace_comments(port);
+        
+        if(prev != null) {
+            if(o != scm.dotSymbol) {
+                if(!found_dot) {
+                    curr = scm.cons(o, scm.nil);
+                    prev.cdr = curr;
+                    prev = curr;
                 } else {
-                    pair = scheme.nil;
+                    prev.cdr = o;
                 }
-                result.push(pair);
+            } else {
+                found_dot = 1;
             }
-            else {
-                var token = array[index];
-                if(decimalReg.test(token)) {
-                    result.push(scheme.makeInt(parseInt(token)));
+        } else {
+            head = prev = scm.cons(o, scm.nil);
+        }
+    }
+    return head;
+}
+
+function read_quote_abbrev(port)
+{
+    return scm.cons(scm.quoteSymbol, scm.cons(read(port), scm.nil));
+}
+
+function read_symbol(initch, port)
+{
+    var buf = initch;
+    var c;
+    while(1) {
+        c = scm.getc(port);
+        if(isdelimiter(c) || scm.eofp(c))
+            break;
+        buf += c;
+    }
+    if(!scm.eofp(c))
+        scm.ungetc(port);
+    
+    return scm.internSymbol(buf);
+}
+
+function read_string(port) {
+    var buf = '';
+    var escape_state = 0;
+    var c;
+    while(1) {
+        c = scm.getc(port);
+        if(c == '\\')
+            escape_state = 1;
+        else if(c == '"') {
+            if(escape_state == 0)
+                break;
+            else if(escape_state == 1) {
+                escape_state = 0;
+                //TODO: switch escape 
+            }
+        } else if(scm.eofp(c))
+            break;
+        buf += c;
+    }
+    return scm.makeString(buf);
+}
+
+function read_number(port, radixc, sign)
+{
+    switch(radixc) {
+    case 10:
+        var buf = [];
+        var i = 0;
+        var dot = 0;
+        var c;
+        while(1) {
+            c = scm.getc(port);
+            if(isdigit(c)) {
+                buf += c;
+            } else if(c == '.') {
+                if(dot) {
+                    read_error();
+                    return;
                 }
-                else if(floatReg.test(token)) {
-                    result.push(scheme.makeDouble(parseFloat(token)));
-                }
-                else if(symbolReg.test(token)) {
-                    result.push(scheme.internSymbol(token));
-                }
-                else if(token[0] == "'") {//quote
-                    var quoteSym = scheme.internSymbol('quote');
-                    var obj;
-                    if(token == "'") {
-                        obj = inner(array.slice(index+1, index+2))[0];
-                        index++;
-                    }
-                    else {
-                        obj = scheme.readMutil(token.substring(1))[0];
-                    }
-                    result.push(scheme.cons(quoteSym, scheme.cons(obj, scheme.nil)));
-                }
-                else if(vectorReg.test(token)) {//vector
-                }
-                else if(charReg.test(token)) {
-                    var val = token.substr(2);
-                    if(val == "space") val = " ";
-                    else if(val == "newline") val = "\n";
-                    result.push(scheme.makeChar(val));
-                }
-                else if(stringReg.test(token)) {
-                    result.push(scheme.makeString(token.substr(1, token.length - 2).split("")));
-                }
-                else if(booleanReg.test(token)) {
-                    result.push(scheme.getBoolean(token == "#t" || token == "#true"));
-                }
-                else {
-                    return scheme.throwError("read", "unexpected");
-                }
+                dot = 1;
+                buf += c;
+            } else if(scm.eofp(c)) {
+                break;
+            } else {
+                scm.ungetc(port);
+                break;
             }
         }
-        return result;
+        
+        if(dot) {
+            var num = parseFloat(buf);
+            if(sign < 0) num *= sign;
+            return scm.makeDouble(num);
+        } else {
+             var num = parseInt(buf);
+            if(sign < 0) num *= sign;
+            return scm.makeInt(num);
+        }
+    case 'b':
+        // radix 2
+    case 'o':
+        // radix 8
+    case 'd':
+        // radix 10
+    case 'x':
+        // radix 16
+    default:
+        read_error();
+        return;
     }
 }
-})(scheme);
+
+function read_char(port)
+{
+    var c = scm.getc(port);
+    //TODO: character name: space | newline
+    return scm.makeChar(c);
+}
+
+function skip_whitespace_comments(port)
+{
+    var c;
+    while(1) {
+        c = scm.getc(port);
+        if(isspace(c))
+            continue;
+        else if(c == ';') {
+            while(1) {
+                c = scm.getc(port);
+                if(c == '\n')
+                    break;
+                else if(scm.eofp(c))
+                    return;
+            }
+        }
+        else
+            break;
+    }
+    scm.ungetc(port);
+}
+
+function isspace(c)
+{
+    switch(c) {
+    case ' ': case '\t': case '\v':
+    case '\r': case '\n': case '\b':
+    case '\f':
+        return 1;
+    }
+    return 0;
+}
+
+function isdigit(c) { return '0' <= c && c <= '9'; }
+
+function isletter(c) { return 65 <= String.charCodeAt(c) && String.charCodeAt(c) <= 122; }
+
+function isdelimiter(c)
+{
+    if(isspace(c))
+        return 1;
+    switch(c) {
+    case '(': case ')':
+    case '[': case ']':
+    case '"': case ';':
+        return 1;
+    }
+    return 0;
+}
+
+
+function is_special_inital(c)
+{
+    switch(c) {
+    case '!': case '$': case '%':
+    case '&': case '*': case '/':
+    case ':': case '<': case '=':
+    case '>': case '?': case '^':
+    case '_': case '~':
+        return 1;
+    }
+    return 0;
+}
+
+function is_peculiar_identifier(c)
+{
+    switch(c) {
+    case '+': case '-':
+    // and case '...'
+        return 1;
+    }
+    return 0;
+}
+
+function is_sepcial_subsequent(c)
+{
+    switch(c) {
+    case '+': case '-':
+    case '.': case '@':
+        return 1;
+    }
+    return 0;
+}
+
+})(scheme);

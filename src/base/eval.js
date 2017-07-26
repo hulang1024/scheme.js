@@ -58,7 +58,7 @@ function eval_prim(argv) {
     if(argv.length > 1) {
         env = argv[1];
         if(!scheme.isNamespace(env))
-            return scheme.wrongContract("meval", "namespace?", 0, argv);
+            return scheme.wrongContract("eval", "namespace?", 1, argv);
     }
     return evaluate(exp, env.val);
 }
