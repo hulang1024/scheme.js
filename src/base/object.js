@@ -3,23 +3,29 @@ var scheme = scm = {};
 
 /* types */
 /* number types */
-const scheme_integer_type = 1;
-const scheme_double_type = 2;
+var scheme_integer_type = 1;
+var scheme_double_type = 2;
 /* procedure types */
-const scheme_prim_type = 13;
-const scheme_comp_type = 14;
+var scheme_prim_type = 13;
+var scheme_comp_type = 14;
 /* other values */
-const scheme_char_type = 3;
-const scheme_char_string_type = 4;
-const scheme_bool_type = 6;
-const scheme_symbol_type = 7;
-const scheme_pair_type = 5;
-const scheme_vector_type = 8;
-const scheme_namespace_type = 9;
-const scheme_null_type = 10;
-const scheme_void_type = 11;
+var scheme_char_type = 3;
+var scheme_char_string_type = 4;
+var scheme_bool_type = 6;
+var scheme_symbol_type = 7;
+var scheme_pair_type = 5;
+var scheme_vector_type = 8;
+var scheme_namespace_type = 9;
+var scheme_null_type = 10;
+var scheme_void_type = 11;
+
+/* port types */
+var scheme_input_port_type = 30;
+var scheme_output_port_type = 31;
+var scheme_eof_type = 32;
+
 /* extended types */
-const scheme_jsobject_type = 12;
+var scheme_jsobject_type = 12;
 
 (function(scm){
 "use strict";
@@ -85,4 +91,6 @@ scm.isComp = function(obj) { return obj.type == scheme_comp_type; }
 scm.isProcedure = function(obj) { return obj.type == scheme_prim_type || obj.type == scheme_comp_type; }
 scm.isNamespace = function(obj) { return obj.type == scheme_namespace_type; }
 scm.isJSObject = function(obj) { return obj.type == scheme_jsobject_type; }
+scm.isInputPort = function(obj) { return obj.type == scheme_input_port_type; }
+scm.isOutputPort = function(obj) { return obj.type == scheme_output_port_type; }
 })(scm);
