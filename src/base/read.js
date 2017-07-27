@@ -41,7 +41,7 @@ scm.readMutil = function(src)
 function read(port)
 {
     var obj = null;
-    
+   
     skip_whitespace_comments(port);
     
     var c = scm.getc(port);
@@ -51,9 +51,11 @@ function read(port)
         c = scm.getc(port);
         switch(c) {
         case 't':
+        case 'T':
             obj = scm.True;
             break;
         case 'f':
+        case 'F':
             obj = scm.False;
             break;
         case '\\':
@@ -70,31 +72,34 @@ function read(port)
             obj = read_number(port, 10, c == '-' ? -1 : 1);
         } else {
             scm.ungetc(port);
-            obj = read_symbol(c, port);
+            obj = read_symbol(port, c);
         }
         break;
     case '.': //TODO: .5 == 0.5
-        obj = read_symbol(c, port);
+        obj = read_symbol(port, c);
         break;
     case '(':
     case '[':
+    case '{':
         obj = read_list(port);
         break;
     case '"':
         obj = read_string(port);
         break;
     case '\'':
-        obj = read_quote_abbrev(port);
+        obj = read_quote(port);
         break;
     default:
-        if(isdigit(c)) {
+        if(scm.eofp(c)) {
+            break;
+        } else if(isdigit(c)) {
             scm.ungetc(port);
             obj = read_number(port, 10, 1);
-        } else if(isletter(c) || is_special_inital(c)) {
-            obj = read_symbol(c, port);
+        } else if(isalpha(c) || is_special_inital(c)) {
+            obj = read_symbol(port, c);
         }
     }
-    
+
     return obj;
 }
 
@@ -106,7 +111,7 @@ function read_list(port)
     var c;
     while(1) {
         c = scm.getc(port);
-        if(c == ')' || c == ']' || scm.eofp(c))
+        if(c == ')' || c == ']' || c == '}' || scm.eofp(c))
             break;
         
         scm.ungetc(port);
@@ -132,12 +137,12 @@ function read_list(port)
     return head;
 }
 
-function read_quote_abbrev(port)
+function read_quote(port)
 {
     return scm.cons(scm.quoteSymbol, scm.cons(read(port), scm.nil));
 }
 
-function read_symbol(initch, port)
+function read_symbol(port, initch)
 {
     var buf = initch;
     var c;
@@ -146,32 +151,49 @@ function read_symbol(initch, port)
         if(isdelimiter(c)) {
             scm.ungetc(port);
             break;
-        } else if(scm.eofp(c))
+        } else if(scm.eofp(c)) {
             break;
+        }
         buf += c;
     }
     
     return scm.internSymbol(buf);
 }
 
-function read_string(port) {
+function read_string(port)
+{
     var buf = '';
-    var escape_state = 0;
-    var c;
+    var ch;
     while(1) {
-        c = scm.getc(port);
-        if(c == '\\')
-            escape_state = 1;
-        else if(c == '"') {
-            if(escape_state == 0)
-                break;
-            else if(escape_state == 1) {
-                escape_state = 0;
-                //TODO: switch escape 
+        ch = scm.getc(port);
+        // escape sequence handling
+        if(ch == '\\') {
+            ch = scm.getc(port);
+            switch(ch) {
+            case '\\': case '\"': case '\'': break;
+            case 'a': ch = '\a'; break;
+            case 'b': ch = '\b'; break;
+            //case 'e': ch = '\33'; break; /* escape */
+            case 'f': ch = '\f'; break;
+            case 'n': ch = '\n'; break;
+            case 'r': ch = '\r'; break;
+            case 't': ch = '\t'; break;
+            case 'v': ch = '\v'; break;
+            case 'x':
+                // TODO:
+            case 'u':
+            case 'U':
+                // TODO:
+            default:
+                //if(isodigit(ch))
+                ;
             }
-        } else if(scm.eofp(c))
+        } else if(ch == '"') {
+            break;  
+        } else if(scm.eofp(ch)) {
             break;
-        buf += c;
+        }
+        buf += ch;
     }
     return scm.makeString(buf);
 }
@@ -179,6 +201,14 @@ function read_string(port) {
 function read_number(port, radixc, sign)
 {
     switch(radixc) {
+    case 'b':
+    case 'B':
+        // radix 2
+    case 'o':
+    case 'O':
+        // radix 8
+    case 'd':
+    case 'D':
     case 10:
         var buf = [];
         var i = 0;
@@ -212,13 +242,9 @@ function read_number(port, radixc, sign)
             if(sign < 0) num *= sign;
             return scm.makeInt(num);
         }
-    case 'b':
-        // radix 2
-    case 'o':
-        // radix 8
-    case 'd':
-        // radix 10
+        break;
     case 'x':
+    case 'X':
         // radix 16
     default:
         read_error();
@@ -243,13 +269,12 @@ function skip_whitespace_comments(port)
         else if(c == ';') {
             while(1) {
                 c = scm.getc(port);
-                if(c == '\n')
+                if(c == '\n' || c == '\r')
                     break;
                 else if(scm.eofp(c))
                     return;
             }
-        }
-        else
+        } else
             break;
     }
     scm.ungetc(port);
@@ -264,16 +289,16 @@ function isspace(c)
 {
     switch(c) {
     case ' ': case '\t': case '\v':
-    case '\r': case '\n': case '\b':
-    case '\f':
+    case '\r': case '\n': case '\f':
         return 1;
     }
     return 0;
 }
 
 function isdigit(c) { return '0' <= c && c <= '9'; }
-
-function isletter(c) { return 65 <= String.charCodeAt(c) && String.charCodeAt(c) <= 122; }
+function isodigit(c) { return '0' <= c && c <= '7'; }
+function isxdigit(c) { return isdigit(c) || (('a' <= c && c <= 'f') || ('A' <= c && c <= 'F')); }
+function isalpha(c) { return 'A' <= c && c <= 'z'; }
 
 function isdelimiter(c)
 {
@@ -282,12 +307,12 @@ function isdelimiter(c)
     switch(c) {
     case '(': case ')':
     case '[': case ']':
+    case '{': case '}':
     case '"': case ';':
         return 1;
     }
     return 0;
 }
-
 
 function is_special_inital(c)
 {
@@ -321,5 +346,4 @@ function is_sepcial_subsequent(c)
     }
     return 0;
 }
-
 })(scheme);
