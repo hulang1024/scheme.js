@@ -254,8 +254,26 @@ function read_number(port, radixc, sign)
 
 function read_char(port)
 {
-    var c = scm.getc(port);
-    //TODO: character name: space | newline
+    var buf = '';
+    var c;
+    while(1) {
+        c = scm.getc(port);
+        if(isdelimiter(c)) {
+            scm.ungetc(port);
+            break;
+        } else if(scm.eofp(c)) {
+            break;
+        }
+        buf += c;
+    }
+    if(buf.length == 1) {
+        c = buf;
+    } else {
+        if(buf == 'space')
+            c = ' ';
+        else if(buf == 'newline')
+            c = '\n';
+    }
     return scm.makeChar(c);
 }
 
