@@ -76,9 +76,6 @@ function evaluate(exp, env) {
         if(scheme.error)
             throw scheme.error;
 
-        if(exp == scheme.voidValue)
-            return exp;
-
         // 根据表达式类型分派动作
         switch(exp.type) {
             case scheme_integer_type:
@@ -86,6 +83,7 @@ function evaluate(exp, env) {
             case scheme_char_type:
             case scheme_char_string_type:
             case scheme_bool_type:
+            case scheme_void_type:
                 // self evaluating
                 return exp;
     
