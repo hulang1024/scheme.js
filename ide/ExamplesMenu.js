@@ -43,7 +43,7 @@ var ExamplesMenu = function(ide) {
             item.onClick(function() {
                 if(confirm(localeBundle.getString('UnsavedCodeLostConfrim'))) {
                     var req = new XMLHttpRequest();
-                    req.open('GET', '../tests/SICP/' + itemProp.file, true);
+                    req.open('GET', 'https://github.com/hlpp/scheme/tests/SICP/' + itemProp.file, true);
                     req.addEventListener('load', function(event){
                         var content = event.target.responseText;
                         ide.editor.setValue(content);
