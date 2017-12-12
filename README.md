@@ -1,9 +1,9 @@
 ﻿# scheme.js
 
 [Scheme](https://en.wikipedia.org/wiki/Scheme_(programming_language))编程语言的JavaScript实现。  
-IDE: [https://hlpp.github.io/scheme.js/ide/](https://hlpp.github.io/scheme.js/ide)  
+IDE: [https://hulang1024.github.io/scheme.js/ide/](https://hulang1024.github.io/scheme.js/ide)  
 
-欢迎访问我的另一个C的实现：[https://github.com/hlpp/scheme](https://github.com/hlpp/scheme)。scheme.js将低优先级或停止维护。
+欢迎访问我的另一个C的实现：[https://github.com/hulang1024/scheme](https://github.com/hulang1024/scheme)。scheme.js将低优先级或停止维护。
 
 
 ## 特性
